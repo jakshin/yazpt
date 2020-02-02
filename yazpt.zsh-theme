@@ -69,19 +69,35 @@ function yazpt_precmd() {
 		local color
 		[[ $in_work_tree == true ]] && git check-ignore -q . && dim=true
 		[[ $dim == true ]] && color=240 || color=255  # 240 = dark gray, 255 = bright white
-		git_display="%{%F{$color}%}${git_display#refs/heads/}${activity}"
+		git_display="%{%F{$color}%}${git_display#refs/heads/}${activity} "
 
 		local stat
 		if ! stat=(${(f)"$(git status --branch --porcelain --ignore-submodules 2> /dev/null)"}); then
-			git_display+=" %{%F{45}?%f%} "   # We must be in/under the .git directory; 45 = blue
-		elif (( ${#stat} > 1 )); then
-			git_display+=" %{%F{160}⚑%f%} "  # 160 = red
-		elif [[ $stat[1] =~ "\[" ]]; then
-			# Neither branch names nor git's brief status text will contain `[`, so its presence indicates
-			# that git has put "[ahead N]" or "[behind N]" or "[ahead N, behind N]" on the line
-			git_display+=" %{%F{208}◆%f%} "  # 208 = orange
+			git_display+="%{%F{45}?%f%} "  # We must be in/under the .git directory; 45 = blue
 		else
-			git_display+=" %{%F{28}●%f%} "   # 28 = dark green
+			local perfect=true  # Optimism
+
+			if (( ${#stat} > 1 )); then
+				git_display+="%{%F{166}⚑%f%}"  # 166 = reddish orange
+				perfect=false
+			fi
+
+			if [[ $stat[1] =~ "\[" ]]; then
+				# Neither branch names nor git's brief status text will contain `[`, so its presence indicates
+				# that git has put "[ahead N]" or "[behind N]" or "[ahead N, behind N]" on the line
+				git_display+="%{%F{208}◆%f%}"  # 208 = orange
+				perfect=false
+			elif [[ ! $stat[1] =~ "\.\.\." ]]; then
+				# Branch names can't contain "...", so its presence indicates there's a remote/upstream branch
+				git_display+="%{%F{30}◆%f%}"   # 30 = dark greenish blue
+				perfect=false
+			fi
+
+			if [[ $perfect == true ]]; then
+				git_display+="%{%F{28}●%f%} "  # 28 = dark green
+			else
+				git_display+=" "
+			fi
 		fi
 	fi
 
