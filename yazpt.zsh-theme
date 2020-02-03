@@ -82,15 +82,17 @@ function yazpt_precmd() {
 				perfect=false
 			fi
 
-			if [[ $stat[1] =~ "\[" ]]; then
-				# Neither branch names nor git's brief status text will contain `[`, so its presence indicates
-				# that git has put "[ahead N]" or "[behind N]" or "[ahead N, behind N]" on the line
-				git_display+="%{%F{208}◆%f%}"  # 208 = orange
-				perfect=false
-			elif [[ ! $stat[1] =~ "\.\.\." ]]; then
-				# Branch names can't contain "...", so its presence indicates there's a remote/upstream branch
-				git_display+="%{%F{30}◆%f%}"   # 30 = dark greenish blue
-				perfect=false
+			if [[ ! $stat =~ "no branch" ]]; then
+				if [[ $stat[1] =~ "\[" ]]; then
+					# Neither branch names nor git's brief status text will contain `[`, so its presence indicates
+					# that git has put "[ahead N]" or "[behind N]" or "[ahead N, behind N]" on the line
+					git_display+="%{%F{208}◆%f%}"  # 208 = orange
+					perfect=false
+				elif [[ ! $stat[1] =~ "\.\.\." ]]; then
+					# Branch names can't contain "...", so its presence indicates there's a remote/upstream branch
+					git_display+="%{%F{30}◆%f%}"   # 30 = dark greenish blue
+					perfect=false
+				fi
 			fi
 
 			if [[ $perfect == true ]]; then

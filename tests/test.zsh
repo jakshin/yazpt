@@ -78,12 +78,13 @@ function contains_dim_branch() {
 	contains "%{%F{240}%}$branch_name"
 }
 
-# Verifies that $PROMPT contains a green clean, orange dirty, red dirty or unknown status indicator
+# Verifies that $PROMPT contains the given status indicator
 function contains_status() {
 	local stat="$1"
-	[[ $stat == "green-clean" ]] && stat="%{%F{28}●%f%}"
-	[[ $stat == "orange-dirty" ]] && stat="%{%F{208}◆%f%}"
-	[[ $stat == "red-dirty" ]] && stat="%{%F{160}⚑%f%}"
+	[[ $stat == "dirty" ]] && stat="%{%F{166}⚑%f%}"
+	[[ $stat == "diverged" ]] && stat="%{%F{208}◆%f%}"
+	[[ $stat == "no-upstream" ]] && stat="%{%F{30}◆%f%}"
+	[[ $stat == "perfect" ]] && stat="%{%F{28}●%f%}"
 	[[ $stat == "unknown" ]] && stat="%{%F{45}?%f%}"
 	contains $stat
 }
@@ -122,7 +123,7 @@ test_case "New repo with no branches/commits"
 git init
 test_init_done
 contains_branch "master"
-contains_status "green-clean"
+contains_status "no-upstream"
 
 test_case "In the .git directory of a new repo with no branches/commits"
 cd .git
@@ -139,7 +140,7 @@ test_case "On a branch"
 git checkout branch1
 test_init_done
 contains_branch "branch1"
-contains_status "green-clean"
+contains_status "perfect"
 
 test_case "In the .git directory, on a branch"
 cd .git
@@ -154,7 +155,7 @@ test_init_done
 contains '$__yazpt_git_display'
 PROMPT="$(eval noglob echo $PROMPT)"  # Like prompt_subst will do
 contains_branch '$(IFS=_;cmd=echo_arg;$cmd)'
-contains_status "green-clean"
+contains_status "perfect"
 
 test_case "In the .git directory, on a branch with a scary name, with prompt_subst on"
 cd .git
@@ -169,7 +170,7 @@ setopt no_prompt_subst
 git checkout '$(IFS=_;cmd=echo_arg;$cmd)'
 test_init_done
 contains_branch '$(IFS=_;cmd=echo_arg;$cmd)'
-contains_status "green-clean"
+contains_status "perfect"
 
 test_case "In the .git directory, on a branch with a scary name, with prompt_subst off"
 cd .git
@@ -182,7 +183,7 @@ first_commit="$(git log --format=%h --reverse | head -n 1)"
 git checkout $first_commit
 test_init_done
 contains_branch "$first_commit"
-contains_status "green-clean"
+contains_status "perfect"
 
 test_case "In the .git directory, with an arbitrary commit checked out"
 cd .git
@@ -194,7 +195,7 @@ test_case "With an arbitrary tagged commit checked out"
 git checkout taggy
 test_init_done
 contains_branch "taggy"
-contains_status "green-clean"
+contains_status "perfect"
 
 test_case "In the .git directory, with an arbitrary tagged commit checked out"
 cd .git
@@ -208,81 +209,81 @@ mkdir ignored
 cd ignored
 test_init_done
 contains_dim_branch "branch1"
-contains_status "green-clean"
+contains_status "perfect"
 
 test_case "With an empty untracked directory"
 mkdir empty
 test_init_done
 contains_branch "branch1"
-contains_status "green-clean"
+contains_status "perfect"
 
 test_case "With an untracked file"
 echo untracked > untracked.txt
 test_init_done
 contains_branch "branch1"
-contains_status "red-dirty"
+contains_status "dirty"
 rm -f untracked.txt  # Cleanup
 
 test_case "With a modified/renamed/deleted ignored file"
 test_init_done
 contains_branch "branch1"
-contains_status "green-clean"
+contains_status "perfect"
 echo ignored > ignored.txt
 test_init_done
 contains_branch "branch1"
-contains_status "green-clean"
+contains_status "perfect"
 mv -v ignored.txt ignored.text
 test_init_done
 contains_branch "branch1"
-contains_status "green-clean"
+contains_status "perfect"
 rm -fv ignored.text
 test_init_done
 contains_branch "branch1"
-contains_status "green-clean"
+contains_status "perfect"
 
 test_case "With a deleted file (rm)"
 rm -fv bar.txt
 test_init_done
 contains_branch "branch1"
-contains_status "red-dirty"
+contains_status "dirty"
 git checkout .  # Cleanup
-test_init_done && contains_status "green-clean"  # Ensure cleanup worked
+test_init_done && contains_status "perfect"  # Ensure cleanup worked
 
 test_case "With a deleted file (git rm)"
 git rm bar.txt
 test_init_done
 contains_branch "branch1"
-contains_status "red-dirty"
+contains_status "dirty"
 git reset && git checkout bar.txt  # Cleanup
-test_init_done && contains_status "green-clean"  # Ensure cleanup worked
+test_init_done && contains_status "perfect"  # Ensure cleanup worked
 
 test_case "With a renamed file (git mv)"
 git mv bar.txt new-name.txt
 test_init_done
 contains_branch "branch1"
-contains_status "red-dirty"
+contains_status "dirty"
 git reset HEAD bar.txt new-name.txt && mv new-name.txt bar.txt  # Cleanup
-test_init_done && contains_status "green-clean"  # Ensure cleanup worked
+test_init_done && contains_status "perfect"  # Ensure cleanup worked
 
 test_case "With a modified file"
 echo barrrr >> bar.txt
 test_init_done
 contains_branch "branch1"
-contains_status "red-dirty"
+contains_status "dirty"
 
 test_case "With staged changes"
 git add .
 test_init_done
 contains_branch "branch1"
-contains_status "red-dirty"
+contains_status "dirty"
 
 test_case "With a commit that hasn't been pushed"
 git commit -m "modified bar.txt"
 test_init_done
 contains_branch "branch1"
-contains_status "orange-dirty"
+contains_status "diverged"
 git reset --hard HEAD~1  # Cleanup
-test_init_done && contains_status "green-clean"  # Ensure cleanup worked
+test_init_done && contains_status "perfect"  # Ensure cleanup worked
 
 test_case "Remote branch has commits my local branch doesn't"
 git checkout branch2
@@ -290,9 +291,9 @@ git reset HEAD~1
 rm baz.txt
 test_init_done
 contains_branch "branch2"
-contains_status "orange-dirty"
+contains_status "diverged"
 git pull && git checkout branch1  # Cleanup
-test_init_done && contains_status "green-clean"  # Ensure cleanup worked
+test_init_done && contains_status "perfect"  # Ensure cleanup worked
 
 test_case "Rebasing interactively"
 export GIT_EDITOR=true
@@ -302,7 +303,7 @@ dir_exists ".git/rebase-merge"          # Sanity check
 dir_does_not_exist ".git/rebase-apply"  # Sanity check
 test_init_done
 contains_branch "rebase-me"
-contains_status "red-dirty"
+contains_status "dirty"
 contains "REBASING 1/2"
 cd .git
 test_init_done "no-status"
@@ -311,7 +312,7 @@ contains_status "unknown"
 contains "REBASING 1/2"
 unset GIT_EDITOR
 cd .. && git rebase --abort  # Cleanup
-test_init_done && contains_status "green-clean"  # Ensure cleanup worked
+test_init_done && contains_status "perfect"  # Ensure cleanup worked
 
 test_case "Rebasing"
 git checkout rebase-me
@@ -320,7 +321,7 @@ dir_does_not_exist ".git/rebase-merge"  # Sanity check
 dir_exists ".git/rebase-apply"          # Sanity check
 test_init_done
 contains_branch "rebase-me"
-contains_status "red-dirty"
+contains_status "dirty"
 contains "REBASING 1/2"
 cd .git
 test_init_done "no-status"
@@ -328,32 +329,32 @@ contains_dim_branch "rebase-me"
 contains_status "unknown"
 contains "REBASING 1/2"
 cd .. && git rebase --abort  # Cleanup
-test_init_done && contains_status "green-clean"  # Ensure cleanup worked
+test_init_done && contains_status "perfect"  # Ensure cleanup worked
 
 test_case "Rebased branch that hasn't been pushed"
 git checkout rebase-me-too
 git rebase master
 test_init_done
 contains_branch "rebase-me-too"
-contains_status "orange-dirty"
+contains_status "diverged"
 cd .git
 test_init_done "no-status"
 contains_dim_branch "rebase-me-too"
 contains_status "unknown"
 cd .. && git checkout master  # Cleanup
-test_init_done && contains_status "green-clean"  # Ensure cleanup worked
+test_init_done && contains_status "perfect"  # Ensure cleanup worked
 
 test_case "Applying patches"
 git checkout master
 git am patches/*
 test_init_done
 contains_branch "master"
-contains_status "green-clean"
+contains_status "perfect"
 contains "AM 1/2"
 echo bleh >> foo.txt && git add . && git am --continue
 test_init_done
 contains_branch "master"
-contains_status "orange-dirty"
+contains_status "diverged"
 contains "AM 2/2"
 cd .git
 test_init_done "no-status"
@@ -361,7 +362,7 @@ contains_dim_branch "master"
 contains_status "unknown"
 contains "AM 2/2"
 cd .. && git am --abort  # Cleanup
-test_init_done && contains_status "green-clean"  # Ensure cleanup worked
+test_init_done && contains_status "perfect"  # Ensure cleanup worked
 
 test_case "Merging"
 git checkout merge-me
@@ -369,7 +370,7 @@ git checkout master
 git merge merge-me
 test_init_done
 contains_branch "master"
-contains_status "red-dirty"
+contains_status "dirty"
 contains "MERGING"
 cd .git
 test_init_done "no-status"
@@ -377,14 +378,14 @@ contains_dim_branch "master"
 contains_status "unknown"
 contains "MERGING"
 cd .. && git merge --abort  # Cleanup
-test_init_done && contains_status "green-clean"  # Ensure cleanup worked
+test_init_done && contains_status "perfect"  # Ensure cleanup worked
 
 test_case "Bisecting"
 git checkout branch1
 git bisect start
 test_init_done
 contains_branch "branch1"
-contains_status "green-clean"
+contains_status "perfect"
 contains "BISECTING"
 cd .git
 test_init_done "no-status"
@@ -392,7 +393,7 @@ contains_dim_branch "branch1"
 contains_status "unknown"
 contains "BISECTING"
 cd .. && git bisect reset  # Cleanup
-test_init_done && contains_status "green-clean"  # Ensure cleanup worked
+test_init_done && contains_status "perfect"  # Ensure cleanup worked
 
 test_case "Cherry-picking"
 git checkout cherry-pick-from-me
@@ -400,12 +401,12 @@ git checkout master
 git cherry-pick 52450fe53496fe6f14e8be48753e65b27aed9ee6..78469cb25340c6bfd2c00f05c58f96704be687f8
 test_init_done
 contains_branch "master"
-contains_status "red-dirty"
+contains_status "dirty"
 contains "CHERRY-PICKING"
 git add . && git commit -m "resolved"
 test_init_done
 contains_branch "master"
-contains_status "orange-dirty"
+contains_status "diverged"
 contains "CHERRY-PICKING"
 cd .git
 test_init_done "no-status"
@@ -413,24 +414,25 @@ contains_dim_branch "master"
 contains_status "unknown"
 contains "CHERRY-PICKING"
 cd .. && git reset --hard HEAD~1 && git cherry-pick --abort  # Cleanup
-test_init_done && contains_status "green-clean"  # Ensure cleanup worked
+test_init_done && contains_status "perfect"  # Ensure cleanup worked
 
 test_case "Reverting"
 git checkout master
 git revert ca438ac307d0e64ada849f0a540f02ca83662628 764967017eb9e65d8f55a54e28e4f4d44c675af6
 test_init_done
 contains_branch "master"
-contains_status "red-dirty"
+contains_status "dirty"
 contains "REVERTING"
 git rm foo.txt && git commit -m "Delete foo.txt"
 test_init_done
 contains_branch "master"
-contains_status "orange-dirty"
+contains_status "diverged"
 contains "REVERTING"
 git revert --continue
 test_init_done
 contains_branch "master"
-contains_status "red-dirty"
+contains_status "dirty"
+contains_status "diverged"
 contains "REVERTING"
 cd .git
 test_init_done "no-status"
@@ -438,7 +440,7 @@ contains_dim_branch "master"
 contains_status "unknown"
 contains "REVERTING"
 cd .. && git revert --abort  # Cleanup
-test_init_done && contains_status "green-clean"  # Ensure cleanup worked
+test_init_done && contains_status "perfect"  # Ensure cleanup worked
 
 # Summarize
 [[ $failed == 0 ]] && color="$success" || color="$failure"
