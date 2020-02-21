@@ -24,7 +24,7 @@ test_case "On a branch with a scary name, with prompt_subst on"
 setopt prompt_subst
 git checkout '$(IFS=_;cmd=echo_arg;$cmd)'
 test_init_done
-contains '$__yazpt_git_display'
+contains '$yazpt_git_branch__'
 PROMPT="$(eval noglob echo $PROMPT)"  # Like prompt_subst will do
 contains_branch '$(IFS=_;cmd=echo_arg;$cmd)'
 contains_status "perfect"
@@ -32,7 +32,7 @@ contains_status "perfect"
 test_case "In the .git directory, on a branch with a scary name, with prompt_subst on"
 cd .git
 test_init_done "no-status"
-contains '$__yazpt_git_display'
+contains '$yazpt_git_branch__'
 PROMPT="$(eval noglob echo $PROMPT)"  # Like prompt_subst will do
 contains_dim_branch '$(IFS=_;cmd=echo_arg;$cmd)'
 contains_status "unknown"
