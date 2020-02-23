@@ -16,7 +16,7 @@ contains_status "no-upstream"
 
 test_case "In the .git directory of a new repo with no branches/commits"
 cd .git
-test_init_done "no-status"
+test_init_done
 contains_dim_branch "master"
 contains_status "unknown"
 
