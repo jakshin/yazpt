@@ -40,12 +40,9 @@ YAZPT_RESULT_OK_CODE_VISIBLE=false        # Display the command's numeric exit c
 #
 function yazpt_plugin_unload() {
 	add-zsh-hook -d precmd yazpt_precmd
-
-	for func in ${(k)functions}; do
-		if [[ $func == yazpt* ]]; then
-			unfunction $func
-		fi
-	done
+	unfunction -m 'yazpt_*'
+	unset -m 'YAZPT_*' 'yazpt_*'
+	PS1='%n@%m %1~ %# '
 }
 
 # Sets $PS1, just before the shell uses it.
