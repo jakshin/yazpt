@@ -16,7 +16,7 @@ contains_status "perfect"
 
 test_case "In the .git directory, on a branch"
 cd .git
-test_init_done "no-status"
+test_init_done
 contains_dim_branch "branch1"
 contains_status "unknown"
 
@@ -31,7 +31,7 @@ contains_status "perfect"
 
 test_case "In the .git directory, on a branch with a scary name, with prompt_subst on"
 cd .git
-test_init_done "no-status"
+test_init_done
 contains '$yazpt_git_branch__'
 PROMPT="$(eval noglob echo $PROMPT)"  # Like prompt_subst will do
 contains_dim_branch '$(IFS=_;cmd=echo_arg;$cmd)'
@@ -46,7 +46,7 @@ contains_status "perfect"
 
 test_case "In the .git directory, on a branch with a scary name, with prompt_subst off"
 cd .git
-test_init_done "no-status"
+test_init_done
 contains_dim_branch '$(IFS=_;cmd=echo_arg;$cmd)'
 contains_status "unknown"
 
@@ -59,7 +59,7 @@ contains_status "perfect"
 
 test_case "In the .git directory, with an arbitrary commit checked out"
 cd .git
-test_init_done "no-status"
+test_init_done
 contains_dim_branch "$first_commit"
 contains_status "unknown"
 
@@ -71,7 +71,7 @@ contains_status "perfect"
 
 test_case "In the .git directory, with an arbitrary tagged commit checked out"
 cd .git
-test_init_done "no-status"
+test_init_done
 contains_dim_branch "taggy"
 contains_status "unknown"
 
