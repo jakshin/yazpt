@@ -22,7 +22,7 @@ contains_branch "master"
 contains_status "diverged"
 contains "CHERRY-PICKING"
 cd .git
-test_init_done "no-status"
+test_init_done
 contains_dim_branch "master"
 contains_status "unknown"
 contains "CHERRY-PICKING"
