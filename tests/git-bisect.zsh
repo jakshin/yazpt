@@ -16,7 +16,7 @@ contains_branch "branch1"
 contains_status "perfect"
 contains "BISECTING"
 cd .git
-test_init_done "no-status"
+test_init_done
 contains_dim_branch "branch1"
 contains_status "unknown"
 contains "BISECTING"
