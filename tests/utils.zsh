@@ -55,7 +55,7 @@ function test_case() {
 
 # Declares initialization of the test case to be complete, and calculates the new $PROMPT
 function test_init_done() {
-	[[ $1 != "no-status" ]] && echo && git status
+	[[ $1 == "no-status" ]] || (echo && git status)
 	yazpt_precmd
 	PROMPT="${PROMPT//$'\n'/}"  # Remove linebreaks for easier comparison
 	echo $'\n'"-- \$PROMPT is: $PROMPT"
@@ -64,7 +64,8 @@ function test_init_done() {
 
 # Runs "standard" tests, i.e. verifies things that should always be true
 function standard_tests() {
-	contains '%{%F{226}%}%~%{%f%}]%# '  # CWD and %/#
+	contains '%{%F{226}%}%~%{%f%}'  # CWD
+	contains '%# '                  # % or #, followed by a space
 }
 
 # Verifies that $PROMPT is exactly the given string
