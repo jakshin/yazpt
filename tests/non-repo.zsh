@@ -9,7 +9,7 @@ before_tests $script_name
 
 # Test
 test_case "Not in a repo"
-test_init_done "no-status"
+test_init_done
 is '[%{%F{226}%}%~%{%f%}]%# '
 
 # Clean up
