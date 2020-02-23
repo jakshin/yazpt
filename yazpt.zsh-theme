@@ -14,9 +14,9 @@ YAZPT_GIT_BRANCH_GIT_DIR_COLOR=240        # Dark gray; used when the CWD is in/u
 YAZPT_GIT_BRANCH_IGNORED_DIR_COLOR=240    # Dark gray; used when the CWD is in/under a directory ignored by git
 
 # Settings for the "git_status" prompt segment.
-YAZPT_GIT_STATUS_CLEAN_CHAR="●"           # Used when the repo is clean (no changes, no need to push/pull)
+YAZPT_GIT_STATUS_CLEAN_CHAR="●"           # Used when the repo is clean (no changes, nothing staged, no need to push/pull)
 YAZPT_GIT_STATUS_CLEAN_CHAR_COLOR=28      # Dark green
-YAZPT_GIT_STATUS_DIRTY_CHAR="⚑"           # Used when there are untracked files or uncommitted changes
+YAZPT_GIT_STATUS_DIRTY_CHAR="⚑"           # Used when there are untracked files, unstaged or uncommitted changes
 YAZPT_GIT_STATUS_DIRTY_CHAR_COLOR=166     # Reddish orange
 YAZPT_GIT_STATUS_DIVERGED_CHAR="◆"        # Used when the local branch's commits don't match its remote/upstream branch's
 YAZPT_GIT_STATUS_DIVERGED_CHAR_COLOR=208  # Orange
@@ -156,7 +156,7 @@ function yazpt_segment_git_branch() {
 		color="$YAZPT_GIT_BRANCH_COLOR"
 	fi
 
-	branch="%{%F{$color}%}${branch#refs/heads/}${activity}"
+	branch="%{%F{$color}%}${branch#refs/heads/}${activity}%{%f%}"
 
 	if [[ -o prompt_subst ]]; then
 		yazpt_git_branch__="$branch"
@@ -176,7 +176,7 @@ function yazpt_segment_git_status() {
 		# We must be in/under the .git directory
 		YAZPT_GIT_STATUS_UNKNOWN_CHAR="${YAZPT_GIT_STATUS_UNKNOWN_CHAR:-?}"
 		YAZPT_GIT_STATUS_UNKNOWN_CHAR_COLOR=${YAZPT_GIT_STATUS_UNKNOWN_CHAR_COLOR:-default}
-		PS1+="%{%F{$YAZPT_GIT_STATUS_UNKNOWN_CHAR_COLOR}$YAZPT_GIT_STATUS_UNKNOWN_CHAR%f%}"
+		PS1+="%{%F{$YAZPT_GIT_STATUS_UNKNOWN_CHAR_COLOR}%}$YAZPT_GIT_STATUS_UNKNOWN_CHAR%{%f%}"
 		return
 	fi
 
@@ -184,7 +184,7 @@ function yazpt_segment_git_status() {
 	if (( ${#info} > 1 )); then
 		YAZPT_GIT_STATUS_DIRTY_CHAR="${YAZPT_GIT_STATUS_DIRTY_CHAR:-⚑}"
 		YAZPT_GIT_STATUS_DIRTY_CHAR_COLOR=${YAZPT_GIT_STATUS_DIRTY_CHAR_COLOR:-default}
-		stat="%{%F{$YAZPT_GIT_STATUS_DIRTY_CHAR_COLOR}$YAZPT_GIT_STATUS_DIRTY_CHAR%f%}"
+		stat="%{%F{$YAZPT_GIT_STATUS_DIRTY_CHAR_COLOR}%}$YAZPT_GIT_STATUS_DIRTY_CHAR%{%f%}"
 	fi
 
 	if [[ ! $info[1] =~ "no branch" ]]; then
@@ -193,19 +193,19 @@ function yazpt_segment_git_status() {
 			# that git has put "[ahead N]" or "[behind N]" or "[ahead N, behind N]" on the line
 			YAZPT_GIT_STATUS_DIVERGED_CHAR="${YAZPT_GIT_STATUS_DIVERGED_CHAR:-◆}"
 			YAZPT_GIT_STATUS_DIVERGED_CHAR_COLOR=${YAZPT_GIT_STATUS_DIVERGED_CHAR_COLOR:-default}
-			stat+="%{%F{$YAZPT_GIT_STATUS_DIVERGED_CHAR_COLOR}$YAZPT_GIT_STATUS_DIVERGED_CHAR%f%}"
+			stat+="%{%F{$YAZPT_GIT_STATUS_DIVERGED_CHAR_COLOR}%}$YAZPT_GIT_STATUS_DIVERGED_CHAR%{%f%}"
 		elif [[ ! $info[1] =~ "\.\.\." ]]; then
 			# Branch names can't contain "...", so its presence indicates there's a remote/upstream branch
 			YAZPT_GIT_STATUS_NO_REMOTE_CHAR="${YAZPT_GIT_STATUS_NO_REMOTE_CHAR:-◆}"
 			YAZPT_GIT_STATUS_NO_REMOTE_CHAR_COLOR=${YAZPT_GIT_STATUS_NO_REMOTE_CHAR_COLOR:-default}
-			stat+="%{%F{$YAZPT_GIT_STATUS_NO_REMOTE_CHAR_COLOR}$YAZPT_GIT_STATUS_NO_REMOTE_CHAR%f%}"
+			stat+="%{%F{$YAZPT_GIT_STATUS_NO_REMOTE_CHAR_COLOR}%}$YAZPT_GIT_STATUS_NO_REMOTE_CHAR%{%f%}"
 		fi
 	fi
 
 	if [[ -z $stat ]]; then
 		YAZPT_GIT_STATUS_CLEAN_CHAR="${YAZPT_GIT_STATUS_CLEAN_CHAR:-●}"
 		YAZPT_GIT_STATUS_CLEAN_CHAR_COLOR=${YAZPT_GIT_STATUS_CLEAN_CHAR_COLOR:-default}
-		stat="%{%F{$YAZPT_GIT_STATUS_CLEAN_CHAR_COLOR}$YAZPT_GIT_STATUS_CLEAN_CHAR%f%}"
+		stat="%{%F{$YAZPT_GIT_STATUS_CLEAN_CHAR_COLOR}%}$YAZPT_GIT_STATUS_CLEAN_CHAR%{%f%}"
 	fi
 
 	PS1+="$stat"
