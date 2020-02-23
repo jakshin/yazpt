@@ -19,7 +19,7 @@ contains_branch "rebase-me"
 contains_status "dirty"
 contains "REBASING 1/2"
 cd .git
-test_init_done "no-status"
+test_init_done
 contains_dim_branch "rebase-me"
 contains_status "unknown"
 contains "REBASING 1/2"
@@ -36,7 +36,7 @@ contains_branch "rebase-me"
 contains_status "dirty"
 contains "REBASING 1/2"
 cd .git
-test_init_done "no-status"
+test_init_done
 contains_dim_branch "rebase-me"
 contains_status "unknown"
 contains "REBASING 1/2"
@@ -49,7 +49,7 @@ test_init_done
 contains_branch "rebase-me-too"
 contains_status "diverged"
 cd .git
-test_init_done "no-status"
+test_init_done
 contains_dim_branch "rebase-me-too"
 contains_status "unknown"
 cd .. && git checkout master  # Cleanup
