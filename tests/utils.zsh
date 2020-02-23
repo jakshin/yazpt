@@ -55,7 +55,7 @@ function test_case() {
 
 # Declares initialization of the test case to be complete, and calculates the new $PROMPT
 function test_init_done() {
-	[[ $1 == "no-status" ]] || (echo && git status)
+	[[ $1 == "" ]] || eval $1
 	yazpt_precmd
 	PROMPT="${PROMPT//$'\n'/}"  # Remove linebreaks for easier comparison
 	echo $'\n'"-- \$PROMPT is: $PROMPT"
@@ -64,8 +64,8 @@ function test_init_done() {
 
 # Runs "standard" tests, i.e. verifies things that should always be true
 function standard_tests() {
-	contains '%{%F{226}%}%~%{%f%}'  # CWD
-	contains '%# '                  # % or #, followed by a space
+	contains "%{%F{$YAZPT_CWD_COLOR}%}%~%{%f%}"  # CWD
+	contains '%# '  # % or #, followed by a space
 }
 
 # Verifies that $PROMPT is exactly the given string
@@ -76,6 +76,18 @@ function is() {
 		(( passed++ ))
 	else
 		echo " ${failure_bullet} \$PROMPT is not $is_str"
+		(( failed++ ))
+	fi
+}
+
+# Verifies that $PROMPT doesn't contain the given string
+function excludes() {
+	local excludes_str="$1"
+	if [[ $PROMPT != *"$excludes_str"* ]]; then
+		echo " ${success_bullet} \$PROMPT doesn't contain $excludes_str"
+		(( passed++ ))
+	else
+		echo " ${failure_bullet} \$PROMPT erroneously contains $excludes_str"
 		(( failed++ ))
 	fi
 }
@@ -107,11 +119,11 @@ function contains_dim_branch() {
 # Verifies that $PROMPT contains the given status indicator
 function contains_status() {
 	local stat="$1"
-	[[ $stat == "dirty" ]] && stat="%{%F{166}⚑%f%}"
-	[[ $stat == "diverged" ]] && stat="%{%F{208}◆%f%}"
-	[[ $stat == "no-upstream" ]] && stat="%{%F{30}◆%f%}"
-	[[ $stat == "perfect" ]] && stat="%{%F{28}●%f%}"
-	[[ $stat == "unknown" ]] && stat="%{%F{45}?%f%}"
+	[[ $stat == "dirty" ]] && stat="%{%F{166}%}⚑%{%f%}"
+	[[ $stat == "diverged" ]] && stat="%{%F{208}%}◆%{%f%}"
+	[[ $stat == "no-upstream" ]] && stat="%{%F{30}%}◆%{%f%}"
+	[[ $stat == "perfect" ]] && stat="%{%F{28}%}●%{%f%}"
+	[[ $stat == "unknown" ]] && stat="%{%F{45}%}?%{%f%}"
 	contains $stat
 }
 
