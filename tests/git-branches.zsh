@@ -24,7 +24,7 @@ test_case "On a branch with a scary name, with prompt_subst on"
 setopt prompt_subst
 git checkout '$(IFS=_;cmd=echo_arg;$cmd)'
 test_init_done
-contains '$yazpt_git_branch__'
+contains '$yazpt_git_branch'
 PROMPT="$(eval noglob echo $PROMPT)"  # Like prompt_subst will do
 contains_branch '$(IFS=_;cmd=echo_arg;$cmd)'
 contains_status "perfect"
@@ -32,7 +32,7 @@ contains_status "perfect"
 test_case "In the .git directory, on a branch with a scary name, with prompt_subst on"
 cd .git
 test_init_done
-contains '$yazpt_git_branch__'
+contains '$yazpt_git_branch'
 PROMPT="$(eval noglob echo $PROMPT)"  # Like prompt_subst will do
 contains_dim_branch '$(IFS=_;cmd=echo_arg;$cmd)'
 contains_status "unknown"
@@ -49,6 +49,16 @@ cd .git
 test_init_done
 contains_dim_branch '$(IFS=_;cmd=echo_arg;$cmd)'
 contains_status "unknown"
+
+test_case "On a branch that could trigger prompt expansion"
+git checkout -b '%F{160}red'
+test_init_done
+contains_branch '%%F{160}red'
+
+test_case "In the .git directory, on a branch that could trigger prompt expansion"
+cd .git
+test_init_done
+contains_dim_branch '%%F{160}red'
 
 test_case "With an arbitrary commit checked out"
 first_commit="$(git log --format=%h --reverse | head -n 1)"
