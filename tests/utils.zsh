@@ -57,8 +57,10 @@ function test_case() {
 function test_init_done() {
 	[[ $1 == "" ]] || eval $1
 	yazpt_precmd
+
 	PROMPT="${PROMPT//$'\n'/}"  # Remove linebreaks for easier comparison
 	echo $'\n'"-- \$PROMPT is: $PROMPT"
+
 	standard_tests
 }
 
@@ -66,6 +68,12 @@ function test_init_done() {
 function standard_tests() {
 	contains "%{%F{$YAZPT_CWD_COLOR}%}%~%{%f%}"  # CWD
 	contains '%# '  # % or #, followed by a space
+
+	local output="$(yazpt_precmd 2>&1)"
+	if [[ -n $output ]]; then
+		echo " ${failure_bullet} yazpt_precmd had output: ${output//$'\n'/}"
+		(( failed++ ))
+	fi
 }
 
 # Verifies that $PROMPT is exactly the given string
