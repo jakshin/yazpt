@@ -30,12 +30,12 @@ YAZPT_GIT_STATUS_UNKNOWN_CHAR_COLOR=45    # Bright blue
 
 # Settings for the "result" prompt segment, which shows the previous command's exit code.
 YAZPT_RESULT_ERROR_CHAR="✘"               # Set to empty string for no error indicator character
-YAZPT_RESULT_ERROR_CHAR_COLOR=166         # Reddish orange
-YAZPT_RESULT_ERROR_CODE_COLOR=166         # Reddish orange
+YAZPT_RESULT_ERROR_CHAR_COLOR=208         # Orange
+YAZPT_RESULT_ERROR_CODE_COLOR=208         # Orange
 YAZPT_RESULT_ERROR_CODE_VISIBLE=true      # Display the command's numeric exit code if it's non-zero?
 YAZPT_RESULT_OK_CHAR=""                   # Set to empty string for no success indicator character
-YAZPT_RESULT_OK_CHAR_COLOR=28             # Dark green
-YAZPT_RESULT_OK_CODE_COLOR=28             # Dark green
+YAZPT_RESULT_OK_CHAR_COLOR=29             # Dark green/cyan
+YAZPT_RESULT_OK_CODE_COLOR=29             # Dark green/cyan
 YAZPT_RESULT_OK_CODE_VISIBLE=false        # Display the command's numeric exit code if it's zero?
 
 # Unloads yazpt. Removes all of yazpt's functions from memory,
