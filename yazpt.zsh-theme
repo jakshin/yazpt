@@ -9,7 +9,7 @@
 YAZPT_LAYOUT=$'\n[<cwd><? ><result><? ><git_branch><? ><git_status>]\n%# '
 
 # Settings for the "cwd" prompt segment, which shows the current working directory.
-YAZPT_CWD_COLOR=226                       # Yellow
+YAZPT_CWD_COLOR=73                        # Cyan
 
 # Settings for the "git_branch" prompt segment.
 YAZPT_GIT_BRANCH_COLOR=255                # Bright white
@@ -18,13 +18,13 @@ YAZPT_GIT_BRANCH_IGNORED_DIR_COLOR=240    # Dark gray; used when the CWD is in/u
 
 # Settings for the "git_status" prompt segment.
 YAZPT_GIT_STATUS_CLEAN_CHAR="●"           # Used when the repo is clean (no changes, nothing staged, no need to push/pull)
-YAZPT_GIT_STATUS_CLEAN_CHAR_COLOR=28      # Dark green
+YAZPT_GIT_STATUS_CLEAN_CHAR_COLOR=29      # Dark green/cyan
 YAZPT_GIT_STATUS_DIRTY_CHAR="⚑"           # Used when there are untracked files, unstaged or uncommitted changes
-YAZPT_GIT_STATUS_DIRTY_CHAR_COLOR=166     # Reddish orange
+YAZPT_GIT_STATUS_DIRTY_CHAR_COLOR=208     # Orange
 YAZPT_GIT_STATUS_DIVERGED_CHAR="◆"        # Used when the local branch's commits don't match its remote/upstream branch's
-YAZPT_GIT_STATUS_DIVERGED_CHAR_COLOR=208  # Orange
+YAZPT_GIT_STATUS_DIVERGED_CHAR_COLOR=166  # Reddish orange
 YAZPT_GIT_STATUS_NO_REMOTE_CHAR="◆"       # Used when the local branch has no remote/upstream branch
-YAZPT_GIT_STATUS_NO_REMOTE_CHAR_COLOR=30  # Dark cyan (leaning greenish)
+YAZPT_GIT_STATUS_NO_REMOTE_CHAR_COLOR=31  # Dark cyan
 YAZPT_GIT_STATUS_UNKNOWN_CHAR="?"         # Used when the repo's status can't be determined
 YAZPT_GIT_STATUS_UNKNOWN_CHAR_COLOR=45    # Bright blue
 
