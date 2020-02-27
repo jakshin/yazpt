@@ -5,38 +5,59 @@
 # Based on https://github.com/git/git/blob/master/contrib/completion/git-prompt.sh
 # Distributed under the GNU General Public License, version 2.0
 
-# Layout: prompt segments, separators, etc.
-YAZPT_LAYOUT=$'\n[<cwd><? ><result><? ><git_branch><? ><git_status>]\n%# '
+# Set up our default style/configuration.
+# Any other style file can be sourced to customize the configuration,
+# or of course the YAZPT_* environment variables can be tweaked individually.
+yazpt_base_dir=${${(%):-%x}:A:h}
+yazpt_default_style_file="$yazpt_base_dir/styles/default-style.zsh"
+source "$yazpt_default_style_file"
 
-# Settings for the "cwd" prompt segment, which shows the current working directory.
-YAZPT_CWD_COLOR=73                        # Cyan
+# Lists all yazpt styles which can be loaded by yazpt_load_style.
+#
+function yazpt_list_styles() {
+	if [[ $1 != '' ]]; then
+		echo "Lists all available styles; load one using the yazpt_load_style function"
+		echo "Usage: $0"
+		return
+	fi
 
-# Settings for the "git_branch" prompt segment.
-YAZPT_GIT_BRANCH_COLOR=255                # Bright white
-YAZPT_GIT_BRANCH_GIT_DIR_COLOR=240        # Dark gray; used when the CWD is in/under the .git directory
-YAZPT_GIT_BRANCH_IGNORED_DIR_COLOR=240    # Dark gray; used when the CWD is in/under a directory ignored by git
+	local i styles=(${(f)"$(command ls -1 "$yazpt_base_dir"/styles/*-style.zsh 2> /dev/null)"})
+	for (( i=1; i <= ${#styles}; i++ )); do
+		echo ${${styles[$i]:t}%%-style.zsh}
+	done
+}
 
-# Settings for the "git_status" prompt segment.
-YAZPT_GIT_STATUS_CLEAN_CHAR="●"           # Used when the repo is clean (no changes, nothing staged, no need to push/pull)
-YAZPT_GIT_STATUS_CLEAN_CHAR_COLOR=29      # Dark green/cyan
-YAZPT_GIT_STATUS_DIRTY_CHAR="⚑"           # Used when there are untracked files, unstaged or uncommitted changes
-YAZPT_GIT_STATUS_DIRTY_CHAR_COLOR=208     # Orange
-YAZPT_GIT_STATUS_DIVERGED_CHAR="◆"        # Used when the local branch's commits don't match its remote/upstream branch's
-YAZPT_GIT_STATUS_DIVERGED_CHAR_COLOR=166  # Reddish orange
-YAZPT_GIT_STATUS_NO_REMOTE_CHAR="◆"       # Used when the local branch has no remote/upstream branch
-YAZPT_GIT_STATUS_NO_REMOTE_CHAR_COLOR=31  # Dark cyan
-YAZPT_GIT_STATUS_UNKNOWN_CHAR="?"         # Used when the repo's status can't be determined
-YAZPT_GIT_STATUS_UNKNOWN_CHAR_COLOR=45    # Bright blue
+# Loads one of the yazpt styles (use yazpt_list_styl4s to get a list of them).
+#
+function yazpt_load_style() {
+	if [[ $1 == '' || $1 == '-h' || $1 == '--help' ]]; then
+		echo "Loads an available style; list them using the yazpt_list_styles function"
+		echo "Usage: $0 <style-name>"
+		return
+	fi
 
-# Settings for the "result" prompt segment, which shows the previous command's exit code.
-YAZPT_RESULT_ERROR_CHAR="✘"               # Set to empty string for no error indicator character
-YAZPT_RESULT_ERROR_CHAR_COLOR=208         # Orange
-YAZPT_RESULT_ERROR_CODE_COLOR=208         # Orange
-YAZPT_RESULT_ERROR_CODE_VISIBLE=true      # Display the command's numeric exit code if it's non-zero?
-YAZPT_RESULT_OK_CHAR=""                   # Set to empty string for no success indicator character
-YAZPT_RESULT_OK_CHAR_COLOR=29             # Dark green/cyan
-YAZPT_RESULT_OK_CODE_COLOR=29             # Dark green/cyan
-YAZPT_RESULT_OK_CODE_VISIBLE=false        # Display the command's numeric exit code if it's zero?
+	local style="$1"
+	local style_file="$yazpt_base_dir/styles/$style-style.zsh"
+
+	if [[ -r $style_file ]]; then
+		source "$style_file"
+	else
+		echo "Error: Can't find style '$style'"
+		echo "Run the yazpt_list_styles function for a complete list"
+		return 1
+	fi
+}
+
+# Performs tab completion for the yazpt_load_style function.
+#
+function _yazpt_load_style() {
+	local styles=(${(f)"$(yazpt_list_styles)"})
+	compadd -a styles
+}
+
+autoload -Uz compinit &> /dev/null
+compinit &> /dev/null
+compdef _yazpt_load_style yazpt_load_style
 
 # Unloads yazpt. Removes all of yazpt's functions from memory,
 # so you'll need to source this file again to use yazpt again.
