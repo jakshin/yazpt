@@ -127,10 +127,10 @@ function contains_dim_branch() {
 # Verifies that $PROMPT contains the given status indicator
 function contains_status() {
 	local stat="$1"
-	[[ $stat == "dirty" ]] && stat="%{%F{166}%}⚑%{%f%}"
-	[[ $stat == "diverged" ]] && stat="%{%F{208}%}◆%{%f%}"
-	[[ $stat == "no-upstream" ]] && stat="%{%F{30}%}◆%{%f%}"
-	[[ $stat == "perfect" ]] && stat="%{%F{28}%}●%{%f%}"
+	[[ $stat == "dirty" ]] && stat="%{%F{208}%}⚑%{%f%}"
+	[[ $stat == "diverged" ]] && stat="%{%F{166}%}◆%{%f%}"
+	[[ $stat == "no-upstream" ]] && stat="%{%F{31}%}◆%{%f%}"
+	[[ $stat == "perfect" ]] && stat="%{%F{29}%}●%{%f%}"
 	[[ $stat == "unknown" ]] && stat="%{%F{45}%}?%{%f%}"
 	contains $stat
 }
