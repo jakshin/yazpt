@@ -14,7 +14,7 @@ unset path
 which git
 test_init_done
 path=($saved_path)
-is '[%{%F{226}%}%~%{%f%}]%# '
+is '[%{%F{73}%}%~%{%f%}]%# '
 
 test_case "Git isn't installed or can't be found (non-repo directory)"
 rm -rf .git
@@ -23,7 +23,7 @@ unset path
 which git
 test_init_done
 path=($saved_path)
-is '[%{%F{226}%}%~%{%f%}]%# '
+is '[%{%F{73}%}%~%{%f%}]%# '
 
 # Clean up
 after_tests
