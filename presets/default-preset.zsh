@@ -1,11 +1,15 @@
-# Yazpt's default style.
-# The other styles here are defined relative to this baseline.
+# Yazpt's default preset.
+# The other presets here are defined relative to this baseline.
 
 # Layout: prompt segments, separators, etc.
-YAZPT_LAYOUT=$'\n[<cwd><? ><result><? ><git_branch><? ><git_status>]\n%# '
+YAZPT_LAYOUT=$'\n[<cwd><? ><result><? ><git>]\n%# '
 
 # Settings for the "cwd" prompt segment, which shows the current working directory.
 YAZPT_CWD_COLOR=73                        # Cyan
+
+# Settings for the "git" prompt segment, which combines "git_branch" and "git_status",
+# so their settings affect it too.
+YAZPT_GIT_WRAPPER_CHARS=""                # Before/after the branch+status; use 2 characters or empty string
 
 # Settings for the "git_branch" prompt segment.
 YAZPT_GIT_BRANCH_COLOR=255                # Bright white
@@ -35,8 +39,8 @@ YAZPT_RESULT_OK_CODE_COLOR=29             # Dark green/cyan
 YAZPT_RESULT_OK_CODE_VISIBLE=false        # Display the command's numeric exit code if it's zero?
 
 # Set/restore default settings for input highlighting.
-if [[ -z $yazpt_default_zle_highlight ]]; then
-	yazpt_default_zle_highlight=$zle_highlight
-else
+if (( $+yazpt_default_zle_highlight )); then
 	zle_highlight=$yazpt_default_zle_highlight
+else
+	yazpt_default_zle_highlight=$zle_highlight
 fi

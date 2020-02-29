@@ -5,59 +5,60 @@
 # Based on https://github.com/git/git/blob/master/contrib/completion/git-prompt.sh
 # Distributed under the GNU General Public License, version 2.0
 
-# Set up our default style/configuration.
-# Any other style file can be sourced to customize the configuration,
+# Set up our defaults.
+# Any other preset file can be sourced to customize the configuration,
+# or loaded with yazpt_load_preset (run yazpt_list_presets to see the options),
 # or of course the YAZPT_* environment variables can be tweaked individually.
 yazpt_base_dir=${${(%):-%x}:A:h}
-yazpt_default_style_file="$yazpt_base_dir/styles/default-style.zsh"
-source "$yazpt_default_style_file"
+yazpt_default_preset_file="$yazpt_base_dir/presets/default-preset.zsh"
+source "$yazpt_default_preset_file"
 
-# Lists all yazpt styles which can be loaded by yazpt_load_style.
+# Lists all yazpt presets which can be loaded by yazpt_load_preset.
 #
-function yazpt_list_styles() {
+function yazpt_list_presets() {
 	if [[ $1 != '' ]]; then
-		echo "Lists all available styles; load one using the yazpt_load_style function"
+		echo "Lists all available presets; load one using the yazpt_load_preset function"
 		echo "Usage: $0"
 		return
 	fi
 
-	local i styles=(${(f)"$(command ls -1 "$yazpt_base_dir"/styles/*-style.zsh 2> /dev/null)"})
-	for (( i=1; i <= ${#styles}; i++ )); do
-		echo ${${styles[$i]:t}%%-style.zsh}
+	local i presets=(${(f)"$(command ls -1 "$yazpt_base_dir"/presets/*-preset.zsh 2> /dev/null)"})
+	for (( i=1; i <= ${#presets}; i++ )); do
+		echo ${${presets[$i]:t}%%-preset.zsh}
 	done
 }
 
-# Loads one of the yazpt styles (use yazpt_list_styl4s to get a list of them).
+# Loads one of the yazpt presets (use yazpt_list_presets to get a list of them).
 #
-function yazpt_load_style() {
+function yazpt_load_preset() {
 	if [[ $1 == '' || $1 == '-h' || $1 == '--help' ]]; then
-		echo "Loads an available style; list them using the yazpt_list_styles function"
-		echo "Usage: $0 <style-name>"
+		echo "Loads an available preset; list them using the yazpt_list_presets function"
+		echo "Usage: $0 <preset-name>"
 		return
 	fi
 
-	local style="$1"
-	local style_file="$yazpt_base_dir/styles/$style-style.zsh"
+	local preset="$1"
+	local preset_file="$yazpt_base_dir/presets/$preset-preset.zsh"
 
-	if [[ -r $style_file ]]; then
-		source "$style_file"
+	if [[ -r $preset_file ]]; then
+		source "$preset_file"
 	else
-		echo "Error: Can't find style '$style'"
-		echo "Run the yazpt_list_styles function for a complete list"
+		echo "Error: Can't find preset '$preset'"
+		echo "Run the yazpt_list_presets function for a complete list"
 		return 1
 	fi
 }
 
-# Performs tab completion for the yazpt_load_style function.
+# Performs tab completion for the yazpt_load_preset function.
 #
-function _yazpt_load_style() {
-	local styles=(${(f)"$(yazpt_list_styles)"})
-	compadd -a styles
+function _yazpt_load_preset() {
+	local presets=(${(f)"$(yazpt_list_presets)"})
+	compadd -a presets
 }
 
 autoload -Uz compinit &> /dev/null
 compinit &> /dev/null
-compdef _yazpt_load_style yazpt_load_style
+compdef _yazpt_load_preset yazpt_load_preset
 
 # Unloads yazpt. Removes all of yazpt's functions from memory,
 # so you'll need to source this file again to use yazpt again.
@@ -172,6 +173,32 @@ function yazpt_segment_cwd() {
 	yazpt_state[output]="%{%F{$YAZPT_CWD_COLOR}%}%~%{%f%}"
 }
 
+# Implements the "git" prompt segment, which shows either git_branch and git_status,
+# separated by a space and optionally surrounded by configured characters, or nothing.
+#
+function yazpt_segment_git() {
+	yazpt_segment_git_branch
+	if [[ -n $yazpt_state[output] ]]; then
+		local branch="$yazpt_state[output]"
+	else
+		return
+	fi
+
+	yazpt_segment_git_status
+	if [[ -n $yazpt_state[output] ]]; then
+		branch+=" $yazpt_state[output]"
+	fi
+
+	if (( ${#YAZPT_GIT_WRAPPER_CHARS} >= 2 )); then
+		local color="$yazpt_state[gitcolor]"
+		local before="%{%F{$color}%}$YAZPT_GIT_WRAPPER_CHARS[1]%{%f%}"
+		local after="%{%F{$color}%}$YAZPT_GIT_WRAPPER_CHARS[2]%{%f%}"
+		branch="${before}${branch}${after}"
+	fi
+
+	yazpt_state[output]="$branch"
+}
+
 # Implements the "git_branch" prompt segment, which also shows any in-progress activity, e.g. rebasing.
 # The branch's color can vary based on whether the CWD is the .git directory or an ignored directory.
 #
@@ -250,6 +277,7 @@ function yazpt_segment_git_branch() {
 		color="$YAZPT_GIT_BRANCH_COLOR"
 	fi
 
+	yazpt_state[gitcolor]="$color"
 	branch="${branch//\%/%%}"  # Escape percent signs from prompt expansion, by doubling them
 	branch="%{%F{$color}%}${branch#refs/heads/}${activity}%{%f%}"
 
@@ -266,15 +294,14 @@ function yazpt_segment_git_branch() {
 #
 function yazpt_segment_git_status() {
 	if [[ $yazpt_state[git] == false ]]; then
-		return # We already know we won't be able get git status here, so don't even try
+		return  # We already know we won't be able get git status here, so don't even try
 	fi
 
 	local info
 	if [[ $yazpt_state[in_git_dir] == true ]] ||
 			! info=(${(f)"$(git status --branch --porcelain --ignore-submodules 2> /dev/null)"}); then
 
-		if [[ $yazpt_state[in_git_dir] == true || ${PWD:t} == ".git" ]]; then
-			YAZPT_GIT_STATUS_UNKNOWN_CHAR="${YAZPT_GIT_STATUS_UNKNOWN_CHAR:-?}"
+		if [[ ($yazpt_state[in_git_dir] == true || ${PWD:t} == ".git") && -n $YAZPT_GIT_STATUS_UNKNOWN_CHAR ]]; then
 			YAZPT_GIT_STATUS_UNKNOWN_CHAR_COLOR=${YAZPT_GIT_STATUS_UNKNOWN_CHAR_COLOR:-default}
 			yazpt_state[output]="%{%F{$YAZPT_GIT_STATUS_UNKNOWN_CHAR_COLOR}%}$YAZPT_GIT_STATUS_UNKNOWN_CHAR%{%f%}"
 		fi
@@ -283,8 +310,7 @@ function yazpt_segment_git_status() {
 	fi
 
 	local stat=""
-	if (( ${#info} > 1 )); then
-		YAZPT_GIT_STATUS_DIRTY_CHAR="${YAZPT_GIT_STATUS_DIRTY_CHAR:-⚑}"
+	if (( ${#info} > 1 && ${#YAZPT_GIT_STATUS_DIRTY_CHAR} > 0 )); then
 		YAZPT_GIT_STATUS_DIRTY_CHAR_COLOR=${YAZPT_GIT_STATUS_DIRTY_CHAR_COLOR:-default}
 		stat="%{%F{$YAZPT_GIT_STATUS_DIRTY_CHAR_COLOR}%}$YAZPT_GIT_STATUS_DIRTY_CHAR%{%f%}"
 	fi
@@ -293,19 +319,20 @@ function yazpt_segment_git_status() {
 		if [[ $info[1] =~ "\[" ]]; then
 			# Neither branch names nor git's brief status text will contain `[`, so its presence indicates
 			# that git has put "[ahead N]" or "[behind N]" or "[ahead N, behind N]" on the line
-			YAZPT_GIT_STATUS_DIVERGED_CHAR="${YAZPT_GIT_STATUS_DIVERGED_CHAR:-◆}"
-			YAZPT_GIT_STATUS_DIVERGED_CHAR_COLOR=${YAZPT_GIT_STATUS_DIVERGED_CHAR_COLOR:-default}
-			stat+="%{%F{$YAZPT_GIT_STATUS_DIVERGED_CHAR_COLOR}%}$YAZPT_GIT_STATUS_DIVERGED_CHAR%{%f%}"
+			if [[ -n $YAZPT_GIT_STATUS_DIVERGED_CHAR ]]; then
+				YAZPT_GIT_STATUS_DIVERGED_CHAR_COLOR=${YAZPT_GIT_STATUS_DIVERGED_CHAR_COLOR:-default}
+				stat+="%{%F{$YAZPT_GIT_STATUS_DIVERGED_CHAR_COLOR}%}$YAZPT_GIT_STATUS_DIVERGED_CHAR%{%f%}"
+			fi
 		elif [[ ! $info[1] =~ "\.\.\." ]]; then
 			# Branch names can't contain "...", so its presence indicates there's a remote/upstream branch
-			YAZPT_GIT_STATUS_NO_REMOTE_CHAR="${YAZPT_GIT_STATUS_NO_REMOTE_CHAR:-◆}"
-			YAZPT_GIT_STATUS_NO_REMOTE_CHAR_COLOR=${YAZPT_GIT_STATUS_NO_REMOTE_CHAR_COLOR:-default}
-			stat+="%{%F{$YAZPT_GIT_STATUS_NO_REMOTE_CHAR_COLOR}%}$YAZPT_GIT_STATUS_NO_REMOTE_CHAR%{%f%}"
+			if [[ -n $YAZPT_GIT_STATUS_NO_REMOTE_CHAR ]]; then
+				YAZPT_GIT_STATUS_NO_REMOTE_CHAR_COLOR=${YAZPT_GIT_STATUS_NO_REMOTE_CHAR_COLOR:-default}
+				stat+="%{%F{$YAZPT_GIT_STATUS_NO_REMOTE_CHAR_COLOR}%}$YAZPT_GIT_STATUS_NO_REMOTE_CHAR%{%f%}"
+			fi
 		fi
 	fi
 
-	if [[ -z $stat ]]; then
-		YAZPT_GIT_STATUS_CLEAN_CHAR="${YAZPT_GIT_STATUS_CLEAN_CHAR:-●}"
+	if [[ -z $stat && -n $YAZPT_GIT_STATUS_CLEAN_CHAR ]]; then
 		YAZPT_GIT_STATUS_CLEAN_CHAR_COLOR=${YAZPT_GIT_STATUS_CLEAN_CHAR_COLOR:-default}
 		stat="%{%F{$YAZPT_GIT_STATUS_CLEAN_CHAR_COLOR}%}$YAZPT_GIT_STATUS_CLEAN_CHAR%{%f%}"
 	fi
