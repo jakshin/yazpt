@@ -16,6 +16,8 @@ source "$yazpt_default_preset_file"
 # Lists all yazpt presets which can be loaded by yazpt_load_preset.
 #
 function yazpt_list_presets() {
+	emulate -L zsh
+
 	if [[ $1 != '' ]]; then
 		echo "Lists all available presets; load one using the yazpt_load_preset function"
 		echo "Usage: $0"
@@ -31,6 +33,8 @@ function yazpt_list_presets() {
 # Loads one of the yazpt presets (use yazpt_list_presets to get a list of them).
 #
 function yazpt_load_preset() {
+	emulate -L zsh
+
 	if [[ $1 == '' || $1 == '-h' || $1 == '--help' ]]; then
 		echo "Loads an available preset; list them using the yazpt_list_presets function"
 		echo "Usage: $0 <preset-name>"
@@ -52,6 +56,7 @@ function yazpt_load_preset() {
 # Performs tab completion for the yazpt_load_preset function.
 #
 function _yazpt_load_preset() {
+	emulate -L zsh
 	local presets=(${(f)"$(yazpt_list_presets)"})
 	compadd -a presets
 }
@@ -64,6 +69,7 @@ compdef _yazpt_load_preset yazpt_load_preset
 # so you'll need to source this file again to use yazpt again.
 #
 function yazpt_plugin_unload() {
+	emulate -L zsh
 	add-zsh-hook -d precmd yazpt_precmd
 	unfunction -m 'yazpt_*'
 	unset -m 'YAZPT_*' 'yazpt_*'
@@ -80,9 +86,10 @@ function yazpt_precmd() {
 	local segment=""              # The segment we've parsed so far, if any
 	local separator=""            # The pending segment separator, if any
 
-	PS1=""
+	emulate -L zsh
 	typeset -Ag yazpt_state=(exit_code $exit_code)  # State shared across segment functions
 
+	PS1=""
 	YAZPT_LAYOUT="${YAZPT_LAYOUT:-<cwd> %# }"
 	local len=${#YAZPT_LAYOUT}
 
