@@ -1,4 +1,6 @@
-# FIXME
+# A preset with emoji and randomized but complimentary colors.
+# The cwd and git branch colors are different each time the preset is loaded,
+# then stay constant within that terminal session.
 
 emulate -L zsh
 declare -a yazpt_yolo_color_ranges=('22-39' '58-75' '94-111' '130-147')
@@ -6,7 +8,7 @@ declare -a yazpt_yolo_color_ranges=('22-39' '58-75' '94-111' '130-147')
 function yazpt_random_int() {
 	local lowest=$1
 	local highest=$2
-	local rand=$(hexdump -e '"%u"' -n 1 /dev/urandom)
+	local rand=$(hexdump -e '"%u"' -n 1 /dev/urandom)  # Seems better than $RANDOM
 	local modulo=$((highest - lowest + 1))
 	echo $((rand % modulo + lowest))
 }
