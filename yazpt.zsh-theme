@@ -62,7 +62,7 @@ function _yazpt_load_preset() {
 }
 
 autoload -Uz compinit &> /dev/null
-compinit &> /dev/null
+compinit -u &> /dev/null
 compdef _yazpt_load_preset yazpt_load_preset
 
 # Unloads yazpt. Removes all of yazpt's functions from memory,
@@ -90,8 +90,8 @@ function yazpt_precmd() {
 	typeset -Ag yazpt_state=(exit_code $exit_code)  # State shared across segment functions
 
 	PS1=""
-	YAZPT_LAYOUT="${YAZPT_LAYOUT:-<cwd> %# }"
-	local len=${#YAZPT_LAYOUT}
+	: ${YAZPT_LAYOUT:=<cwd> %# }
+	local i len=${#YAZPT_LAYOUT}
 
 	for (( i=1; i <= len; i++ )); do
 		local ch=$YAZPT_LAYOUT[$i]
@@ -176,7 +176,7 @@ function yazpt_read_line() {
 # Implements the "cwd" prompt segment.
 #
 function yazpt_segment_cwd() {
-	YAZPT_CWD_COLOR=${YAZPT_CWD_COLOR:-default}
+	: ${YAZPT_CWD_COLOR:=default}
 	yazpt_state[output]="%{%F{$YAZPT_CWD_COLOR}%}%~%{%f%}"
 }
 
@@ -274,13 +274,13 @@ function yazpt_segment_git_branch() {
 	fi
 
 	if [[ $in_git_dir == true ]]; then
-		YAZPT_GIT_BRANCH_GIT_DIR_COLOR=${YAZPT_GIT_BRANCH_GIT_DIR_COLOR:-default}
+		: ${YAZPT_GIT_BRANCH_GIT_DIR_COLOR:=default}
 		color="$YAZPT_GIT_BRANCH_GIT_DIR_COLOR"
 	elif [[ $in_work_tree == true ]] && git check-ignore -q .; then
-		YAZPT_GIT_BRANCH_IGNORED_DIR_COLOR=${YAZPT_GIT_BRANCH_IGNORED_DIR_COLOR:-default}
+		: ${YAZPT_GIT_BRANCH_IGNORED_DIR_COLOR:=default}
 		color="$YAZPT_GIT_BRANCH_IGNORED_DIR_COLOR"
 	else
-		YAZPT_GIT_BRANCH_COLOR=${YAZPT_GIT_BRANCH_COLOR:-default}
+		: ${YAZPT_GIT_BRANCH_COLOR:=default}
 		color="$YAZPT_GIT_BRANCH_COLOR"
 	fi
 
@@ -309,7 +309,7 @@ function yazpt_segment_git_status() {
 			! info=(${(f)"$(git status --branch --porcelain --ignore-submodules 2> /dev/null)"}); then
 
 		if [[ ($yazpt_state[in_git_dir] == true || ${PWD:t} == ".git") && -n $YAZPT_GIT_STATUS_UNKNOWN_CHAR ]]; then
-			YAZPT_GIT_STATUS_UNKNOWN_CHAR_COLOR=${YAZPT_GIT_STATUS_UNKNOWN_CHAR_COLOR:-default}
+			: ${YAZPT_GIT_STATUS_UNKNOWN_CHAR_COLOR:=default}
 			yazpt_state[output]="%{%F{$YAZPT_GIT_STATUS_UNKNOWN_CHAR_COLOR}%}$YAZPT_GIT_STATUS_UNKNOWN_CHAR%{%f%}"
 		fi
 
@@ -318,7 +318,7 @@ function yazpt_segment_git_status() {
 
 	local stat=""
 	if (( ${#info} > 1 && ${#YAZPT_GIT_STATUS_DIRTY_CHAR} > 0 )); then
-		YAZPT_GIT_STATUS_DIRTY_CHAR_COLOR=${YAZPT_GIT_STATUS_DIRTY_CHAR_COLOR:-default}
+		: ${YAZPT_GIT_STATUS_DIRTY_CHAR_COLOR:=default}
 		stat="%{%F{$YAZPT_GIT_STATUS_DIRTY_CHAR_COLOR}%}$YAZPT_GIT_STATUS_DIRTY_CHAR%{%f%}"
 	fi
 
@@ -327,20 +327,20 @@ function yazpt_segment_git_status() {
 			# Neither branch names nor git's brief status text will contain `[`, so its presence indicates
 			# that git has put "[ahead N]" or "[behind N]" or "[ahead N, behind N]" on the line
 			if [[ -n $YAZPT_GIT_STATUS_DIVERGED_CHAR ]]; then
-				YAZPT_GIT_STATUS_DIVERGED_CHAR_COLOR=${YAZPT_GIT_STATUS_DIVERGED_CHAR_COLOR:-default}
+				: ${YAZPT_GIT_STATUS_DIVERGED_CHAR_COLOR:=default}
 				stat+="%{%F{$YAZPT_GIT_STATUS_DIVERGED_CHAR_COLOR}%}$YAZPT_GIT_STATUS_DIVERGED_CHAR%{%f%}"
 			fi
 		elif [[ ! $info[1] =~ "\.\.\." ]]; then
 			# Branch names can't contain "...", so its presence indicates there's a remote/upstream branch
 			if [[ -n $YAZPT_GIT_STATUS_NO_REMOTE_CHAR ]]; then
-				YAZPT_GIT_STATUS_NO_REMOTE_CHAR_COLOR=${YAZPT_GIT_STATUS_NO_REMOTE_CHAR_COLOR:-default}
+				: ${YAZPT_GIT_STATUS_NO_REMOTE_CHAR_COLOR:=default}
 				stat+="%{%F{$YAZPT_GIT_STATUS_NO_REMOTE_CHAR_COLOR}%}$YAZPT_GIT_STATUS_NO_REMOTE_CHAR%{%f%}"
 			fi
 		fi
 	fi
 
 	if [[ -z $stat && -n $YAZPT_GIT_STATUS_CLEAN_CHAR ]]; then
-		YAZPT_GIT_STATUS_CLEAN_CHAR_COLOR=${YAZPT_GIT_STATUS_CLEAN_CHAR_COLOR:-default}
+		: ${YAZPT_GIT_STATUS_CLEAN_CHAR_COLOR:=default}
 		stat="%{%F{$YAZPT_GIT_STATUS_CLEAN_CHAR_COLOR}%}$YAZPT_GIT_STATUS_CLEAN_CHAR%{%f%}"
 	fi
 
@@ -354,22 +354,22 @@ function yazpt_segment_result() {
 
 	if [[ $exit_code == 0 ]]; then
 		if [[ -n $YAZPT_RESULT_OK_CHAR ]]; then
-			YAZPT_RESULT_OK_CHAR_COLOR=${YAZPT_RESULT_OK_CHAR_COLOR:-default}
+			: ${YAZPT_RESULT_OK_CHAR_COLOR:=default}
 			yazpt_state[output]+="%{%F{$YAZPT_RESULT_OK_CHAR_COLOR}%}$YAZPT_RESULT_OK_CHAR%{%f%}"
 		fi
 
 		if [[ ${YAZPT_RESULT_OK_CODE_VISIBLE:l} == true ]]; then
-			YAZPT_RESULT_OK_CODE_COLOR=${YAZPT_RESULT_OK_CODE_COLOR:-default}
+			: ${YAZPT_RESULT_OK_CODE_COLOR:=default}
 			yazpt_state[output]+="%{%F{$YAZPT_RESULT_OK_CODE_COLOR}%}$exit_code%{%f%}"
 		fi
 	else
 		if [[ -n $YAZPT_RESULT_ERROR_CHAR ]]; then
-			YAZPT_RESULT_ERROR_CHAR_COLOR=${YAZPT_RESULT_ERROR_CHAR_COLOR:-default}
+			: ${YAZPT_RESULT_ERROR_CHAR_COLOR:=default}
 			yazpt_state[output]+="%{%F{$YAZPT_RESULT_ERROR_CHAR_COLOR}%}$YAZPT_RESULT_ERROR_CHAR%{%f%}"
 		fi
 
 		if [[ ${YAZPT_RESULT_ERROR_CODE_VISIBLE:l} == true ]]; then
-			YAZPT_RESULT_ERROR_CODE_COLOR=${YAZPT_RESULT_ERROR_CODE_COLOR:-default}
+			: ${YAZPT_RESULT_ERROR_CODE_COLOR:=default}
 			yazpt_state[output]+="%{%F{$YAZPT_RESULT_ERROR_CODE_COLOR}%}$exit_code%{%f%}"
 		fi
 	fi
