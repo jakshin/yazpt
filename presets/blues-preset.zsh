@@ -1,4 +1,4 @@
-# A preset favoring shades of blue. Colors are defined in 16-color mode
+# A preset favoring shades of blue, with colors are defined in 16-color mode
 # so they match the ANSI color palette set up in your terminal emulator.
 
 source "$yazpt_default_preset_file"
