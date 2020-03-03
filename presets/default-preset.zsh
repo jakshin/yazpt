@@ -1,5 +1,7 @@
-# Yazpt's default preset.
-# The other presets here are defined relative to this baseline.
+# Yazpt's default preset, automatically loaded with yazpt itself.
+# The other presets here are defined relative to this baseline,
+# i.e. they're expected to `source` this to reset to defaults,
+# then apply their specific overrides.
 
 # Layout: prompt segments, separators, etc.
 YAZPT_LAYOUT=$'\n[<cwd><? ><result><? ><git>]\n%# '
