@@ -1,4 +1,4 @@
-# A preset using shades of green and bluish green,
+# A preset favoring shades of green and bluish green,
 # with refreshing bright white input.
 
 source "$yazpt_default_preset_file"
