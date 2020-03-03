@@ -1,0 +1,14 @@
+# Ignore everything here except predefined presets
+*
+!.gitignore
+!README.md
+!blues-preset.zsh
+!default-preset.zsh
+!elite-preset.zsh
+!jakshin-preset.zsh
+!kilroy-preset.zsh
+!lilguy-preset.zsh
+!spearmint-preset.zsh
+!technocrat-preset.zsh
+!tight-preset.zsh
+!yolo-preset.zsh
