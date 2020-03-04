@@ -15,7 +15,7 @@ YAZPT_GIT_WRAPPER_CHARS=""                # Before/after the branch+status; use 
 
 # Settings for the "git_branch" prompt segment.
 YAZPT_GIT_BRANCH_COLOR=255                # Bright white
-YAZPT_GIT_BRANCH_GIT_DIR_COLOR=240        # Dark gray; used when the CWD is in/under the .git directory
+YAZPT_GIT_BRANCH_GIT_DIR_COLOR=240        # Dark gray; used when the CWD is in/under the .git directory (or a bare repo)
 YAZPT_GIT_BRANCH_IGNORED_DIR_COLOR=240    # Dark gray; used when the CWD is in/under a directory ignored by git
 
 # Settings for the "git_status" prompt segment.
@@ -27,8 +27,8 @@ YAZPT_GIT_STATUS_DIVERGED_CHAR="◆"        # Used when the local branch's commi
 YAZPT_GIT_STATUS_DIVERGED_CHAR_COLOR=166  # Reddish orange
 YAZPT_GIT_STATUS_NO_REMOTE_CHAR="◆"       # Used when the local branch has no remote/upstream branch
 YAZPT_GIT_STATUS_NO_REMOTE_CHAR_COLOR=31  # Dark cyan
-YAZPT_GIT_STATUS_UNKNOWN_CHAR="?"         # Used when the repo's status can't be determined
-YAZPT_GIT_STATUS_UNKNOWN_CHAR_COLOR=45    # Bright blue
+YAZPT_GIT_STATUS_UNKNOWN_CHAR="⌀"         # Used when the repo's status can't be determined
+YAZPT_GIT_STATUS_UNKNOWN_CHAR_COLOR=9     # Bright red, probably (based on terminal color scheme)
 
 # Settings for the "result" prompt segment, which shows the previous command's exit code.
 YAZPT_RESULT_ERROR_CHAR="✘"               # Set to empty string for no error indicator character
