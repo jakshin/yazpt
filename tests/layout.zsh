@@ -10,7 +10,7 @@ before_tests $script_name true
 
 # Test
 function yazpt_segment_bar() {
-	yazpt_state[output]="BAR"
+	yazpt_state[bar]="BAR"
 }
 
 test_case "Basic layout control"
