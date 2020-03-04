@@ -18,7 +18,7 @@ test_case "In the .git directory, on a branch"
 cd .git
 test_init_done
 contains_dim_branch "branch1"
-contains_status "unknown"
+contains_status "perfect"
 
 test_case "On a branch with a scary name, with prompt_subst on"
 setopt prompt_subst
@@ -35,7 +35,7 @@ test_init_done
 contains '$yazpt_git_branch'
 PROMPT="$(eval noglob echo $PROMPT)"  # Like prompt_subst will do
 contains_dim_branch '$(IFS=_;cmd=echo_arg;$cmd)'
-contains_status "unknown"
+contains_status "perfect"
 
 test_case "On a branch with a scary name, with prompt_subst off"
 setopt no_prompt_subst
@@ -48,17 +48,19 @@ test_case "In the .git directory, on a branch with a scary name, with prompt_sub
 cd .git
 test_init_done
 contains_dim_branch '$(IFS=_;cmd=echo_arg;$cmd)'
-contains_status "unknown"
+contains_status "perfect"
 
 test_case "On a branch that could trigger prompt expansion"
 git checkout -b '%F{160}red'
 test_init_done
 contains_branch '%%F{160}red'
+contains_status "no-upstream"
 
 test_case "In the .git directory, on a branch that could trigger prompt expansion"
 cd .git
 test_init_done
 contains_dim_branch '%%F{160}red'
+contains_status "no-upstream"
 
 test_case "With an arbitrary commit checked out"
 first_commit="$(git log --format=%h --reverse | head -n 1)"
@@ -71,7 +73,7 @@ test_case "In the .git directory, with an arbitrary commit checked out"
 cd .git
 test_init_done
 contains_dim_branch "$first_commit"
-contains_status "unknown"
+contains_status "perfect"
 
 test_case "With an arbitrary tagged commit checked out"
 git checkout taggy
@@ -83,7 +85,7 @@ test_case "In the .git directory, with an arbitrary tagged commit checked out"
 cd .git
 test_init_done
 contains_dim_branch "taggy"
-contains_status "unknown"
+contains_status "perfect"
 
 # Clean up
 after_tests
