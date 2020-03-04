@@ -19,7 +19,7 @@ contains "MERGING"
 cd .git
 test_init_done
 contains_dim_branch "master"
-contains_status "unknown"
+contains_status "dirty"
 contains "MERGING"
 
 # Clean up
