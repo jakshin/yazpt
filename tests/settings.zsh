@@ -7,6 +7,14 @@ cd -- "$(dirname -- "$0")"
 source ./utils.zsh
 before_tests $script_name true
 
+function gitx {
+	if [[ $1 == "status" ]]; then
+		return 1
+	else
+		command git "$@"
+	fi
+}
+
 # Test
 test_case "Current working directory color"
 YAZPT_CWD_COLOR=5
@@ -54,12 +62,13 @@ git checkout -b new-branch
 test_init_done
 contains '%{%F{20}%}✡︎%{%f%}'
 
-test_case "Git status = unknown (in .git directory)"
+test_case "Git status = unknown ('git status' failed)"
 YAZPT_GIT_STATUS_UNKNOWN_CHAR="✣"
 YAZPT_GIT_STATUS_UNKNOWN_CHAR_COLOR=21
-cd .git
+alias git=gitx
 test_init_done
 contains '%{%F{21}%}✣%{%f%}'
+unalias git
 
 test_case "Command result = error"
 YAZPT_RESULT_ERROR_CHAR="✦"
