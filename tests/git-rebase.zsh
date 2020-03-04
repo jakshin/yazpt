@@ -21,7 +21,7 @@ contains "REBASING 1/2"
 cd .git
 test_init_done
 contains_dim_branch "rebase-me"
-contains_status "unknown"
+contains_status "dirty"
 contains "REBASING 1/2"
 unset GIT_EDITOR
 cd .. && git rebase --abort  # Cleanup
@@ -38,7 +38,7 @@ contains "REBASING 1/2"
 cd .git
 test_init_done
 contains_dim_branch "rebase-me"
-contains_status "unknown"
+contains_status "dirty"
 contains "REBASING 1/2"
 cd .. && git rebase --abort  # Cleanup
 
@@ -51,7 +51,7 @@ contains_status "diverged"
 cd .git
 test_init_done
 contains_dim_branch "rebase-me-too"
-contains_status "unknown"
+contains_status "diverged"
 cd .. && git checkout master  # Cleanup
 
 # Clean up
