@@ -122,13 +122,12 @@ function yazpt_precmd() {
 				elif which "yazpt_segment_$segment" > /dev/null; then
 					"yazpt_segment_$segment"  # Execute the segment's function
 
-					if [[ -n $yazpt_state[output] ]]; then
+					if [[ -n $yazpt_state[$segment] ]]; then
 						# If we have a pending separator, append it before the new segment (without its question mark)
 						[[ -z $separator ]] || PS1+="${separator[2,-1]}"
 
 						last_was_segment=true
-						PS1+="$yazpt_state[output]"
-						yazpt_state[output]=""
+						PS1+="$yazpt_state[$segment]"
 					fi
 
 					separator=""  # Clear any pending separator (whether we appended it just above or not)
@@ -177,54 +176,36 @@ function yazpt_read_line() {
 #
 function yazpt_segment_cwd() {
 	: ${YAZPT_CWD_COLOR:=default}
-	yazpt_state[output]="%{%F{$YAZPT_CWD_COLOR}%}%~%{%f%}"
+	yazpt_state[cwd]="%{%F{$YAZPT_CWD_COLOR}%}%~%{%f%}"
 }
 
 # Implements the "git" prompt segment, which shows either git_branch and git_status,
 # separated by a space and optionally surrounded by configured characters, or nothing.
+# Also implements the "git_branch" segment (which also shows any in-progress activity)
+# and "git_status" segment; each is a subset of the "git" segment, separated out
+# so they can be displayed separately if desired.
 #
 function yazpt_segment_git() {
-	yazpt_segment_git_branch
-	if [[ -n $yazpt_state[output] ]]; then
-		local branch="$yazpt_state[output]"
-	else
-		return
-	fi
+	# Calculate git_branch first
+	local info git_result args=(--is-bare-repository --git-dir --is-inside-git-dir --is-inside-work-tree)
+	info=(${(f)"$(git rev-parse $args --short HEAD 2> /dev/null)"})
+	git_result=$?
 
-	yazpt_segment_git_status
-	if [[ -n $yazpt_state[output] ]]; then
-		branch+=" $yazpt_state[output]"
-	fi
-
-	if (( ${#YAZPT_GIT_WRAPPER_CHARS} >= 2 )); then
-		local color="$yazpt_state[gitcolor]"
-		local before="%{%F{$color}%}$YAZPT_GIT_WRAPPER_CHARS[1]%{%f%}"
-		local after="%{%F{$color}%}$YAZPT_GIT_WRAPPER_CHARS[2]%{%f%}"
-		branch="${before}${branch}${after}"
-	fi
-
-	yazpt_state[output]="$branch"
-}
-
-# Implements the "git_branch" prompt segment, which also shows any in-progress activity, e.g. rebasing.
-# The branch's color can vary based on whether the CWD is the .git directory or an ignored directory.
-#
-function yazpt_segment_git_branch() {
-	local info=(${(f)"$(git rev-parse --git-dir --is-inside-git-dir --is-inside-work-tree --short HEAD 2> /dev/null)"})
 	if [[ $info == "" ]]; then
-		yazpt_state[git]=false  # Either the CWD isn't in a git repo, or we can't run git
+		yazpt_state[git_error]=$git_result  # Either the CWD isn't in a git repo, or we can't run git
 		return
 	fi
 
-	local git_dir="$info[1]"       # Relative or absolute path
-	local in_git_dir="$info[2]"    # Boolean
-	local in_work_tree="$info[3]"  # Boolean
-	local sha="$info[4]"           # Empty if new repo with no commits (but we'll have .git/HEAD to read)
+	local bare_repo="$info[1]"     # Boolean
+	local git_dir="$info[2]"       # Relative or absolute path, "." if in a bare repo
+	local in_git_dir="$info[3]"    # Boolean, true if in a bare repo
+	local in_work_tree="$info[4]"  # Boolean
+	local sha="$info[5]"           # Empty if new repo with no commits (but we'll have $git_dir/HEAD to read)
 	local branch="" activity="" step="" steps=""
 
-	yazpt_state[in_git_dir]=$in_git_dir
-
-	if [[ -d "$git_dir/rebase-merge" ]]; then
+	if [[ $bare_repo == true ]]; then
+		activity="BARE-REPO"
+	elif [[ -d "$git_dir/rebase-merge" ]]; then
 		activity="|REBASING"
 		yazpt_read_line "$git_dir/rebase-merge/head-name" branch
 		yazpt_read_line "$git_dir/rebase-merge/msgnum" step
@@ -262,7 +243,7 @@ function yazpt_segment_git_branch() {
 		activity+=" $step/$steps"
 	fi
 
-	if [[ -z $branch ]]; then
+	if [[ -z $branch && $bare_repo == false ]]; then
 		local head
 		yazpt_read_line "$git_dir/HEAD" head
 
@@ -273,6 +254,7 @@ function yazpt_segment_git_branch() {
 		fi
 	fi
 
+	local color
 	if [[ $in_git_dir == true ]]; then
 		: ${YAZPT_GIT_BRANCH_GIT_DIR_COLOR:=default}
 		color="$YAZPT_GIT_BRANCH_GIT_DIR_COLOR"
@@ -284,67 +266,99 @@ function yazpt_segment_git_branch() {
 		color="$YAZPT_GIT_BRANCH_COLOR"
 	fi
 
-	yazpt_state[gitcolor]="$color"
 	branch="${branch//\%/%%}"  # Escape percent signs from prompt expansion, by doubling them
 	branch="%{%F{$color}%}${branch#refs/heads/}${activity}%{%f%}"
 
 	if [[ -o prompt_subst ]]; then
 		yazpt_git_branch="$branch"
-		yazpt_state[output]='$yazpt_git_branch'
+		yazpt_state[git_branch]='$yazpt_git_branch'
 	else
 		unset yazpt_git_branch
-		yazpt_state[output]="$branch"
+		yazpt_state[git_branch]="$branch"
+	fi
+
+	# Calculate git_status 
+	local info=() stat=""
+
+	if [[ $bare_repo == false ]]; then
+		if [[ $in_git_dir == true ]]; then
+			# FIXME: tests aren't updated to match this change yet;
+			# - does it work when multiple work trees use the same .git directory?
+			info=(${(f)"$(cd ..; git status --branch --porcelain --ignore-submodules 2> /dev/null)"})
+			git_result=$?
+		else
+			info=(${(f)"$(git status --branch --porcelain --ignore-submodules 2> /dev/null)"})
+			git_result=$?
+		fi
+
+		if [[ $git_result != 0 || -z $info ]]; then
+			if [[ -n $YAZPT_GIT_STATUS_UNKNOWN_CHAR ]]; then
+				: ${YAZPT_GIT_STATUS_UNKNOWN_CHAR_COLOR:=default}
+				stat="%{%F{$YAZPT_GIT_STATUS_UNKNOWN_CHAR_COLOR}%}$YAZPT_GIT_STATUS_UNKNOWN_CHAR%{%f%}"
+			fi
+		else
+			if (( ${#info} > 1 && ${#YAZPT_GIT_STATUS_DIRTY_CHAR} > 0 )); then
+				: ${YAZPT_GIT_STATUS_DIRTY_CHAR_COLOR:=default}
+				stat="%{%F{$YAZPT_GIT_STATUS_DIRTY_CHAR_COLOR}%}$YAZPT_GIT_STATUS_DIRTY_CHAR%{%f%}"
+			fi
+
+			if [[ ! $info[1] =~ "no branch" ]]; then
+				if [[ $info[1] =~ "\[" ]]; then
+					# Neither branch names nor git's brief status text will contain `[`, so its presence indicates
+					# that git has put "[ahead N]" or "[behind N]" or "[ahead N, behind N]" on the line
+					if [[ -n $YAZPT_GIT_STATUS_DIVERGED_CHAR ]]; then
+						: ${YAZPT_GIT_STATUS_DIVERGED_CHAR_COLOR:=default}
+						stat+="%{%F{$YAZPT_GIT_STATUS_DIVERGED_CHAR_COLOR}%}$YAZPT_GIT_STATUS_DIVERGED_CHAR%{%f%}"
+					fi
+				elif [[ ! $info[1] =~ "\.\.\." ]]; then
+					# Branch names can't contain "...", so its presence indicates there's a remote/upstream branch
+					if [[ -n $YAZPT_GIT_STATUS_NO_REMOTE_CHAR ]]; then
+						: ${YAZPT_GIT_STATUS_NO_REMOTE_CHAR_COLOR:=default}
+						stat+="%{%F{$YAZPT_GIT_STATUS_NO_REMOTE_CHAR_COLOR}%}$YAZPT_GIT_STATUS_NO_REMOTE_CHAR%{%f%}"
+					fi
+				fi
+			fi
+
+			if [[ -z $stat && -n $YAZPT_GIT_STATUS_CLEAN_CHAR ]]; then
+				: ${YAZPT_GIT_STATUS_CLEAN_CHAR_COLOR:=default}
+				stat="%{%F{$YAZPT_GIT_STATUS_CLEAN_CHAR_COLOR}%}$YAZPT_GIT_STATUS_CLEAN_CHAR%{%f%}"
+			fi
+		fi
+
+		yazpt_state[git_status]="$stat"
+	fi
+
+	# Combine git_branch and git_status
+	local combined="$yazpt_state[git_branch]"
+	if [[ -n $yazpt_state[git_status] ]]; then
+		combined+=" $yazpt_state[git_status]"
+	fi
+
+	if (( ${#YAZPT_GIT_WRAPPER_CHARS} >= 2 )); then
+		local before="%{%F{$color}%}$YAZPT_GIT_WRAPPER_CHARS[1]%{%f%}"
+		local after="%{%F{$color}%}$YAZPT_GIT_WRAPPER_CHARS[2]%{%f%}"
+		combined="${before}${combined}${after}"
+	fi
+
+	yazpt_state[git]="$combined"
+}
+
+# Implements the "git_branch" prompt segment, which also shows any in-progress git activity,
+# e.g. rebasing, and which is actually part of the "git" segment.
+#
+function yazpt_segment_git_branch() {
+	if [[ -z $yazpt_state[git] && -z $yazpt_state[git_error] ]]; then
+		yazpt_segment_git
 	fi
 }
 
-# Implements the "git_status" prompt segment.
+# Implements the "git_status" prompt segment,
+# which is actually part of the "git" segment.
 #
 function yazpt_segment_git_status() {
-	if [[ $yazpt_state[git] == false ]]; then
-		return  # We already know we won't be able get git status here, so don't even try
+	if [[ -z $yazpt_state[git] && -z $yazpt_state[git_error] ]]; then
+		yazpt_segment_git
 	fi
-
-	local info
-	if [[ $yazpt_state[in_git_dir] == true ]] ||
-			! info=(${(f)"$(git status --branch --porcelain --ignore-submodules 2> /dev/null)"}); then
-
-		if [[ ($yazpt_state[in_git_dir] == true || ${PWD:t} == ".git") && -n $YAZPT_GIT_STATUS_UNKNOWN_CHAR ]]; then
-			: ${YAZPT_GIT_STATUS_UNKNOWN_CHAR_COLOR:=default}
-			yazpt_state[output]="%{%F{$YAZPT_GIT_STATUS_UNKNOWN_CHAR_COLOR}%}$YAZPT_GIT_STATUS_UNKNOWN_CHAR%{%f%}"
-		fi
-
-		return
-	fi
-
-	local stat=""
-	if (( ${#info} > 1 && ${#YAZPT_GIT_STATUS_DIRTY_CHAR} > 0 )); then
-		: ${YAZPT_GIT_STATUS_DIRTY_CHAR_COLOR:=default}
-		stat="%{%F{$YAZPT_GIT_STATUS_DIRTY_CHAR_COLOR}%}$YAZPT_GIT_STATUS_DIRTY_CHAR%{%f%}"
-	fi
-
-	if [[ ! $info[1] =~ "no branch" ]]; then
-		if [[ $info[1] =~ "\[" ]]; then
-			# Neither branch names nor git's brief status text will contain `[`, so its presence indicates
-			# that git has put "[ahead N]" or "[behind N]" or "[ahead N, behind N]" on the line
-			if [[ -n $YAZPT_GIT_STATUS_DIVERGED_CHAR ]]; then
-				: ${YAZPT_GIT_STATUS_DIVERGED_CHAR_COLOR:=default}
-				stat+="%{%F{$YAZPT_GIT_STATUS_DIVERGED_CHAR_COLOR}%}$YAZPT_GIT_STATUS_DIVERGED_CHAR%{%f%}"
-			fi
-		elif [[ ! $info[1] =~ "\.\.\." ]]; then
-			# Branch names can't contain "...", so its presence indicates there's a remote/upstream branch
-			if [[ -n $YAZPT_GIT_STATUS_NO_REMOTE_CHAR ]]; then
-				: ${YAZPT_GIT_STATUS_NO_REMOTE_CHAR_COLOR:=default}
-				stat+="%{%F{$YAZPT_GIT_STATUS_NO_REMOTE_CHAR_COLOR}%}$YAZPT_GIT_STATUS_NO_REMOTE_CHAR%{%f%}"
-			fi
-		fi
-	fi
-
-	if [[ -z $stat && -n $YAZPT_GIT_STATUS_CLEAN_CHAR ]]; then
-		: ${YAZPT_GIT_STATUS_CLEAN_CHAR_COLOR:=default}
-		stat="%{%F{$YAZPT_GIT_STATUS_CLEAN_CHAR_COLOR}%}$YAZPT_GIT_STATUS_CLEAN_CHAR%{%f%}"
-	fi
-
-	yazpt_state[output]="$stat"
 }
 
 # Implements the "result" prompt segment (the exit code of the last command).
@@ -355,22 +369,22 @@ function yazpt_segment_result() {
 	if [[ $exit_code == 0 ]]; then
 		if [[ -n $YAZPT_RESULT_OK_CHAR ]]; then
 			: ${YAZPT_RESULT_OK_CHAR_COLOR:=default}
-			yazpt_state[output]+="%{%F{$YAZPT_RESULT_OK_CHAR_COLOR}%}$YAZPT_RESULT_OK_CHAR%{%f%}"
+			yazpt_state[result]+="%{%F{$YAZPT_RESULT_OK_CHAR_COLOR}%}$YAZPT_RESULT_OK_CHAR%{%f%}"
 		fi
 
 		if [[ ${YAZPT_RESULT_OK_CODE_VISIBLE:l} == true ]]; then
 			: ${YAZPT_RESULT_OK_CODE_COLOR:=default}
-			yazpt_state[output]+="%{%F{$YAZPT_RESULT_OK_CODE_COLOR}%}$exit_code%{%f%}"
+			yazpt_state[result]+="%{%F{$YAZPT_RESULT_OK_CODE_COLOR}%}$exit_code%{%f%}"
 		fi
 	else
 		if [[ -n $YAZPT_RESULT_ERROR_CHAR ]]; then
 			: ${YAZPT_RESULT_ERROR_CHAR_COLOR:=default}
-			yazpt_state[output]+="%{%F{$YAZPT_RESULT_ERROR_CHAR_COLOR}%}$YAZPT_RESULT_ERROR_CHAR%{%f%}"
+			yazpt_state[result]+="%{%F{$YAZPT_RESULT_ERROR_CHAR_COLOR}%}$YAZPT_RESULT_ERROR_CHAR%{%f%}"
 		fi
 
 		if [[ ${YAZPT_RESULT_ERROR_CODE_VISIBLE:l} == true ]]; then
 			: ${YAZPT_RESULT_ERROR_CODE_COLOR:=default}
-			yazpt_state[output]+="%{%F{$YAZPT_RESULT_ERROR_CODE_COLOR}%}$exit_code%{%f%}"
+			yazpt_state[result]+="%{%F{$YAZPT_RESULT_ERROR_CODE_COLOR}%}$exit_code%{%f%}"
 		fi
 	fi
 }
