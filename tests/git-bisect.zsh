@@ -18,7 +18,7 @@ contains "BISECTING"
 cd .git
 test_init_done
 contains_dim_branch "branch1"
-contains_status "unknown"
+contains_status "perfect"
 contains "BISECTING"
 
 # Clean up
