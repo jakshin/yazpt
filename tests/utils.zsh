@@ -124,15 +124,26 @@ function contains_dim_branch() {
 	contains "%{%F{240}%}$branch_name"
 }
 
-# Verifies that $PROMPT contains the given status indicator
+# Verifies that $PROMPT contains the given git status indicator
 function contains_status() {
 	local stat="$1"
+	[[ $stat == "clean" ]] && stat="%{%F{29}%}●%{%f%}"
 	[[ $stat == "dirty" ]] && stat="%{%F{208}%}⚑%{%f%}"
 	[[ $stat == "diverged" ]] && stat="%{%F{166}%}◆%{%f%}"
 	[[ $stat == "no-upstream" ]] && stat="%{%F{31}%}◆%{%f%}"
-	[[ $stat == "perfect" ]] && stat="%{%F{29}%}●%{%f%}"
-	[[ $stat == "unknown" ]] && stat="%{%F{45}%}?%{%f%}"
+	[[ $stat == "unknown" ]] && stat="%{%F{9}%}⌀%{%f%}"
 	contains $stat
+}
+
+# Verifies that $PROMPT doesn't contain any of the standard git status indicators
+function excludes_status() {
+	if [[ $PROMPT != *⚑* && $PROMPT != *◆* && $PROMPT != *●* && $PROMPT != *⌀* ]]; then
+		echo " ${success_bullet} \$PROMPT doesn't contain git status"
+		(( passed++ ))
+	else
+		echo " ${failure_bullet} \$PROMPT erroneously contains git status"
+		(( failed++ ))
+	fi
 }
 
 # Verifies that the given directory exists
