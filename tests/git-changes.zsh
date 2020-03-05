@@ -14,13 +14,13 @@ mkdir ignored
 cd ignored
 test_init_done
 contains_dim_branch "branch1"
-contains_status "perfect"
+contains_status "clean"
 
 test_case "With an empty untracked directory"
 mkdir empty
 test_init_done
 contains_branch "branch1"
-contains_status "perfect"
+contains_status "clean"
 
 test_case "With an untracked file"
 echo untracked > untracked.txt
@@ -32,19 +32,19 @@ rm -f untracked.txt  # Cleanup
 test_case "With a modified/renamed/deleted ignored file"
 test_init_done
 contains_branch "branch1"
-contains_status "perfect"
+contains_status "clean"
 echo ignored > ignored.txt
 test_init_done
 contains_branch "branch1"
-contains_status "perfect"
+contains_status "clean"
 mv -v ignored.txt ignored.text
 test_init_done
 contains_branch "branch1"
-contains_status "perfect"
+contains_status "clean"
 rm -fv ignored.text
 test_init_done
 contains_branch "branch1"
-contains_status "perfect"
+contains_status "clean"
 
 test_case "With a deleted file (rm)"
 rm -fv bar.txt
