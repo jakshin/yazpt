@@ -56,8 +56,8 @@ test_init_done
 contains '%{%F{19}%}✪%{%f%}'
 
 test_case "Git status = no remote/upstream branch"
-YAZPT_GIT_STATUS_NO_REMOTE_CHAR="✡︎"
-YAZPT_GIT_STATUS_NO_REMOTE_CHAR_COLOR=20
+YAZPT_GIT_STATUS_NO_UPSTREAM_CHAR="✡︎"
+YAZPT_GIT_STATUS_NO_UPSTREAM_CHAR_COLOR=20
 git checkout -b new-branch
 test_init_done
 contains '%{%F{20}%}✡︎%{%f%}'
