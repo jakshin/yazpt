@@ -7,12 +7,11 @@ cd -- "$(dirname -- "$0")"
 source ./utils.zsh
 before_tests $script_name true
 
-
-# Test
 function yazpt_segment_bar() {
 	yazpt_state[bar]="BAR"
 }
 
+# Test
 test_case "Basic layout control"
 YAZPT_LAYOUT="Jason's \"favorite\" \\\test <string> <cwd>%# "
 test_init_done
