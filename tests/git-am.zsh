@@ -13,7 +13,7 @@ git checkout master
 git am patches/*
 test_init_done
 contains_branch "master"
-contains_status "perfect"
+contains_status "clean"
 contains "AM 1/2"
 echo bleh >> foo.txt && git add . && git am --continue
 test_init_done
