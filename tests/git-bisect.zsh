@@ -13,12 +13,12 @@ git checkout branch1
 git bisect start
 test_init_done
 contains_branch "branch1"
-contains_status "perfect"
+contains_status "clean"
 contains "BISECTING"
 cd .git
 test_init_done
 contains_dim_branch "branch1"
-contains_status "perfect"
+contains_status "clean"
 contains "BISECTING"
 
 # Clean up
