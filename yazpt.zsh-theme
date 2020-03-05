@@ -186,9 +186,12 @@ function yazpt_segment_cwd() {
 # so they can be displayed separately if desired.
 #
 function yazpt_segment_git() {
+	# Ignore $GIT_DIR in this function, including subshells launched from it
+	local GIT_DIR; unset GIT_DIR
+
 	# Calculate git_branch first
-	local info git_result args=(--is-bare-repository --git-dir --is-inside-git-dir --is-inside-work-tree)
-	info=(${(f)"$(git rev-parse $args --short HEAD 2> /dev/null)"})
+	local info git_result
+	info=(${(f)"$(git rev-parse --is-bare-repository --git-dir --is-inside-git-dir --short HEAD 2> /dev/null)"})
 	git_result=$?
 
 	if [[ $info == "" ]]; then
@@ -199,8 +202,7 @@ function yazpt_segment_git() {
 	local bare_repo="$info[1]"     # Boolean
 	local git_dir="$info[2]"       # Relative or absolute path, "." if in a bare repo
 	local in_git_dir="$info[3]"    # Boolean, true if in a bare repo
-	local in_work_tree="$info[4]"  # Boolean
-	local sha="$info[5]"           # Empty if new repo with no commits (but we'll have $git_dir/HEAD to read)
+	local sha="$info[4]"           # Empty if new repo with no commits (but we'll have $git_dir/HEAD to read)
 	local branch="" activity="" step="" steps=""
 
 	if [[ $bare_repo == true ]]; then
@@ -258,7 +260,7 @@ function yazpt_segment_git() {
 	if [[ $in_git_dir == true ]]; then
 		: ${YAZPT_GIT_BRANCH_GIT_DIR_COLOR:=default}
 		color="$YAZPT_GIT_BRANCH_GIT_DIR_COLOR"
-	elif [[ $in_work_tree == true ]] && git check-ignore -q .; then
+	elif git check-ignore -q .; then
 		: ${YAZPT_GIT_BRANCH_IGNORED_DIR_COLOR:=default}
 		color="$YAZPT_GIT_BRANCH_IGNORED_DIR_COLOR"
 	else
@@ -277,14 +279,19 @@ function yazpt_segment_git() {
 		yazpt_state[git_branch]="$branch"
 	fi
 
-	# Calculate git_status 
+	# Calculate git_status
 	local info=() stat=""
 
 	if [[ $bare_repo == false ]]; then
 		if [[ $in_git_dir == true ]]; then
-			# FIXME: tests aren't updated to match this change yet;
-			# - does it work when multiple work trees use the same .git directory?
-			info=(${(f)"$(cd ..; git status --branch --porcelain --ignore-submodules 2> /dev/null)"})
+			# If the repo has linked worktrees, and we're in/under the subdirectory of .git for one,
+			# show the linked worktree's status, else show the main worktree's status
+			info=(${(f)"$(
+				git_dir=${git_dir:a}
+				[[ ${git_dir:h:t} != "worktrees" ]] || yazpt_read_line "$git_dir/gitdir" git_dir
+				cd ${git_dir:h}
+				git status --branch --porcelain --ignore-submodules 2> /dev/null
+				)"})
 			git_result=$?
 		else
 			info=(${(f)"$(git status --branch --porcelain --ignore-submodules 2> /dev/null)"})
@@ -312,9 +319,9 @@ function yazpt_segment_git() {
 					fi
 				elif [[ ! $info[1] =~ "\.\.\." ]]; then
 					# Branch names can't contain "...", so its presence indicates there's a remote/upstream branch
-					if [[ -n $YAZPT_GIT_STATUS_NO_REMOTE_CHAR ]]; then
-						: ${YAZPT_GIT_STATUS_NO_REMOTE_CHAR_COLOR:=default}
-						stat+="%{%F{$YAZPT_GIT_STATUS_NO_REMOTE_CHAR_COLOR}%}$YAZPT_GIT_STATUS_NO_REMOTE_CHAR%{%f%}"
+					if [[ -n $YAZPT_GIT_STATUS_NO_UPSTREAM_CHAR ]]; then
+						: ${YAZPT_GIT_STATUS_NO_UPSTREAM_CHAR_COLOR:=default}
+						stat+="%{%F{$YAZPT_GIT_STATUS_NO_UPSTREAM_CHAR_COLOR}%}$YAZPT_GIT_STATUS_NO_UPSTREAM_CHAR%{%f%}"
 					fi
 				fi
 			fi
