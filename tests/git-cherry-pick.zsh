@@ -33,7 +33,7 @@ cd .git
 test_init_done
 contains_dim_branch "master"
 contains_status "diverged"
-[[ $recent_git == true ]] || contains "CHERRY-PICKING"
+[[ $recent_git == true ]] && contains "IN-GIT-DIR" || contains "CHERRY-PICKING"
 
 # Clean up
 after_tests
