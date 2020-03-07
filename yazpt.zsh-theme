@@ -8,7 +8,7 @@
 # Set up our defaults. Any other preset file can be sourced to customize the configuration,
 # or loaded with yazpt_load_preset (run yazpt_list_presets to see the list of presets),
 # or of course the YAZPT_* environment variables can be tweaked individually.
-# See default-preset.zsh for the list & descriptions of YAZPT_* environment variables.
+# The YAZPT_* environment variables are listed and described in presets/default-preset.zsh.
 #
 yazpt_base_dir=${${(%):-%x}:A:h}
 yazpt_default_preset_file="$yazpt_base_dir/presets/default-preset.zsh"
@@ -258,12 +258,13 @@ function yazpt_segment_git() {
 		fi
 	fi
 
-	# FIXME can each of these be one statement? others below?
 	local color
 	if [[ $in_git_dir == true ]]; then
 		color="${YAZPT_GIT_BRANCH_GIT_DIR_COLOR:=default}"
+		: ${activity:=|IN-GIT-DIR}
 	elif git check-ignore -q .; then
 		color="${YAZPT_GIT_BRANCH_IGNORED_DIR_COLOR:=default}"
+		: ${activity:=|IGNORED}
 	else
 		color="${YAZPT_GIT_BRANCH_COLOR:=default}"
 	fi
