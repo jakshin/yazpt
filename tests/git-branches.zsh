@@ -50,13 +50,39 @@ test_init_done
 contains_dim_branch '$(IFS=_;cmd=echo_arg;$cmd)'
 contains_status "clean"
 
-test_case "On a branch that could trigger prompt expansion"
+test_case "On a branch that could trigger prompt expansion, with prompt_bang on"
+setopt prompt_bang
+git checkout -b 'is!a!test'
+test_init_done
+contains_branch 'is!!a!!test'
+contains_status "no-upstream"
+
+test_case "In the .git directory, on a branch that could trigger prompt expansion, with prompt_bang on"
+cd .git
+test_init_done
+contains_dim_branch 'is!!a!!test'
+contains_status "no-upstream"
+
+test_case "On a branch that could trigger prompt expansion, with prompt_bang off"
+setopt no_prompt_bang
+git checkout -b 'is!a!test'
+test_init_done
+contains_branch 'is!a!test'
+contains_status "no-upstream"
+
+test_case "In the .git directory, on a branch that could trigger prompt expansion, with prompt_bang off"
+cd .git
+test_init_done
+contains_dim_branch 'is!a!test'
+contains_status "no-upstream"
+
+test_case "On a branch that could trigger prompt expansion (prompt_percent)"
 git checkout -b '%F{160}red'
 test_init_done
 contains_branch '%%F{160}red'
 contains_status "no-upstream"
 
-test_case "In the .git directory, on a branch that could trigger prompt expansion"
+test_case "In the .git directory, on a branch that could trigger prompt expansion (prompt_percent)"
 cd .git
 test_init_done
 contains_dim_branch '%%F{160}red'
