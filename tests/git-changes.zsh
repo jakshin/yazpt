@@ -15,6 +15,7 @@ cd ignored
 test_init_done
 contains_dim_branch "branch1"
 contains_status "clean"
+contains "IGNORED"
 
 test_case "With an empty untracked directory"
 mkdir empty
