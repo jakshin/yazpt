@@ -24,6 +24,11 @@ test_init_done
 contains_dim_branch "BARE-REPO"
 excludes "master"
 excludes_status
+YAZPT_GIT_HIDE_IN_BARE_REPO=true
+test_init_done
+excludes "BARE-REPO"
+excludes "master"
+excludes_status
 
 # Clean up
 after_tests
