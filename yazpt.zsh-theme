@@ -5,10 +5,11 @@
 # Based on https://github.com/git/git/blob/master/contrib/completion/git-prompt.sh
 # Distributed under the GNU General Public License, version 2.0
 
-# Set up our defaults.
-# Any other preset file can be sourced to customize the configuration,
-# or loaded with yazpt_load_preset (run yazpt_list_presets to see the options),
+# Set up our defaults. Any other preset file can be sourced to customize the configuration,
+# or loaded with yazpt_load_preset (run yazpt_list_presets to see the list of presets),
 # or of course the YAZPT_* environment variables can be tweaked individually.
+# See default-preset.zsh for the list & descriptions of YAZPT_* environment variables.
+#
 yazpt_base_dir=${${(%):-%x}:A:h}
 yazpt_default_preset_file="$yazpt_base_dir/presets/default-preset.zsh"
 source "$yazpt_default_preset_file"
@@ -162,6 +163,7 @@ function yazpt_precmd() {
 	fi
 
 	unset yazpt_state
+	setopt no_local_options prompt_percent
 }
 
 # Reads the first line of the given path into the given variable.
@@ -175,8 +177,7 @@ function yazpt_read_line() {
 # Implements the "cwd" prompt segment.
 #
 function yazpt_segment_cwd() {
-	: ${YAZPT_CWD_COLOR:=default}
-	yazpt_state[cwd]="%{%F{$YAZPT_CWD_COLOR}%}%~%{%f%}"
+	yazpt_state[cwd]="%{%F{${YAZPT_CWD_COLOR:=default}}%}%~%{%f%}"
 }
 
 # Implements the "git" prompt segment, which shows either git_branch and git_status,
@@ -206,6 +207,7 @@ function yazpt_segment_git() {
 	local branch="" activity="" step="" steps=""
 
 	if [[ $bare_repo == true ]]; then
+		[[ ${YAZPT_GIT_HIDE_IN_BARE_REPO:l} != true ]] || return
 		activity="BARE-REPO"
 	elif [[ -d "$git_dir/rebase-merge" ]]; then
 		activity="|REBASING"
@@ -256,19 +258,22 @@ function yazpt_segment_git() {
 		fi
 	fi
 
+	# FIXME can each of these be one statement? others below?
 	local color
 	if [[ $in_git_dir == true ]]; then
-		: ${YAZPT_GIT_BRANCH_GIT_DIR_COLOR:=default}
-		color="$YAZPT_GIT_BRANCH_GIT_DIR_COLOR"
+		color="${YAZPT_GIT_BRANCH_GIT_DIR_COLOR:=default}"
 	elif git check-ignore -q .; then
-		: ${YAZPT_GIT_BRANCH_IGNORED_DIR_COLOR:=default}
-		color="$YAZPT_GIT_BRANCH_IGNORED_DIR_COLOR"
+		color="${YAZPT_GIT_BRANCH_IGNORED_DIR_COLOR:=default}"
 	else
-		: ${YAZPT_GIT_BRANCH_COLOR:=default}
-		color="$YAZPT_GIT_BRANCH_COLOR"
+		color="${YAZPT_GIT_BRANCH_COLOR:=default}"
 	fi
 
-	branch="${branch//\%/%%}"  # Escape percent signs from prompt expansion, by doubling them
+	if [[ -o prompt_bang ]]; then
+		# Escape exclamation marks from prompt expansion, by doubling them
+		branch=${branch//'!'/'!!'}
+	fi
+
+	branch="${branch//\%/%%}"  # Escape percent signs from prompt expansion
 	branch="%{%F{$color}%}${branch#refs/heads/}${activity}%{%f%}"
 
 	if [[ -o prompt_subst ]]; then
@@ -300,13 +305,11 @@ function yazpt_segment_git() {
 
 		if [[ $git_result != 0 || -z $info ]]; then
 			if [[ -n $YAZPT_GIT_STATUS_UNKNOWN_CHAR ]]; then
-				: ${YAZPT_GIT_STATUS_UNKNOWN_CHAR_COLOR:=default}
-				stat="%{%F{$YAZPT_GIT_STATUS_UNKNOWN_CHAR_COLOR}%}$YAZPT_GIT_STATUS_UNKNOWN_CHAR%{%f%}"
+				stat="%{%F{${YAZPT_GIT_STATUS_UNKNOWN_CHAR_COLOR:=default}}%}$YAZPT_GIT_STATUS_UNKNOWN_CHAR%{%f%}"
 			fi
 		else
 			if (( ${#info} > 1 && ${#YAZPT_GIT_STATUS_DIRTY_CHAR} > 0 )); then
-				: ${YAZPT_GIT_STATUS_DIRTY_CHAR_COLOR:=default}
-				stat="%{%F{$YAZPT_GIT_STATUS_DIRTY_CHAR_COLOR}%}$YAZPT_GIT_STATUS_DIRTY_CHAR%{%f%}"
+				stat="%{%F{${YAZPT_GIT_STATUS_DIRTY_CHAR_COLOR:=default}}%}$YAZPT_GIT_STATUS_DIRTY_CHAR%{%f%}"
 			fi
 
 			if [[ ! $info[1] =~ "no branch" ]]; then
@@ -314,21 +317,18 @@ function yazpt_segment_git() {
 					# Neither branch names nor git's brief status text will contain `[`, so its presence indicates
 					# that git has put "[ahead N]" or "[behind N]" or "[ahead N, behind N]" on the line
 					if [[ -n $YAZPT_GIT_STATUS_DIVERGED_CHAR ]]; then
-						: ${YAZPT_GIT_STATUS_DIVERGED_CHAR_COLOR:=default}
-						stat+="%{%F{$YAZPT_GIT_STATUS_DIVERGED_CHAR_COLOR}%}$YAZPT_GIT_STATUS_DIVERGED_CHAR%{%f%}"
+						stat+="%{%F{${YAZPT_GIT_STATUS_DIVERGED_CHAR_COLOR:=default}}%}$YAZPT_GIT_STATUS_DIVERGED_CHAR%{%f%}"
 					fi
 				elif [[ ! $info[1] =~ "\.\.\." ]]; then
 					# Branch names can't contain "...", so its presence indicates there's a remote/upstream branch
 					if [[ -n $YAZPT_GIT_STATUS_NO_UPSTREAM_CHAR ]]; then
-						: ${YAZPT_GIT_STATUS_NO_UPSTREAM_CHAR_COLOR:=default}
-						stat+="%{%F{$YAZPT_GIT_STATUS_NO_UPSTREAM_CHAR_COLOR}%}$YAZPT_GIT_STATUS_NO_UPSTREAM_CHAR%{%f%}"
+						stat+="%{%F{${YAZPT_GIT_STATUS_NO_UPSTREAM_CHAR_COLOR:=default}}%}$YAZPT_GIT_STATUS_NO_UPSTREAM_CHAR%{%f%}"
 					fi
 				fi
 			fi
 
 			if [[ -z $stat && -n $YAZPT_GIT_STATUS_CLEAN_CHAR ]]; then
-				: ${YAZPT_GIT_STATUS_CLEAN_CHAR_COLOR:=default}
-				stat="%{%F{$YAZPT_GIT_STATUS_CLEAN_CHAR_COLOR}%}$YAZPT_GIT_STATUS_CLEAN_CHAR%{%f%}"
+				stat="%{%F{${YAZPT_GIT_STATUS_CLEAN_CHAR_COLOR:=default}}%}$YAZPT_GIT_STATUS_CLEAN_CHAR%{%f%}"
 			fi
 		fi
 
@@ -375,23 +375,19 @@ function yazpt_segment_result() {
 
 	if [[ $exit_code == 0 ]]; then
 		if [[ -n $YAZPT_RESULT_OK_CHAR ]]; then
-			: ${YAZPT_RESULT_OK_CHAR_COLOR:=default}
-			yazpt_state[result]+="%{%F{$YAZPT_RESULT_OK_CHAR_COLOR}%}$YAZPT_RESULT_OK_CHAR%{%f%}"
+			yazpt_state[result]+="%{%F{${YAZPT_RESULT_OK_CHAR_COLOR:=default}}%}$YAZPT_RESULT_OK_CHAR%{%f%}"
 		fi
 
 		if [[ ${YAZPT_RESULT_OK_CODE_VISIBLE:l} == true ]]; then
-			: ${YAZPT_RESULT_OK_CODE_COLOR:=default}
-			yazpt_state[result]+="%{%F{$YAZPT_RESULT_OK_CODE_COLOR}%}$exit_code%{%f%}"
+			yazpt_state[result]+="%{%F{${YAZPT_RESULT_OK_CODE_COLOR:=default}}%}$exit_code%{%f%}"
 		fi
 	else
 		if [[ -n $YAZPT_RESULT_ERROR_CHAR ]]; then
-			: ${YAZPT_RESULT_ERROR_CHAR_COLOR:=default}
-			yazpt_state[result]+="%{%F{$YAZPT_RESULT_ERROR_CHAR_COLOR}%}$YAZPT_RESULT_ERROR_CHAR%{%f%}"
+			yazpt_state[result]+="%{%F{${YAZPT_RESULT_ERROR_CHAR_COLOR:=default}}%}$YAZPT_RESULT_ERROR_CHAR%{%f%}"
 		fi
 
 		if [[ ${YAZPT_RESULT_ERROR_CODE_VISIBLE:l} == true ]]; then
-			: ${YAZPT_RESULT_ERROR_CODE_COLOR:=default}
-			yazpt_state[result]+="%{%F{$YAZPT_RESULT_ERROR_CODE_COLOR}%}$exit_code%{%f%}"
+			yazpt_state[result]+="%{%F{${YAZPT_RESULT_ERROR_CODE_COLOR:=default}}%}$exit_code%{%f%}"
 		fi
 	fi
 }
