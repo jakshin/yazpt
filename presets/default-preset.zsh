@@ -3,7 +3,7 @@
 # i.e. they're expected to `source` this to reset to defaults,
 # then apply their specific overrides.
 
-# Layout: prompt segments, separators, etc.
+# Layout: Like a template for $PS1, with anything $PS1 can contain, plus prompt segments/separators.
 YAZPT_LAYOUT=$'\n[<cwd><? ><result><? ><git>]\n%# '
 
 # Settings for the "cwd" prompt segment, which shows the current working directory.
@@ -12,6 +12,7 @@ YAZPT_CWD_COLOR=73                         # Cyan
 # Settings for the "git" prompt segment, which combines "git_branch" and "git_status",
 # so their settings affect it too.
 YAZPT_GIT_WRAPPER_CHARS=""                 # Before/after the branch+status; use 2 characters or empty string
+YAZPT_GIT_HIDE_IN_BARE_REPO=false          # Hide git-related prompt segments in a bare repo? (Shows "BARE-REPO" if not)
 
 # Settings for the "git_branch" prompt segment.
 YAZPT_GIT_BRANCH_COLOR=255                 # Bright white
