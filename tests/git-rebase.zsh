@@ -52,6 +52,7 @@ cd .git
 test_init_done
 contains_dim_branch "rebase-me-too"
 contains_status "diverged"
+contains "IN-GIT-DIR"
 cd .. && git checkout master  # Cleanup
 
 # Clean up
