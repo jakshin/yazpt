@@ -29,11 +29,11 @@ test_init_done
 contains '%{%F{1}%}master%{%f%}'
 cd .git
 test_init_done
-contains '%{%F{2}%}master%{%f%}'
+contains '%{%F{2}%}master|IN-GIT-DIR%{%f%}'
 mkdir ../ignored
 cd ../ignored
 test_init_done
-contains '%{%F{3}%}master%{%f%}'
+contains '%{%F{3}%}master|IGNORED%{%f%}'
 
 test_case "Git status = clean"
 YAZPT_GIT_STATUS_CLEAN_CHAR="★"
