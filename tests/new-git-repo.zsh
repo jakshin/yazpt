@@ -19,6 +19,7 @@ cd .git
 test_init_done
 contains_dim_branch "master"
 contains_status "no-upstream"
+contains "IN-GIT-DIR"
 
 # Clean up
 after_tests
