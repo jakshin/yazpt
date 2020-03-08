@@ -1,5 +1,5 @@
 #!/bin/zsh
-# Tests for applying patching from email in a git repo.
+# Tests for applying patches from email in a git repo.
 
 # Initialize
 script_name="$(basename -- "$0")"
