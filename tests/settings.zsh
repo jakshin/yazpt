@@ -7,7 +7,7 @@ cd -- "$(dirname -- "$0")"
 source ./utils.zsh
 before_tests $script_name true
 
-function gitx {
+function gitx() {
 	if [[ $1 == "status" ]]; then
 		return 1
 	else
@@ -27,7 +27,7 @@ YAZPT_GIT_BRANCH_GIT_DIR_COLOR=2
 YAZPT_GIT_BRANCH_IGNORED_DIR_COLOR=3
 test_init_done
 contains '%{%F{1}%}master%{%f%}'
-cd .git
+cd $(git rev-parse --git-dir)
 test_init_done
 contains '%{%F{2}%}master|IN-GIT-DIR%{%f%}'
 mkdir ../ignored
