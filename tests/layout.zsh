@@ -62,5 +62,9 @@ test_init_done
 contains "BAR"  # Sanity check
 excludes "hey"  # The surrounding spaces are non-segment output
 
+test_case "Empty YAZPT_LAYOUT"
+YAZPT_LAYOUT=""
+test_init_done  # Standard tests suffice in this case
+
 # Clean up
 after_tests
