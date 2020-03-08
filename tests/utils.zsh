@@ -14,6 +14,7 @@ function before_tests() {
 	local test_suite="$1"
 	local clone_repo="$2"
 
+	bright='\e[1m'
 	echo -e "${bright}=== Running test suite: $test_suite ===${normal}"
 
 	# We'll need to call yazpt_precmd manually
@@ -24,6 +25,7 @@ function before_tests() {
 	failed=0
 
 	# Make a temp directory to work in
+	unset test_root
 	tmp="$(mktemp -d)"
 	echo "Running tests in $tmp"
 	cd "$tmp"
@@ -34,6 +36,24 @@ function before_tests() {
 	fi
 }
 
+# Reinitializes the test suite, for use in a linked worktree
+function before_linked_tests() {
+	local test_suite="$1"
+
+	bright='\e[38;5;81m'
+	echo -e "\n${bright}=== Rerunning test suite: $script_name (in a linked worktree) ===${normal}"
+
+	cd $tmp
+	rm -rf * .git .gitignore
+	git clone "https://github.com/jakshin/yazpt-test.git"
+	cd "yazpt-test"
+	git checkout -b "no-conflicts-in-linked-worktree"
+	git worktree add "../yazpt-linked" master
+
+	test_root="$tmp/yazpt-linked"
+	cd "$test_root"
+}
+
 # Summarizes and cleans up after the test suite is complete
 function after_tests() {
 	# Summarize; note that code in all.zsh parses this output
@@ -42,6 +62,7 @@ function after_tests() {
 
 	# Clean up
 	if [[ -n $tmp ]]; then
+		cd ~
 		rm -rf $tmp
 	fi
 }
@@ -50,7 +71,12 @@ function after_tests() {
 function test_case() {
 	local description="$1"
 	echo -e "\n${bright}--- Running test case: $description ---${normal}"
-	cd $tmp
+
+	if [[ -n $test_root ]]; then
+		cd $test_root
+	else
+		cd $tmp
+	fi
 }
 
 # Declares initialization of the test case to be complete, and calculates the new $PROMPT
@@ -137,7 +163,7 @@ function contains_status() {
 
 # Verifies that $PROMPT doesn't contain any of the standard git status indicators
 function excludes_status() {
-	if [[ $PROMPT != *⚑* && $PROMPT != *◆* && $PROMPT != *●* && $PROMPT != *⌀* ]]; then
+	if [[ $PROMPT != *⚑* && $PROMPT != *◆* && $PROMPT != *●* && $PROMPT != *⌀* && $PROMPT != *⚭* ]]; then
 		echo " ${success_bullet} \$PROMPT doesn't contain git status"
 		(( passed++ ))
 	else
