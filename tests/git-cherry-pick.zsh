@@ -16,24 +16,32 @@ if (( v[1] > 2 || (v[1] == 2 && v[2] >= 25) )); then
 fi
 
 # Test
-test_case "Cherry-picking"
-git checkout cherry-pick-from-me
-git checkout master
-git cherry-pick 52450fe53496fe6f14e8be48753e65b27aed9ee6..78469cb25340c6bfd2c00f05c58f96704be687f8
-test_init_done
-contains_branch "master"
-contains_status "dirty"
-contains "CHERRY-PICKING"
-git add . && git commit -m "resolved"
-test_init_done
-contains_branch "master"
-contains_status "diverged"
-[[ $recent_git == true ]] || contains "CHERRY-PICKING"
-cd .git
-test_init_done
-contains_dim_branch "master"
-contains_status "diverged"
-[[ $recent_git == true ]] && contains "IN-GIT-DIR" || contains "CHERRY-PICKING"
+function run_tests() {
+	test_case "Cherry-picking"
+	git checkout cherry-pick-from-me
+	git checkout master
+	git cherry-pick 52450fe53496fe6f14e8be48753e65b27aed9ee6..78469cb25340c6bfd2c00f05c58f96704be687f8
+	test_init_done
+	contains_branch "master"
+	contains_status "dirty"
+	contains "CHERRY-PICKING"
+	git add . && git commit -m "resolved"
+	test_init_done
+	contains_branch "master"
+	contains_status "diverged"
+	[[ $recent_git == true ]] || contains "CHERRY-PICKING"
+	cd $(git rev-parse --git-dir)
+	test_init_done
+	contains_dim_branch "master"
+	contains_status "diverged"
+	[[ $recent_git == true ]] && contains "IN-GIT-DIR" || contains "CHERRY-PICKING"
+}
+
+run_tests
+
+# Reinitialize and test again, in a linked worktree
+before_linked_tests $script_name
+run_tests
 
 # Clean up
 after_tests
