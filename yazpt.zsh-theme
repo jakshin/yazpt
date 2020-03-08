@@ -286,7 +286,7 @@ function yazpt_segment_git() {
 	fi
 
 	# Calculate git_status
-	local info=() stat=""
+	local info=() statuses=()
 
 	if [[ $bare_repo == false ]]; then
 		if [[ $in_git_dir == true ]]; then
@@ -305,35 +305,56 @@ function yazpt_segment_git() {
 		fi
 
 		if [[ $git_result != 0 || -z $info ]]; then
-			if [[ -n $YAZPT_GIT_STATUS_UNKNOWN_CHAR ]]; then
-				stat="%{%F{${YAZPT_GIT_STATUS_UNKNOWN_CHAR_COLOR:=default}}%}$YAZPT_GIT_STATUS_UNKNOWN_CHAR%{%f%}"
-			fi
+			statuses+="UNKNOWN"
 		else
-			if (( ${#info} > 1 && ${#YAZPT_GIT_STATUS_DIRTY_CHAR} > 0 )); then
-				stat="%{%F{${YAZPT_GIT_STATUS_DIRTY_CHAR_COLOR:=default}}%}$YAZPT_GIT_STATUS_DIRTY_CHAR%{%f%}"
+			if (( ${#info} > 1 )); then
+				statuses+="DIRTY"
 			fi
 
 			if [[ ! $info[1] =~ "no branch" ]]; then
 				if [[ $info[1] =~ "\[" ]]; then
 					# Neither branch names nor git's brief status text will contain `[`, so its presence indicates
 					# that git has put "[ahead N]" or "[behind N]" or "[ahead N, behind N]" on the line
-					if [[ -n $YAZPT_GIT_STATUS_DIVERGED_CHAR ]]; then
-						stat+="%{%F{${YAZPT_GIT_STATUS_DIVERGED_CHAR_COLOR:=default}}%}$YAZPT_GIT_STATUS_DIVERGED_CHAR%{%f%}"
-					fi
+					statuses+="DIVERGED"
 				elif [[ ! $info[1] =~ "\.\.\." ]]; then
 					# Branch names can't contain "...", so its presence indicates there's a remote/upstream branch
-					if [[ -n $YAZPT_GIT_STATUS_NO_UPSTREAM_CHAR ]]; then
-						stat+="%{%F{${YAZPT_GIT_STATUS_NO_UPSTREAM_CHAR_COLOR:=default}}%}$YAZPT_GIT_STATUS_NO_UPSTREAM_CHAR%{%f%}"
+
+					# Through at least version 2.25.0, `git status` doesn't seem to know whether a branch
+					# in a bare repo's linked worktree has an upstream, so we always end up in this code path;
+					# often, showing a no-upstream status is a lie, and we should show diverged or clean instead
+					(( $+yazpt_worktrees )) || typeset -Ag yazpt_worktrees
+					local abs_git_dir=${git_dir:a}  # Cache key
+
+					if [[ -z $yazpt_worktrees[$abs_git_dir] ]]; then
+							if [[ -f "$abs_git_dir/gitdir" ]]; then
+							local linked_to_bare_repo=$(cd $abs_git_dir; git rev-parse --is-bare-repository)
+							yazpt_worktrees[$abs_git_dir]=$linked_to_bare_repo
+						else
+							yazpt_worktrees[$abs_git_dir]="n/a"  # Not a linked worktree
+						fi
+					fi
+
+					if [[ $yazpt_worktrees[$abs_git_dir] == true ]]; then
+						statuses+="LINKED_BARE"
+					else
+						statuses+="NO_UPSTREAM"
 					fi
 				fi
 			fi
 
-			if [[ -z $stat && -n $YAZPT_GIT_STATUS_CLEAN_CHAR ]]; then
-				stat="%{%F{${YAZPT_GIT_STATUS_CLEAN_CHAR_COLOR:=default}}%}$YAZPT_GIT_STATUS_CLEAN_CHAR%{%f%}"
+			if [[ -z $statuses ]]; then
+				statuses+="CLEAN"
 			fi
 		fi
 
-		yazpt_state[git_status]="$stat"
+		local i git_status=""
+		for (( i=1; i <= $#statuses; i++ )); do
+			local char_var="YAZPT_GIT_STATUS_${statuses[$i]}_CHAR"
+			local color_var="${char_var}_COLOR"
+			[[ -z ${(P)${char_var}} ]] || git_status+="%{%F{${(P)${color_var}:=default}}%}${(P)${char_var}}%{%f%}"
+		done
+
+		yazpt_state[git_status]="$git_status"
 	fi
 
 	# Combine git_branch and git_status
