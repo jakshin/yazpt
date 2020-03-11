@@ -14,6 +14,19 @@ yazpt_base_dir=${${(%):-%x}:A:h}
 yazpt_default_preset_file="$yazpt_base_dir/presets/default-preset.zsh"
 source "$yazpt_default_preset_file"
 
+# Explains yazpt's git status characters and their meanings.
+#
+function yazpt_explain_git() {
+	local src="$yazpt_base_dir/functions/explain-git.zsh"
+	if [[ -r $src ]]; then
+		source $src
+		yazpt_explain_git "$@"
+	else
+		echo "Error: Can't find explain-git.zsh"
+		return 1
+	fi
+}
+
 # Lists all yazpt presets which can be loaded by yazpt_load_preset.
 #
 function yazpt_list_presets() {
