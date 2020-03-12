@@ -13,11 +13,14 @@
 yazpt_base_dir=${${(%):-%x}:A:h}
 yazpt_default_preset_file="$yazpt_base_dir/presets/default-preset.zsh"
 source "$yazpt_default_preset_file"
+setopt prompt_percent
 
 # Explains yazpt's git status characters and their meanings.
 #
 function yazpt_explain_git() {
+	emulate -L zsh
 	local src="$yazpt_base_dir/functions/explain-git.zsh"
+
 	if [[ -r $src ]]; then
 		source $src
 		yazpt_explain_git "$@"
@@ -176,7 +179,6 @@ function yazpt_precmd() {
 	fi
 
 	unset yazpt_state
-	setopt no_local_options prompt_percent
 }
 
 # Reads the first line of the given path into the given variable.
