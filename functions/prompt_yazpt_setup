@@ -1,0 +1,98 @@
+# Yet another zsh prompt theme
+# https://github.com/jakshin/yazpt
+#
+# This file integrates yazpt with zsh's "promptinit" prompt theme system
+# http://zsh.sourceforge.net/Doc/Release/User-Contributions.html#Prompt-Themes
+# https://github.com/zsh-users/zsh/blob/master/Functions/Prompts/promptinit
+
+# We need to know where this file is, to source yazpt.zsh-theme from a relative path.
+[[ -n $prompt_yazpt_setup_dir ]] || declare -rg prompt_yazpt_setup_dir=${${(%):-%x}:A:h}
+
+# Called by the prompt theme system to show help for the yazpt theme.
+# Run `prompt -h yazpt` to use.
+#
+function prompt_yazpt_help() {
+	echo 'The yazpt prompt theme is multi-line by default, but can be set up'
+	echo 'as a single-line prompt (via a preset or manually, see below).\n'
+
+	echo 'It shows the current working directory, of course, and also the'
+	echo 'git branch and status if the current directory is in a git repo,'
+	echo 'and optionally the status/exit code of the most recent command.\n'
+
+	echo 'It comes with a handful of "presets" which change its appearance,'
+	echo 'and is fully configurable via its $YAZPT_* environment variables.\n'
+
+	echo "Type \`prompt -p \"yazpt all\"' to preview all of yazpt's presets,"
+	echo "or \`prompt -p yazpt PRESET' to use one, where PRESET is its name."
+	echo "Note that your working directory should be in a git repo while you"
+	echo "preview the theme, if you want to see its git features in action."
+}
+
+# Called by the prompt theme system to preview the yazpt theme. 
+# Run `prompt -p` to preview all themes, or `prompt -p yazpt` to just preview yazpt;
+# you can optionally pass a preset, e.g. `prompt -p "yazpt blues"`,
+# or preview all of yazpt's presets with `prompt -p "yazpt all"`.
+#
+function prompt_yazpt_preview() {
+	YAZPT_TRIM=true  # So our prompt preview won't have a blank line below its header
+
+	if [[ $1 == "all" ]]; then
+		# Preview each available preset
+		local i presets=(${(s: :)$(yazpt_list_presets)})
+		for (( i=1; i <= $#presets; i++ )); do
+			prompt_preview_theme yazpt $presets[$i]
+			(( $i == $#presets )) || echo
+		done
+	elif [[ $#@ ]]; then
+		prompt_preview_theme yazpt "$@"  # Preview the requested preset
+	else
+		prompt_preview_theme yazpt  # Preview the default preset
+	fi
+
+	unset YAZPT_TRIM
+	if [[ -n $prompt_yazpt_state_stash ]]; then
+		eval "$prompt_yazpt_state_stash"
+		unset prompt_yazpt_state_stash
+	fi
+}
+
+# Called by the prompt theme system to activate the yazpt theme (and in other cases too).
+# Run `prompt yazpt` to use; you can optionally pass a preset, e.g. `prompt yazpt yolo`.
+#
+function prompt_yazpt_setup() {
+	local preset=$1
+
+	# We want to source yazpt.zsh-theme iff this is a "real" setup call (to activate or preview the prompt),
+	# not just a call to ensure we've been autoloaded for `prompt -h`
+	local i preview=false
+	for (( i=1; i <= $#functrace; i++ )); do
+		local trace=$functrace[$i]  # Also see $funcfiletrace, $funcsourcetrace, $funcstack
+
+		if [[ $trace =~ "^set_prompt:[[:digit:]]+$" ]]; then
+			local trace_parts=(${(s.:.)trace})
+			(( $trace_parts[2] >= 55 )) || return
+			break
+		elif [[ $trace == "prompt_preview_"* ]]; then
+			preview=true
+		fi
+	done
+
+	if [[ $preview == true && -z $prompt_yazpt_state_stash ]]; then
+		# Save the current state of all YAZPT_* environment variables,
+		# in case yazpt is loaded outside the prompt theme system
+		prompt_yazpt_state_stash=$(typeset -m 'YAZPT_*' | tr '\n' ';')
+	fi
+
+	prompt_opts=(cr sp percent)
+	unset RPS1 RPS2  # Clean up after other promptinit themes, e.g. bart, walters
+
+	source "$prompt_yazpt_setup_dir/../yazpt.zsh-theme"
+	[[ -z $preset ]] || yazpt_load_preset $preset
+
+	# Use a wrapper function for precmd, named so it'll be automatically cleaned up
+	function prompt_yazpt_precmd() { yazpt_precmd }
+	add-zsh-hook precmd prompt_yazpt_precmd
+	add-zsh-hook -d precmd yazpt_precmd
+}
+
+[[ -o kshautoload ]] || prompt_yazpt_setup "$@"

@@ -10,8 +10,8 @@
 # or of course the YAZPT_* environment variables can be tweaked individually.
 # The YAZPT_* environment variables are listed and described in presets/default-preset.zsh.
 #
-yazpt_base_dir=${${(%):-%x}:A:h}
-yazpt_default_preset_file="$yazpt_base_dir/presets/default-preset.zsh"
+[[ -n $yazpt_base_dir ]] || declare -rg yazpt_base_dir=${${(%):-%x}:A:h}
+[[ -n $yazpt_default_preset_file ]] || declare -rg yazpt_default_preset_file="$yazpt_base_dir/presets/default-preset.zsh"
 source "$yazpt_default_preset_file"
 setopt prompt_percent
 
@@ -108,10 +108,12 @@ function yazpt_precmd() {
 
 	PS1=""
 	: ${YAZPT_LAYOUT:=<cwd> %# }
-	local i len=${#YAZPT_LAYOUT}
+	local layout=$YAZPT_LAYOUT
+	[[ -n $YAZPT_TRIM && $layout[1] == $'\n' ]] && layout=$layout[2,-1]
+	local i len=${#layout}
 
 	for (( i=1; i <= len; i++ )); do
-		local ch=$YAZPT_LAYOUT[$i]
+		local ch=$layout[$i]
 
 		if [[ $parsing_segment == true ]]; then
 			if [[ $escaped == true ]]; then
@@ -430,5 +432,5 @@ function yazpt_segment_result() {
 }
 
 # Begin using the yazpt prompt theme as soon as this file is sourced.
-autoload -U add-zsh-hook
+autoload -Uz add-zsh-hook
 add-zsh-hook precmd yazpt_precmd
