@@ -89,6 +89,7 @@ function yazpt_plugin_unload() {
 	emulate -L zsh
 	add-zsh-hook -d precmd yazpt_precmd
 	unfunction -m 'yazpt_*'
+	typeset +r -m 'yazpt_*'
 	unset -m 'YAZPT_*' 'yazpt_*'
 	PS1='%n@%m %1~ %# '
 }
