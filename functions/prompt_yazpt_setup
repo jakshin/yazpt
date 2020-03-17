@@ -4,6 +4,8 @@
 # This file integrates yazpt with zsh's "promptinit" prompt theme system
 # http://zsh.sourceforge.net/Doc/Release/User-Contributions.html#Prompt-Themes
 # https://github.com/zsh-users/zsh/blob/master/Functions/Prompts/promptinit
+#
+# ...and Prezto: https://github.com/sorin-ionescu/prezto/tree/master/modules/prompt
 
 # We need to know where this file is, to source yazpt.zsh-theme from a relative path.
 [[ -n $prompt_yazpt_setup_dir ]] || declare -rg prompt_yazpt_setup_dir=${${(%):-%x}:A:h}
@@ -84,7 +86,8 @@ function prompt_yazpt_setup() {
 	fi
 
 	prompt_opts=(cr sp percent)
-	unset RPS1 RPS2  # Clean up after other promptinit themes, e.g. bart, walters
+	RPS1="" RPS2=""  # Clean up after other promptinit themes, e.g. bart, walters
+	[[ -n $ZPREZTODIR ]] && zstyle ':prezto:module:prompt' managed 'yes'  # Hey Prezto!
 
 	source "$prompt_yazpt_setup_dir/../yazpt.zsh-theme"
 	[[ -z $preset ]] || yazpt_load_preset $preset
