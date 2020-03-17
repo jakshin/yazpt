@@ -195,7 +195,25 @@ function yazpt_read_line() {
 # Implements the "cwd" prompt segment.
 #
 function yazpt_segment_cwd() {
-	yazpt_state[cwd]="%{%F{${YAZPT_CWD_COLOR:=default}}%}%~%{%f%}"
+	local cwd="" pwd_length
+	if [[ -n $ZPREZTODIR ]] && \
+			zstyle -g pwd_length ':prezto:module:prompt' 'pwd-length' && \
+			[[ -n $pwd_length ]] && \
+			functions "prompt-pwd" &> /dev/null; then
+		cwd="$(prompt-pwd)"
+
+		# Escape things as needed
+		[[ -o prompt_bang ]] && cwd=${cwd//'!'/'!!'}
+		[[ -o prompt_percent ]] && cwd="${cwd//\%/%%}"
+
+		if [[ -o prompt_subst ]]; then
+			yazpt_cwd="$cwd"
+			cwd='$yazpt_cwd'
+		fi
+	fi
+
+	[[ -n $cwd ]] || cwd='%~'
+	yazpt_state[cwd]="%{%F{${YAZPT_CWD_COLOR:=default}}%}${cwd}%{%f%}"
 }
 
 # Implements the "git" prompt segment, which shows either git_branch and git_status,
@@ -419,7 +437,9 @@ function yazpt_segment_result() {
 		fi
 
 		if [[ ${YAZPT_RESULT_OK_CODE_VISIBLE:l} == true ]]; then
-			yazpt_state[result]+="%{%F{${YAZPT_RESULT_OK_CODE_COLOR:=default}}%}$exit_code%{%f%}"
+			if [[ -z $ZPREZTODIR ]] || zstyle -T ':prezto:module:prompt' show-return-val; then
+				yazpt_state[result]+="%{%F{${YAZPT_RESULT_OK_CODE_COLOR:=default}}%}$exit_code%{%f%}"
+			fi
 		fi
 	else
 		if [[ -n $YAZPT_RESULT_ERROR_CHAR ]]; then
@@ -427,7 +447,9 @@ function yazpt_segment_result() {
 		fi
 
 		if [[ ${YAZPT_RESULT_ERROR_CODE_VISIBLE:l} == true ]]; then
-			yazpt_state[result]+="%{%F{${YAZPT_RESULT_ERROR_CODE_COLOR:=default}}%}$exit_code%{%f%}"
+			if [[ -z $ZPREZTODIR ]] || zstyle -T ':prezto:module:prompt' show-return-val; then
+				yazpt_state[result]+="%{%F{${YAZPT_RESULT_ERROR_CODE_COLOR:=default}}%}$exit_code%{%f%}"
+			fi
 		fi
 	fi
 }
