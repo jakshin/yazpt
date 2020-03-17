@@ -81,13 +81,13 @@ function test_case() {
 
 # Declares initialization of the test case to be complete, and calculates the new $PROMPT
 function test_init_done() {
-	[[ $1 == "" ]] || eval $1
+	[[ $1 == "" || $1 == "no-standard-tests" ]] || eval $1
 	yazpt_precmd
 
 	PROMPT="${PROMPT//$'\n'/}"  # Remove linebreaks for easier comparison
 	echo $'\n'"-- \$PROMPT is: $PROMPT"
 
-	standard_tests
+	[[ $1 == "no-standard-tests" ]] || standard_tests
 }
 
 # Runs "standard" tests, i.e. verifies things that should always be true
