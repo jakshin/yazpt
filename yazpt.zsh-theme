@@ -63,6 +63,10 @@ function yazpt_load_preset() {
 
 	if [[ -r $preset_file ]]; then
 		source "$preset_file"
+
+		if [[ $YAZPT_PREVIEW != true && $prompt_theme[1] == "yazpt" ]]; then
+			prompt_theme[2]=$preset  # So `prompt -h yazpt` will restore the right preset
+		fi
 	else
 		echo "Error: Can't find preset '$preset'"
 		echo "Run the yazpt_list_presets function for a complete list"
@@ -87,10 +91,15 @@ compdef _yazpt_load_preset yazpt_load_preset
 #
 function yazpt_plugin_unload() {
 	emulate -L zsh
+
 	add-zsh-hook -d precmd yazpt_precmd
 	unfunction -m 'yazpt_*'
 	typeset +r -m 'yazpt_*'
 	unset -m 'YAZPT_*' 'yazpt_*'
+
+	# This isn't ideal, but if we don't reset PS1 to something generic,
+	# we can leave the last PS1 calculated by yazpt in place indefinitely,
+	# including zombie current working directory & git/Subversion info :-/
 	PS1='%n@%m %1~ %# '
 }
 
@@ -110,7 +119,7 @@ function yazpt_precmd() {
 	PS1=""
 	: ${YAZPT_LAYOUT:=<cwd> %# }
 	local layout=$YAZPT_LAYOUT
-	[[ -n $YAZPT_TRIM && $layout[1] == $'\n' ]] && layout=$layout[2,-1]
+	[[ $YAZPT_PREVIEW == true && $layout[1] == $'\n' ]] && layout=$layout[2,-1]
 	local i len=${#layout}
 
 	for (( i=1; i <= len; i++ )); do
