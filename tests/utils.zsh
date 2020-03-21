@@ -195,3 +195,38 @@ function dir_does_not_exist() {
 		(( failed++ ))
 	fi
 }
+
+# Verifies that precmd_functions contains exactly one of our functions
+function has_one_precmd_function() {
+	local i count=0
+	for (( i=1; i <= $#precmd_functions; i++ )); do
+		local fn=$precmd_functions[$i]
+		[[ $fn == *"yazpt"* ]] && (( count++ ))
+	done
+
+	if [[ $count == 1 ]]; then
+		echo " ${success_bullet} The precmd_functions array contains exactly one of our functions"
+		(( passed++ ))
+	elif [[ $count == 0 ]]; then
+		echo " ${failure_bullet} The precmd_functions array doesn't contain one of our functions"
+		(( failed++ ))
+	else
+		echo " ${failure_bullet} The precmd_functions array erroneously contains $count of our functions"
+		(( failed++ ))
+	fi
+}
+
+# Verifies that precmd_functions contains none of our functions
+function has_no_precmd_function() {
+	local i
+	for (( i=1; i <= $#precmd_functions; i++ )); do
+		local fn=$precmd_functions[$i]
+		if [[ fn == *"yazpt"* ]]; then
+			echo " ${failure_bullet} The precmd_functions array erroneously contains one of our functions"
+			(( failed++ ))
+		fi
+	done
+
+	echo " ${success_bullet} The precmd_functions array contains none of our functions"
+	(( passed++ ))
+}
