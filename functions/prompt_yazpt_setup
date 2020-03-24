@@ -14,20 +14,24 @@
 # Run `prompt -h yazpt` to use.
 #
 function prompt_yazpt_help() {
-	echo 'The yazpt prompt theme is multi-line by default, but can be set up'
-	echo 'as a single-line prompt (via a preset or manually, see below).\n'
-
-	echo 'It shows the current working directory, of course, and also the'
-	echo 'git branch and status if the current directory is in a git repo,'
-	echo 'and optionally the status/exit code of the most recent command.\n'
+	echo 'Yazpt is a clean, fast prompt theme with Git and Subversion support.'
+	echo "It's straightforward to customize and extend. Multi-line by default,"
+	echo 'it can easily be configured as a single-line prompt.\n'
 
 	echo 'It comes with a handful of "presets" which change its appearance,'
 	echo 'and is fully configurable via its $YAZPT_* environment variables.\n'
 
+	echo 'Depending on your configuration, it shows any/all of:'
+	echo '* The current working directory'
+	echo '* The exit status of the most recent command'
+	echo '* The Git branch and working tree status'
+	echo '* The Subversion branch and working copy status\n'
+
 	echo "Type \`prompt -p \"yazpt all\"' to preview all of yazpt's presets,"
 	echo "or \`prompt yazpt PRESET' to use one, where PRESET is its name."
-	echo "Note that your working directory should be in a git repo while you"
-	echo "preview the theme, if you want to see its git features in action."
+	echo "Note that your working directory should be in a Git working tree"
+	echo "or Subversion working copy when you preview the theme,"
+	echo "if you want to see its Git/Subversion features in action."
 }
 
 # Called by the prompt theme system to preview the yazpt theme. 
