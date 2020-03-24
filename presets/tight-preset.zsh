@@ -2,5 +2,4 @@
 # and without a blank line before the prompt.
 
 source "$yazpt_default_preset_file"
-
-YAZPT_LAYOUT='[<cwd><? ><result><? ><git>]%# '
+YAZPT_LAYOUT=${YAZPT_LAYOUT//$'\n'/}
