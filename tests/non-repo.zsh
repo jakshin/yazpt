@@ -1,5 +1,5 @@
 #!/bin/zsh
-# Tests for directories which aren't git repos.
+# Tests for directories which aren't Git repos.
 
 # Initialize
 script_name="$(basename -- "$0")"
