@@ -9,10 +9,16 @@ failure='\e[38;5;160m'
 success_bullet="${success}✔${normal}"
 failure_bullet="${failure}✖︎${normal}"
 
+# Utility function for getting the current time with higher resolution than seconds,
+# since macOS's "date" doesn't allow that
+function current_timestamp() {
+	perl -MTime::HiRes=time -e 'printf "%.9f\n", time'
+}
+
 # Initializes the test suite
 function before_tests() {
 	local test_suite="$1"
-	local clone_repo="$2"
+	local repo_type="$2"
 
 	bright='\e[1m'
 	echo -e "${bright}=== Running test suite: $test_suite ===${normal}"
@@ -30,9 +36,13 @@ function before_tests() {
 	echo "Running tests in $tmp"
 	cd "$tmp"
 
-	# Might need to clone a repo
-	if [[ -n $clone_repo ]]; then
+	# Might need to clone or check out a repo
+	if [[ $repo_type == *git* ]]; then
 		git clone "https://github.com/jakshin/yazpt-test.git" .
+	elif [[ $repo_type == *svn-root* ]]; then
+		svn checkout "https://svn.riouxsvn.com/yazpt-svn-test" .
+	elif [[ $repo_type == *svn* ]]; then
+		svn checkout "https://svn.riouxsvn.com/yazpt-svn-test/trunk" .
 	fi
 }
 
@@ -152,22 +162,47 @@ function contains_dim_branch() {
 
 # Verifies that $PROMPT contains the given git status indicator
 function contains_status() {
-	local stat="$1"
-	[[ $stat == "clean" ]] && stat="%{%F{29}%}●%{%f%}"
-	[[ $stat == "dirty" ]] && stat="%{%F{208}%}⚑%{%f%}"
-	[[ $stat == "diverged" ]] && stat="%{%F{166}%}◆%{%f%}"
-	[[ $stat == "no-upstream" ]] && stat="%{%F{31}%}◆%{%f%}"
-	[[ $stat == "unknown" ]] && stat="%{%F{9}%}⌀%{%f%}"
-	contains $stat
+	local stat="$1" stat_str
+
+	if [[ $stat == "clean" ]]; then
+		stat_str="%{%F{29}%}●%{%f%}"
+	elif [[ $stat == "conflict" ]]; then
+		stat_str="%{%F{9}%}≠%{%f%}"
+	elif [[ $stat == "dirty" ]]; then
+		stat_str="%{%F{208}%}⚑%{%f%}"
+	elif [[ $stat == "diverged" ]]; then
+		stat_str="%{%F{166}%}◆%{%f%}"
+	elif [[ $stat == "locked" ]]; then
+		stat_str="%{%F{229}%}⊠%{%f%}"
+	elif [[ $stat == "no-upstream" ]]; then
+		stat_str="%{%F{31}%}◆%{%f%}"
+	elif [[ $stat == "unknown" ]]; then
+		stat_str="%{%F{9}%}⌀%{%f%}"
+	else
+		stat_str="~~~ [not a known status] ~~~"
+	fi
+
+	contains $stat_str
 }
 
-# Verifies that $PROMPT doesn't contain any of the standard git status indicators
-function excludes_status() {
+# Verifies that $PROMPT doesn't contain any of the standard Git status indicators
+function excludes_git_status() {
 	if [[ $PROMPT != *⚑* && $PROMPT != *◆* && $PROMPT != *●* && $PROMPT != *⌀* && $PROMPT != *⚭* ]]; then
-		echo " ${success_bullet} \$PROMPT doesn't contain git status"
+		echo " ${success_bullet} \$PROMPT doesn't contain Git status"
 		(( passed++ ))
 	else
-		echo " ${failure_bullet} \$PROMPT erroneously contains git status"
+		echo " ${failure_bullet} \$PROMPT erroneously contains Git status"
+		(( failed++ ))
+	fi
+}
+
+# Verifies that $PROMPT doesn't contain any of the standard Subversion status indicators
+function excludes_svn_status() {
+	if [[ $PROMPT != *●* && $PROMPT != *⚑* && $PROMPT != *⊠* && $PROMPT != *≠* && $PROMPT != *⌀* ]]; then
+		echo " ${success_bullet} \$PROMPT doesn't contain Subversion status"
+		(( passed++ ))
+	else
+		echo " ${failure_bullet} \$PROMPT erroneously contains Subversion status"
 		(( failed++ ))
 	fi
 }
@@ -229,4 +264,35 @@ function has_no_precmd_function() {
 
 	echo " ${success_bullet} The precmd_functions array contains none of our functions"
 	(( passed++ ))
+}
+
+# Verifies that the given variable equals its expected value
+function equals() {
+	local val_name=$1
+	local actual_val=$2
+	local expected_val=$3
+
+	if [[ $actual_val == $expected_val ]]; then
+		echo " ${success_bullet} $val_name equals $expected_val"
+		(( passed++ ))
+	else
+		echo " ${failure_bullet} $val_name doesn't equal $expected_val ($actual_val instead)"
+		(( failed++ ))
+	fi
+}
+
+# Verifies that the first variable given is less than the second variable given
+function first_is_less() {
+	local val1_name=$1
+	local val1=$2
+	local val2_name=$3
+	local val2=$4
+
+	if (( $val1 < $val2 )); then
+		echo " ${success_bullet} $val1_name is less than $val2_name"
+		(( passed++ ))
+	else
+		echo " ${failure_bullet} $val1_name ($val1) isn't less than $val2_name ($val2)"
+		(( failed++ ))
+	fi
 }
