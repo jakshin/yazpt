@@ -1,4 +1,4 @@
-# Yet another zsh prompt theme with git awareness
+# Yet another zsh prompt theme with Git & Subversion awareness
 # https://github.com/jakshin/yazpt
 #
 # Copyright (c) 2020 Jason Jackson <jasonjackson@pobox.com>
@@ -15,7 +15,7 @@
 source "$yazpt_default_preset_file"
 setopt prompt_percent
 
-# Explains yazpt's git status characters and their meanings.
+# Explains yazpt's Git status characters and their meanings.
 #
 function yazpt_explain_git() {
 	emulate -L zsh
@@ -26,6 +26,21 @@ function yazpt_explain_git() {
 		yazpt_explain_git "$@"
 	else
 		echo "Error: Can't find explain-git.zsh"
+		return 1
+	fi
+}
+
+# Explains yazpt's Subversion status characters and their meanings.
+#
+function yazpt_explain_svn() {
+	emulate -L zsh
+	local src="$yazpt_base_dir/functions/explain-svn.zsh"
+
+	if [[ -r $src ]]; then
+		source $src
+		yazpt_explain_svn "$@"
+	else
+		echo "Error: Can't find explain-svn.zsh"
 		return 1
 	fi
 }
@@ -99,7 +114,7 @@ function yazpt_plugin_unload() {
 
 	# This isn't ideal, but if we don't reset PS1 to something generic,
 	# we can leave the last PS1 calculated by yazpt in place indefinitely,
-	# including zombie current working directory & git/Subversion info :-/
+	# including zombie current working directory & Git/Subversion info :-/
 	PS1='%n@%m %1~ %# '
 }
 
@@ -114,7 +129,7 @@ function yazpt_precmd() {
 	local separator=""            # The pending segment separator, if any
 
 	emulate -L zsh
-	typeset -Ag yazpt_state=(exit_code $exit_code)  # State shared across segment functions
+	declare -Ag yazpt_state=(exit_code $exit_code)  # State shared across segment functions
 
 	PS1=""
 	: ${YAZPT_LAYOUT:=<cwd> %# }
@@ -148,7 +163,7 @@ function yazpt_precmd() {
 					if [[ $last_was_segment == true && -z $separator ]]; then
 						separator="$segment"
 					fi
-				elif which "yazpt_segment_$segment" > /dev/null; then
+				elif functions "yazpt_segment_$segment" > /dev/null; then
 					"yazpt_segment_$segment"  # Execute the segment's function
 
 					if [[ -n $yazpt_state[$segment] ]]; then
@@ -225,23 +240,53 @@ function yazpt_segment_cwd() {
 	yazpt_state[cwd]="%{%F{${YAZPT_CWD_COLOR:=default}}%}${cwd}%{%f%}"
 }
 
-# Implements the "git" prompt segment, which shows either git_branch and git_status,
-# separated by a space and optionally surrounded by configured characters, or nothing.
-# Also implements the "git_branch" segment (which also shows any in-progress activity)
-# and "git_status" segment; each is a subset of the "git" segment, separated out
-# so they can be displayed separately if desired.
+# Implements the "exit" prompt segment (reflecting the exit code of the last command).
+#
+function yazpt_segment_exit() {
+	local exit_code=$yazpt_state[exit_code]
+
+	if [[ $exit_code == 0 ]]; then
+		if [[ -n $YAZPT_EXIT_OK_CHAR ]]; then
+			yazpt_state[exit]+="%{%F{${YAZPT_EXIT_OK_COLOR:=default}}%}$YAZPT_EXIT_OK_CHAR%{%f%}"
+		fi
+
+		if [[ ${YAZPT_EXIT_OK_CODE_VISIBLE:l} == true ]]; then
+			if [[ -z $ZPREZTODIR ]] || zstyle -T ':prezto:module:prompt' show-return-val; then
+				yazpt_state[exit]+="%{%F{${YAZPT_EXIT_OK_COLOR:=default}}%}$exit_code%{%f%}"
+			fi
+		fi
+	else
+		if [[ -n $YAZPT_EXIT_ERROR_CHAR ]]; then
+			yazpt_state[exit]+="%{%F{${YAZPT_EXIT_ERROR_COLOR:=default}}%}$YAZPT_EXIT_ERROR_CHAR%{%f%}"
+		fi
+
+		if [[ ${YAZPT_EXIT_ERROR_CODE_VISIBLE:l} == true ]]; then
+			if [[ -z $ZPREZTODIR ]] || zstyle -T ':prezto:module:prompt' show-return-val; then
+				yazpt_state[exit]+="%{%F{${YAZPT_EXIT_ERROR_COLOR:=default}}%}$exit_code%{%f%}"
+			fi
+		fi
+	fi
+}
+
+# Implements the "git" prompt segment, which shows the Git branch/tag/SHA, any 'activity' in progress,
+# such as rebasing or merging, and 1-2 characters indicating the current status of the working tree.
 #
 function yazpt_segment_git() {
+	# Check the whitelist
+	if [[ ${(t)YAZPT_VCS_GIT_WHITELIST} == array ]] && ! yazpt_test_whitelist YAZPT_VCS_GIT_WHITELIST; then
+		return
+	fi
+
 	# Ignore $GIT_DIR in this function, including subshells launched from it
 	local GIT_DIR; unset GIT_DIR
 
-	# Calculate git_branch first
-	local info git_result
+	# Calculate Git branch/tag/SHA first (also including any in-flight activity, such as rebasing)
+	local info git_exit_code
 	info=(${(f)"$(git rev-parse --is-bare-repository --git-dir --is-inside-git-dir --short HEAD 2> /dev/null)"})
-	git_result=$?
+	git_exit_code=$?
 
 	if [[ $info == "" ]]; then
-		yazpt_state[git_error]=$git_result  # Either the CWD isn't in a git repo, or we can't run git
+		yazpt_state[git_error]=$git_exit_code  # Either the working directory isn't in a Git repo, or we can't run git
 		return
 	fi
 
@@ -252,7 +297,7 @@ function yazpt_segment_git() {
 	local branch="" activity="" step="" steps=""
 
 	if [[ $bare_repo == true ]]; then
-		[[ ${YAZPT_GIT_HIDE_IN_BARE_REPO:l} != true ]] || return
+		[[ ${YAZPT_VCS_BARE_REPO_VISIBLE:l} == true ]] || return
 		activity="BARE-REPO"
 	elif [[ -d "$git_dir/rebase-merge" ]]; then
 		activity="|REBASING"
@@ -305,13 +350,13 @@ function yazpt_segment_git() {
 
 	local color
 	if [[ $in_git_dir == true ]]; then
-		color="${YAZPT_GIT_BRANCH_GIT_DIR_COLOR:=default}"
+		color="${YAZPT_VCS_BRANCH_IN_META_COLOR:=default}"
 		: ${activity:=|IN-GIT-DIR}
 	elif git check-ignore -q .; then
-		color="${YAZPT_GIT_BRANCH_IGNORED_DIR_COLOR:=default}"
+		color="${YAZPT_VCS_BRANCH_IN_IGNORED_COLOR:=default}"
 		: ${activity:=|IGNORED}
 	else
-		color="${YAZPT_GIT_BRANCH_COLOR:=default}"
+		color="${YAZPT_VCS_BRANCH_COLOR:=default}"
 	fi
 
 	if [[ -o prompt_bang ]]; then
@@ -323,14 +368,13 @@ function yazpt_segment_git() {
 	branch="%{%F{$color}%}${branch#refs/heads/}${activity}%{%f%}"
 
 	if [[ -o prompt_subst ]]; then
-		yazpt_git_branch="$branch"
-		yazpt_state[git_branch]='$yazpt_git_branch'
+		yazpt_branch="$branch"
+		branch='$yazpt_branch'
 	else
-		unset yazpt_git_branch
-		yazpt_state[git_branch]="$branch"
+		unset yazpt_branch
 	fi
 
-	# Calculate git_status
+	# Calculate Git status
 	local info=() statuses=()
 
 	if [[ $bare_repo == false ]]; then
@@ -343,13 +387,13 @@ function yazpt_segment_git() {
 				cd ${git_dir:h}
 				git status --branch --porcelain --ignore-submodules 2> /dev/null
 				)"})
-			git_result=$?
+			git_exit_code=$?
 		else
 			info=(${(f)"$(git status --branch --porcelain --ignore-submodules 2> /dev/null)"})
-			git_result=$?
+			git_exit_code=$?
 		fi
 
-		if [[ $git_result != 0 || -z $info ]]; then
+		if [[ $git_exit_code != 0 || -z $info ]]; then
 			statuses+="UNKNOWN"
 		else
 			if (( ${#info} > 1 )); then
@@ -358,8 +402,8 @@ function yazpt_segment_git() {
 
 			if [[ ! $info[1] =~ "no branch" ]]; then
 				if [[ $info[1] =~ "\[" ]]; then
-					# Neither branch names nor git's brief status text will contain `[`, so its presence indicates
-					# that git has put "[ahead N]" or "[behind N]" or "[ahead N, behind N]" on the line
+					# Neither branch names nor Git's brief status text will contain `[`, so its presence indicates
+					# that Git has put "[ahead N]" or "[behind N]" or "[ahead N, behind N]" on the line
 					statuses+="DIVERGED"
 				elif [[ ! $info[1] =~ "\.\.\." ]]; then
 					# Branch names can't contain "...", so its presence indicates there's a remote/upstream branch
@@ -367,7 +411,7 @@ function yazpt_segment_git() {
 					# Through at least version 2.25.0, `git status` doesn't seem to know whether a branch
 					# in a bare repo's linked worktree has an upstream, so we always end up in this code path;
 					# often, showing a no-upstream status is a lie, and we should show diverged or clean instead
-					(( $+yazpt_worktrees )) || typeset -Ag yazpt_worktrees
+					(( $+yazpt_worktrees )) || declare -Ag yazpt_worktrees
 					local abs_git_dir=${git_dir:a}  # Cache key
 
 					if [[ -z $yazpt_worktrees[$abs_git_dir] ]]; then
@@ -394,72 +438,71 @@ function yazpt_segment_git() {
 
 		local i git_status=""
 		for (( i=1; i <= $#statuses; i++ )); do
-			local char_var="YAZPT_GIT_STATUS_${statuses[$i]}_CHAR"
-			local color_var="${char_var}_COLOR"
+			local char_var="YAZPT_VCS_STATUS_${statuses[$i]}_CHAR"
+			local color_var="${char_var%_CHAR}_COLOR"
 			[[ -z ${(P)${char_var}} ]] || git_status+="%{%F{${(P)${color_var}:=default}}%}${(P)${char_var}}%{%f%}"
 		done
-
-		yazpt_state[git_status]="$git_status"
 	fi
 
-	# Combine git_branch and git_status
-	local combined="$yazpt_state[git_branch]"
-	if [[ -n $yazpt_state[git_status] ]]; then
-		combined+=" $yazpt_state[git_status]"
+	# Combine Git branch+activity and status
+	local combined="$branch"
+	if [[ -n $git_status ]]; then
+		combined+=" $git_status"
 	fi
 
-	if (( ${#YAZPT_GIT_WRAPPER_CHARS} >= 2 )); then
-		local before="%{%F{$color}%}$YAZPT_GIT_WRAPPER_CHARS[1]%{%f%}"
-		local after="%{%F{$color}%}$YAZPT_GIT_WRAPPER_CHARS[2]%{%f%}"
+	if (( ${#YAZPT_VCS_WRAPPER_CHARS} >= 2 )); then
+		local before="%{%F{$color}%}$YAZPT_VCS_WRAPPER_CHARS[1]%{%f%}"
+		local after="%{%F{$color}%}$YAZPT_VCS_WRAPPER_CHARS[2]%{%f%}"
 		combined="${before}${combined}${after}"
 	fi
 
 	yazpt_state[git]="$combined"
 }
 
-# Implements the "git_branch" prompt segment, which also shows any in-progress git activity,
-# e.g. rebasing, and which is actually part of the "git" segment.
+# Stub/loader for the real yazpt_segment_svn function in segment-svn.zsh,
+# which implements the "svn" prompt segment.
 #
-function yazpt_segment_git_branch() {
-	if [[ -z $yazpt_state[git] && -z $yazpt_state[git_error] ]]; then
-		yazpt_segment_git
+function yazpt_segment_svn() {
+	local src="$yazpt_base_dir/functions/segment-svn.zsh"
+
+	if [[ -r $src ]]; then
+		source $src
+		yazpt_segment_svn
 	fi
 }
 
-# Implements the "git_status" prompt segment,
-# which is actually part of the "git" segment.
+# Implements the "vcs" prompt segment, which shows the "git" or "svn" prompt segment (or neither),
+# as dictated by $YAZPT_VCS_ORDER and VCS-specific whitelists.
 #
-function yazpt_segment_git_status() {
-	if [[ -z $yazpt_state[git] && -z $yazpt_state[git_error] ]]; then
-		yazpt_segment_git
-	fi
+function yazpt_segment_vcs() {
+	local i
+	for (( i=1; i <= $#YAZPT_VCS_ORDER; i++ )); do
+		local vcs=$YAZPT_VCS_ORDER[$i]
+
+		if functions yazpt_segment_$vcs > /dev/null; then
+			yazpt_segment_$vcs
+			yazpt_state[vcs]=$yazpt_state[$vcs]
+			[[ -n $yazpt_state[vcs] ]] && return
+		fi
+	done
 }
 
-# Implements the "result" prompt segment (the exit code of the last command).
+# Tests whether the current directory is allowed by the given whitelist,
+# which is an array of path prefixes (pass the name of the array, without a '$').
+# An empty whitelist allows any value.
 #
-function yazpt_segment_result() {
-	local exit_code=$yazpt_state[exit_code]
+function yazpt_test_whitelist() {
+	local whitelist_name=$1
+	local whitelist=(${(P)${whitelist_name}})
 
-	if [[ $exit_code == 0 ]]; then
-		if [[ -n $YAZPT_RESULT_OK_CHAR ]]; then
-			yazpt_state[result]+="%{%F{${YAZPT_RESULT_OK_CHAR_COLOR:=default}}%}$YAZPT_RESULT_OK_CHAR%{%f%}"
-		fi
+	if [[ -n $whitelist ]]; then
+		local i
+		for (( i=1; i <= $#whitelist; i++ )); do
+			local prefix=$whitelist[$i]
+			[[ $PWD == "$prefix"* ]] && return 0
+		done
 
-		if [[ ${YAZPT_RESULT_OK_CODE_VISIBLE:l} == true ]]; then
-			if [[ -z $ZPREZTODIR ]] || zstyle -T ':prezto:module:prompt' show-return-val; then
-				yazpt_state[result]+="%{%F{${YAZPT_RESULT_OK_CODE_COLOR:=default}}%}$exit_code%{%f%}"
-			fi
-		fi
-	else
-		if [[ -n $YAZPT_RESULT_ERROR_CHAR ]]; then
-			yazpt_state[result]+="%{%F{${YAZPT_RESULT_ERROR_CHAR_COLOR:=default}}%}$YAZPT_RESULT_ERROR_CHAR%{%f%}"
-		fi
-
-		if [[ ${YAZPT_RESULT_ERROR_CODE_VISIBLE:l} == true ]]; then
-			if [[ -z $ZPREZTODIR ]] || zstyle -T ':prezto:module:prompt' show-return-val; then
-				yazpt_state[result]+="%{%F{${YAZPT_RESULT_ERROR_CODE_COLOR:=default}}%}$exit_code%{%f%}"
-			fi
-		fi
+		return 1  # No configured path prefix matches the current directory
 	fi
 }
 
