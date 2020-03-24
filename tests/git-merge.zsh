@@ -1,11 +1,12 @@
 #!/bin/zsh
-# Tests for merging in a git repo.
+# Tests for merging in a Git repo.
 
 # Initialize
 script_name="$(basename -- "$0")"
 cd -- "$(dirname -- "$0")"
 source ./utils.zsh
-before_tests $script_name true
+before_tests $script_name "git"
+YAZPT_VCS_ORDER=(git)
 
 # Test
 function run_tests() {
