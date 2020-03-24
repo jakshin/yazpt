@@ -1,11 +1,12 @@
 #!/bin/zsh
-# Tests for branch (and non-branch) display in a git repo.
+# Tests for branch (and non-branch) display in a Git repo.
 
 # Initialize
 script_name="$(basename -- "$0")"
 cd -- "$(dirname -- "$0")"
 source ./utils.zsh
-before_tests $script_name true
+before_tests $script_name "git"
+YAZPT_VCS_ORDER=(git)
 
 # Test
 function run_tests() {
@@ -28,7 +29,7 @@ function run_tests() {
 	setopt prompt_subst
 	git checkout '$(IFS=_;cmd=echo_arg;$cmd)'
 	test_init_done
-	contains '$yazpt_git_branch'
+	contains '$yazpt_branch'
 	PROMPT="$(eval noglob echo $PROMPT)"  # Like prompt_subst will do
 	contains_branch '$(IFS=_;cmd=echo_arg;$cmd)'
 	contains_status "clean"
@@ -36,7 +37,7 @@ function run_tests() {
 	test_case "In the .git directory, on a branch with a scary name, with prompt_subst on"
 	cd $git_dir
 	test_init_done
-	contains '$yazpt_git_branch'
+	contains '$yazpt_branch'
 	PROMPT="$(eval noglob echo $PROMPT)"  # Like prompt_subst will do
 	contains_dim_branch '$(IFS=_;cmd=echo_arg;$cmd)'
 	contains_status "clean"
