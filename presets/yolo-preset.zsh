@@ -28,18 +28,19 @@ function yazpt_random_color() {
 
 source "$yazpt_default_preset_file"
 
-YAZPT_LAYOUT=$'\n<result><? ><cwd><? ><git>\n%# '
-
+YAZPT_LAYOUT=$'\n<exit><? ><cwd><? ><vcs>\n%# '
 YAZPT_CWD_COLOR=$(yazpt_random_color)
-YAZPT_GIT_BRANCH_COLOR=$((YAZPT_CWD_COLOR + 6))
-YAZPT_GIT_WRAPPER_CHARS="❨❩"
 
-YAZPT_RESULT_ERROR_CHAR=$(yazpt_random_char "😫😖😬")
-YAZPT_RESULT_ERROR_CHAR_COLOR=""
-YAZPT_RESULT_ERROR_CODE_VISIBLE=false
-YAZPT_RESULT_OK_CHAR=$(yazpt_random_char "🤘🤙👌")
-YAZPT_RESULT_OK_CHAR_COLOR=""
-YAZPT_RESULT_OK_CODE_VISIBLE=false
+YAZPT_EXIT_ERROR_CHAR=$(yazpt_random_char "😫😖😬")
+YAZPT_EXIT_ERROR_COLOR=""
+YAZPT_EXIT_ERROR_CODE_VISIBLE=false
+
+YAZPT_EXIT_OK_CHAR=$(yazpt_random_char "🤘🤙👌")
+YAZPT_EXIT_OK_COLOR=""
+YAZPT_EXIT_OK_CODE_VISIBLE=false
+
+YAZPT_VCS_BRANCH_COLOR=$((YAZPT_CWD_COLOR + 6))
+YAZPT_VCS_WRAPPER_CHARS="❨❩"
 
 unfunction yazpt_random_int yazpt_random_char yazpt_random_color
 unset yazpt_yolo_color_ranges
