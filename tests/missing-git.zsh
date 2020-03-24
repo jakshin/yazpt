@@ -1,11 +1,12 @@
 #!/bin/zsh
-# Tests for when git is missing.
+# Tests for when Git's CLI is missing.
 
 # Initialize
 script_name="$(basename -- "$0")"
 cd -- "$(dirname -- "$0")"
 source ./utils.zsh
-before_tests $script_name true
+before_tests $script_name "git"
+YAZPT_VCS_ORDER=(git)
 
 # Test
 test_case "Git isn't installed or can't be found (repo directory)"
