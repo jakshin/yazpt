@@ -1,11 +1,12 @@
 #!/bin/zsh
-# Tests for cherry-picking in a git repo.
+# Tests for cherry-picking in a Git repo.
 
 # Initialize
 script_name="$(basename -- "$0")"
 cd -- "$(dirname -- "$0")"
 source ./utils.zsh
-before_tests $script_name true
+before_tests $script_name "git"
+YAZPT_VCS_ORDER=(git)
 
 # Recent versions of git end "cherry-picking mode" earlier, probably starting in v2.25.1:
 # https://github.com/git/git/commit/f233c9f4550a831a69892e0a38db2a7654beb995
