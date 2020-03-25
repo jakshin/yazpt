@@ -14,12 +14,12 @@ function reset_tracking() {
 	svn_call_time=-1
 }
 
-function yazpt_segment_git() {
+function @yazpt_segment_git() {
 	(( git_call_count++ ))
 	git_call_time=$(current_timestamp)
 }
 
-function yazpt_segment_svn() {
+function @yazpt_segment_svn() {
 	(( svn_call_count++ ))
 	svn_call_time=$(current_timestamp)
 }
