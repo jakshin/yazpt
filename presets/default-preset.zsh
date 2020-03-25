@@ -84,6 +84,12 @@ YAZPT_VCS_STATUS_UNKNOWN_COLOR=9        # Bright red, probably (based on termina
 YAZPT_VCS_WRAPPER_CHARS=""              # Characters to show before and after the Git/Subversion branch+status;
                                         # Use an empty string or 2 characters, e.g. "()"
 
+# Fix up a couple of characters that don't display right in Ubuntu 16.04's XTerm(322) 
+if [[ $OSTYPE == "linux-gnu" && -n $XTERM_VERSION ]]; then
+        YAZPT_VCS_STATUS_DIRTY_CHAR="*"
+        YAZPT_VCS_STATUS_LINKED_BARE_CHAR="£"
+fi
+
 # Set/restore default settings for input highlighting.
 if (( $+_yazpt_default_zle_highlight )); then
 	zle_highlight=$_yazpt_default_zle_highlight
