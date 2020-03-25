@@ -12,28 +12,28 @@ function yazpt_explain_svn() {
 		return 1
 	fi
 
-	if ! functions _yazpt_detail_vcs_status > /dev/null; then
+	if ! functions .yazpt_detail_vcs_status > /dev/null; then
 		source "$yazpt_base_dir/functions/utils.zsh"
 	fi
 
-	_yazpt_make_wrap_cmd
-	_yazpt_print_wrapped_header "Statuses which can appear in the prompt while the current directory is in a Subversion working copy:"
+	.yazpt_make_wrap_cmd
+	.yazpt_print_wrapped_header "Statuses which can appear in the prompt while the current directory is in a Subversion working copy:"
 
-	_yazpt_detail_vcs_status "$YAZPT_VCS_STATUS_CLEAN_COLOR" "$YAZPT_VCS_STATUS_CLEAN_CHAR" '$YAZPT_VCS_STATUS_CLEAN_CHAR' \
+	.yazpt_detail_vcs_status "$YAZPT_VCS_STATUS_CLEAN_COLOR" "$YAZPT_VCS_STATUS_CLEAN_CHAR" '$YAZPT_VCS_STATUS_CLEAN_CHAR' \
 		"The working copy is clean. No files or directories have been added, modified or deleted," \
 		"and there are no new unversioned files/directories, and no properties have been changed. None of the statuses below applies."
 
-	_yazpt_detail_vcs_status "$YAZPT_VCS_STATUS_LOCKED_COLOR" "$YAZPT_VCS_STATUS_LOCKED_CHAR" '$YAZPT_VCS_STATUS_LOCKED_CHAR' \
+	.yazpt_detail_vcs_status "$YAZPT_VCS_STATUS_LOCKED_COLOR" "$YAZPT_VCS_STATUS_LOCKED_CHAR" '$YAZPT_VCS_STATUS_LOCKED_CHAR' \
 		"An item is locked for exclusive commit somewhere in the working copy."
 
-	_yazpt_detail_vcs_status "$YAZPT_VCS_STATUS_DIRTY_COLOR" "$YAZPT_VCS_STATUS_DIRTY_CHAR" '$YAZPT_VCS_STATUS_DIRTY_CHAR' \
+	.yazpt_detail_vcs_status "$YAZPT_VCS_STATUS_DIRTY_COLOR" "$YAZPT_VCS_STATUS_DIRTY_CHAR" '$YAZPT_VCS_STATUS_DIRTY_CHAR' \
 		"The working copy is dirty. Files or directories have been added, modified or deleted," \
 		"and/or there are unversioned files/directories, and/or properties have been changed."
 
-	_yazpt_detail_vcs_status "$YAZPT_VCS_STATUS_CONFLICT_COLOR" "$YAZPT_VCS_STATUS_CONFLICT_CHAR" '$YAZPT_VCS_STATUS_CONFLICT_CHAR' \
+	.yazpt_detail_vcs_status "$YAZPT_VCS_STATUS_CONFLICT_COLOR" "$YAZPT_VCS_STATUS_CONFLICT_CHAR" '$YAZPT_VCS_STATUS_CONFLICT_CHAR' \
 		"There is a conflict - file, tree, or property - somewhere in the working copy."
 
-	_yazpt_detail_vcs_status "$YAZPT_VCS_STATUS_UNKNOWN_COLOR" "$YAZPT_VCS_STATUS_UNKNOWN_CHAR" \
+	.yazpt_detail_vcs_status "$YAZPT_VCS_STATUS_UNKNOWN_COLOR" "$YAZPT_VCS_STATUS_UNKNOWN_CHAR" \
 		'$YAZPT_VCS_STATUS_UNKNOWN_CHAR' "The working copy's status can't be determined," \
 		"because an unexpected and unhandled error occurred while running 'svn status'."
 
@@ -66,6 +66,8 @@ function yazpt_explain_svn() {
 
 	if [[ $YAZPT_LAYOUT != *"<vcs>"* && $YAZPT_LAYOUT != *"<svn>"* ]]; then
 		echo
-		_yazpt_print_wrapped_warning "\$YAZPT_LAYOUT doesn't contain '<vcs>' or '<svn>', so Subversion status won't be shown in the prompt."
+		.yazpt_print_wrapped_warning "\$YAZPT_LAYOUT doesn't contain '<vcs>' or '<svn>', so Subversion status won't be shown in the prompt."
 	fi
+
+	unset _yazpt_wrap_cmd
 }
