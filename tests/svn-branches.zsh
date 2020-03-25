@@ -139,14 +139,14 @@ test_case "On a branch with a scary name, with prompt_subst on"
 setopt prompt_subst
 svn switch '^/branches/$(IFS=_;cmd=echo_arg;$cmd)' --ignore-ancestry
 test_init_done
-contains '$yazpt_branch'
+contains '$_yazpt_branch'
 PROMPT="$(eval noglob echo $PROMPT)"  # Like prompt_subst will do
 contains_branch '$(IFS=_;cmd=echo_arg;$cmd)'
 	
 test_case "On a branch with a scary name, with prompt_subst on, in the .svn directory"
 cd .svn
 test_init_done
-contains '$yazpt_branch'
+contains '$_yazpt_branch'
 PROMPT="$(eval noglob echo $PROMPT)"  # Like prompt_subst will do
 contains_dim_branch '$(IFS=_;cmd=echo_arg;$cmd)'
 contains "|IN-SVN-DIR"
@@ -194,7 +194,7 @@ test_case "On a scary directory off the root of the repo, with prompt_subst on"
 setopt prompt_subst
 svn switch '^/$(IFS=_;cmd=echo_arg;$cmd)' --ignore-ancestry
 test_init_done
-contains '$yazpt_branch'
+contains '$_yazpt_branch'
 PROMPT="$(eval noglob echo $PROMPT)"  # Like prompt_subst will do
 contains_branch '$(IFS=_;cmd=echo_arg;$cmd)'
 
