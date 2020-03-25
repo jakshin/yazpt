@@ -9,7 +9,7 @@ before_tests $script_name
 
 function test_whitelist() {
 	array_name=$1
-	if yazpt_test_whitelist $array_name; then
+	if .yazpt_check_whitelist $array_name; then
 		echo "allowed"
 	else
 		echo "rejected"
