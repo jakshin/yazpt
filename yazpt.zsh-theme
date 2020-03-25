@@ -9,17 +9,17 @@
 if [[ -z $ZSH_VERSION ]]; then
 	echo "Sorry, the yazpt prompt theme only works on zsh."
 	return 1
-else
-	{
-		local yazpt_zsh_ver=(${(s:.:)ZSH_VERSION})
-		if (( $yazpt_zsh_ver[1] < 5 || ($yazpt_zsh_ver[1] == 5 && $yazpt_zsh_ver[2] < 1) )); then
-			echo "Sorry, the yazpt prompt theme only works on zsh version 5.1 or later."
-			return 1
-		fi
-	} always {
-		unset yazpt_zsh_ver
-	}
 fi
+
+{
+	local yazpt_zsh_ver=(${(s:.:)ZSH_VERSION})
+	if (( $yazpt_zsh_ver[1] < 5 || ($yazpt_zsh_ver[1] == 5 && $yazpt_zsh_ver[2] < 1) )); then
+		echo "Sorry, the yazpt prompt theme only works on zsh version 5.1 or later."
+		return 1
+	fi
+} always {
+	unset yazpt_zsh_ver
+}
 
 # Set up our defaults. Any other preset file can be sourced to customize the configuration,
 # or loaded with yazpt_load_preset (run yazpt_list_presets to see the list of presets),
