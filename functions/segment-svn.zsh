@@ -1,9 +1,9 @@
 # Implements the "svn" prompt segment, which shows the Subversion branch/tag, relevant extra info, 
 # e.g. if the current directory is unversioned, and 1-3 characters indicating the current status of the working copy.
 #
-function yazpt_segment_svn() {
+function @yazpt_segment_svn() {
 	# Check the whitelist
-	if [[ ${(t)YAZPT_VCS_SVN_WHITELIST} == array ]] && ! yazpt_test_whitelist YAZPT_VCS_SVN_WHITELIST; then
+	if [[ ${(t)YAZPT_VCS_SVN_WHITELIST} == array ]] && ! .yazpt_check_whitelist YAZPT_VCS_SVN_WHITELIST; then
 		return
 	fi
 
@@ -20,7 +20,7 @@ function yazpt_segment_svn() {
 	elif [[ $xml[3] == *"W155010"* && $xml[5] == *"E200009"* ]]; then
 		# Subversion has apparently noticed a .svn directory somewhere in a parent directory,
 		# so we know we're in an unversioned, possibly ignored, subdirectory of a working copy
-		wc_root="$(yazpt_find_svn_root)"
+		wc_root="$(.yazpt_find_svn_root)"
 
 		# Concatenate together the relative URL based on where we checked the repo out,
 		# and where the directory we couldn't get svn info from is located relative to the WC root
@@ -84,51 +84,51 @@ function yazpt_segment_svn() {
 	branch="%{%F{$color}%}${branch}${extra}%{%f%}"
 
 	if [[ -o prompt_subst ]]; then
-		yazpt_branch="$branch"
-		branch='$yazpt_branch'
+		_yazpt_branch="$branch"
+		branch='$_yazpt_branch'
 	else
-		unset yazpt_branch
+		unset _yazpt_branch
 	fi
 
 	# Find out the working copy's status (not the current working directory's)
 	{
-		declare -ag yazpt_svn_status_lines
+		declare -ag _yazpt_svn_status_lines
 		if [[ $PWD == $wc_root ]]; then
-			yazpt_svn_status_lines=(${(f)"$(svn status --ignore-externals 2> /dev/null)"})
+			_yazpt_svn_status_lines=(${(f)"$(svn status --ignore-externals 2> /dev/null)"})
 			svn_exit_code=$?
 		else
-			yazpt_svn_status_lines=(${(f)"$(cd $wc_root; svn status --ignore-externals 2> /dev/null)"})
+			_yazpt_svn_status_lines=(${(f)"$(cd $wc_root; svn status --ignore-externals 2> /dev/null)"})
 			svn_exit_code=$?
 		fi
 
-		declare -Ag yazpt_svn_status=()
+		declare -Ag _yazpt_svn_status=()
 		if [[ $svn_exit_code != 0 ]]; then
-			yazpt_svn_status[unknown]=true
+			_yazpt_svn_status[unknown]=true
 		else
-			yazpt_parse_svn_status
+			.yazpt_parse_svn_status
 		fi
 
 		local svn_status
-		if [[ $yazpt_svn_status[unknown] == true ]]; then
+		if [[ $_yazpt_svn_status[unknown] == true ]]; then
 			if [[ -n $YAZPT_VCS_STATUS_UNKNOWN_CHAR ]]; then
 				svn_status+="%{%F{${YAZPT_VCS_STATUS_UNKNOWN_COLOR:=default}}%}$YAZPT_VCS_STATUS_UNKNOWN_CHAR%{%f%}"
 			fi
 		else
-			[[ $yazpt_svn_status[locked] == true && -n $YAZPT_VCS_STATUS_LOCKED_CHAR ]] && \
+			[[ $_yazpt_svn_status[locked] == true && -n $YAZPT_VCS_STATUS_LOCKED_CHAR ]] && \
 				svn_status+="%{%F{${YAZPT_VCS_STATUS_LOCKED_COLOR:=default}}%}$YAZPT_VCS_STATUS_LOCKED_CHAR%{%f%}"
-			[[ $yazpt_svn_status[dirty] == true && -n $YAZPT_VCS_STATUS_DIRTY_CHAR ]] && \
+			[[ $_yazpt_svn_status[dirty] == true && -n $YAZPT_VCS_STATUS_DIRTY_CHAR ]] && \
 				svn_status+="%{%F{${YAZPT_VCS_STATUS_DIRTY_COLOR:=default}}%}$YAZPT_VCS_STATUS_DIRTY_CHAR%{%f%}"
-			[[ $yazpt_svn_status[conflict] == true && -n $YAZPT_VCS_STATUS_CONFLICT_CHAR ]] && \
+			[[ $_yazpt_svn_status[conflict] == true && -n $YAZPT_VCS_STATUS_CONFLICT_CHAR ]] && \
 				svn_status+="%{%F{${YAZPT_VCS_STATUS_CONFLICT_COLOR:=default}}%}$YAZPT_VCS_STATUS_CONFLICT_CHAR%{%f%}"
 
-			if [[ -z $svn_status && -n $YAZPT_VCS_STATUS_CLEAN_CHAR ]]; then
-				if [[ $yazpt_svn_status[locked] != true && $yazpt_svn_status[dirty] != true && $yazpt_svn_status[conflict] != true ]]; then
+			if [[ $_yazpt_svn_status[locked] != true && $_yazpt_svn_status[dirty] != true && $_yazpt_svn_status[conflict] != true ]]; then
+				if [[ -z $svn_status && -n $YAZPT_VCS_STATUS_CLEAN_CHAR ]]; then
 					svn_status="%{%F{${YAZPT_VCS_STATUS_CLEAN_COLOR:=default}}%}$YAZPT_VCS_STATUS_CLEAN_CHAR%{%f%}"
 				fi
 			fi
 		fi
 	} always {
-		unset yazpt_svn_status_lines yazpt_svn_status
+		unset _yazpt_svn_status_lines _yazpt_svn_status
 	}
 
 	# Combine branch and status
@@ -146,10 +146,10 @@ function yazpt_segment_svn() {
 	yazpt_state[svn]="$combined"
 }
 
-# Utility function for yazpt_segment_svn. Tries to find a working copy's root directory,
+# Utility function for @yazpt_segment_svn. Tries to find a working copy's root directory,
 # by walking up the directory tree looking for a valid .svn directory.
 #
-function yazpt_find_svn_root() {
+function .yazpt_find_svn_root() {
 	local dir=$PWD
 
 	while [[ -r $dir ]]; do
@@ -163,14 +163,15 @@ function yazpt_find_svn_root() {
 	done
 }
 
-# Utility function for yazpt_segment_svn. Parses the output of `svn status`,
+# Utility function for @yazpt_segment_svn. Parses the output of `svn status`,
 # finding out whether any files are locked, added/modified/deleted, or conflicted.
+# Reads from the $_yazpt_svn_status_lines array, writes to the $_yazpt_svn_status associative array.
 #
-function yazpt_parse_svn_status() {
+function .yazpt_parse_svn_status() {
 	local i skip=false
 
-	for (( i=1; i <= $#yazpt_svn_status_lines; i++ )); do
-		local line=$yazpt_svn_status_lines[$i]
+	for (( i=1; i <= $#_yazpt_svn_status_lines; i++ )); do
+		local line=$_yazpt_svn_status_lines[$i]
 		if [[ $skip == true ]]; then
 			skip=false
 			continue
@@ -178,30 +179,30 @@ function yazpt_parse_svn_status() {
 		
 		# First column: Says if item was added, deleted, or otherwise changed
 		if [[ 'ADMR?!' == *"$line[1]"* ]]; then
-			yazpt_svn_status[dirty]=true
+			_yazpt_svn_status[dirty]=true
 		elif [[ 'C~' == *"$line[1]"* ]]; then
-			yazpt_svn_status[conflict]=true
+			_yazpt_svn_status[conflict]=true
 		fi
 
 		# Second column: Modifications of a file's or directory's properties
-		[[ $line[2] == 'C' ]] && yazpt_svn_status[conflict]=true
-		[[ $line[2] == 'M' ]] && yazpt_svn_status[dirty]=true
+		[[ $line[2] == 'C' ]] && _yazpt_svn_status[conflict]=true
+		[[ $line[2] == 'M' ]] && _yazpt_svn_status[dirty]=true
 
 		# Fourth column: Scheduled commit will create a copy (addition-with-history)
-		[[ $line[4] == '+' ]] && yazpt_svn_status[dirty]=true
+		[[ $line[4] == '+' ]] && _yazpt_svn_status[dirty]=true
 
 		# Fifth column: Whether the item is switched or a file external
-		[[ $line[5] == 'S' ]] && yazpt_svn_status[dirty]=true
+		[[ $line[5] == 'S' ]] && _yazpt_svn_status[dirty]=true
 
 		# Sixth column: Whether the item is locked in the working copy for exclusive commit
 		# (The lock might actually be stolen or broken, we don't check the server)
-		[[ $line[6] == 'K' ]] && yazpt_svn_status[locked]=true
+		[[ $line[6] == 'K' ]] && _yazpt_svn_status[locked]=true
 
 		# Seventh column: Whether the item is the victim of a tree conflict
 		# (If the item is a tree conflict victim, an additional line is printed
 		# after the item's status line, explaining the nature of the conflict)
 		if [[ $line[7] == 'C' ]]; then
-			yazpt_svn_status[conflict]=true
+			_yazpt_svn_status[conflict]=true
 			skip=true
 		fi
 
