@@ -94,7 +94,7 @@ excludes "pwned"
 mock_prezto true
 test_init_done "no-standard-tests"
 excludes "%~"
-contains '$yazpt_cwd'
+contains '$_yazpt_cwd'
 excludes "pwned"
 mock_prezto false
 
@@ -120,7 +120,7 @@ excludes "pwned"
 mock_prezto true
 test_init_done "no-standard-tests"
 excludes "%~"
-contains '$yazpt_cwd'
+contains '$_yazpt_cwd'
 excludes "pwned"
 mock_prezto false
 
