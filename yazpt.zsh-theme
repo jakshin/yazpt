@@ -108,9 +108,9 @@ function yazpt_plugin_unload() {
 	emulate -L zsh
 
 	add-zsh-hook -d precmd yazpt_precmd
-	unfunction -m 'yazpt_*'
+	unfunction -m 'yazpt_*' '.yazpt_*' '@yazpt_*'
 	typeset +r -m 'yazpt_*'
-	unset -m 'YAZPT_*' 'yazpt_*'
+	unset -m 'YAZPT_*' 'yazpt_*' '_yazpt_*'
 
 	# This isn't ideal, but if we don't reset PS1 to something generic,
 	# we can leave the last PS1 calculated by yazpt in place indefinitely,
@@ -163,8 +163,8 @@ function yazpt_precmd() {
 					if [[ $last_was_segment == true && -z $separator ]]; then
 						separator="$segment"
 					fi
-				elif functions "yazpt_segment_$segment" > /dev/null; then
-					"yazpt_segment_$segment"  # Execute the segment's function
+				elif functions "@yazpt_segment_$segment" > /dev/null; then
+					"@yazpt_segment_$segment"  # Execute the segment's function
 
 					if [[ -n $yazpt_state[$segment] ]]; then
 						# If we have a pending separator, append it before the new segment (without its question mark)
@@ -208,9 +208,28 @@ function yazpt_precmd() {
 	unset yazpt_state
 }
 
+# Checks whether the current directory is allowed by the given whitelist,
+# which is an array of path prefixes (pass the name of the array, without a '$').
+# An empty whitelist allows any value.
+#
+function .yazpt_check_whitelist() {
+	local whitelist_name=$1
+	local whitelist=(${(P)${whitelist_name}})
+
+	if [[ -n $whitelist ]]; then
+		local i
+		for (( i=1; i <= $#whitelist; i++ )); do
+			local prefix=$whitelist[$i]
+			[[ $PWD == "$prefix"* ]] && return 0
+		done
+
+		return 1  # No configured path prefix matches the current directory
+	fi
+}
+
 # Reads the first line of the given path into the given variable.
 #
-function yazpt_read_line() {
+function .yazpt_read_line() {
 	local from_path="$1"
 	local into_var="$2"
 	[[ -r "$from_path" ]] && IFS=$'\r\n' read "$into_var" < "$from_path"
@@ -218,7 +237,7 @@ function yazpt_read_line() {
 
 # Implements the "cwd" prompt segment.
 #
-function yazpt_segment_cwd() {
+function @yazpt_segment_cwd() {
 	local cwd="" pwd_length
 	if [[ -n $ZPREZTODIR ]] && \
 			zstyle -g pwd_length ':prezto:module:prompt' 'pwd-length' && \
@@ -231,8 +250,8 @@ function yazpt_segment_cwd() {
 		[[ -o prompt_percent ]] && cwd="${cwd//\%/%%}"
 
 		if [[ -o prompt_subst ]]; then
-			yazpt_cwd="$cwd"
-			cwd='$yazpt_cwd'
+			_yazpt_cwd="$cwd"
+			cwd='$_yazpt_cwd'
 		fi
 	fi
 
@@ -242,7 +261,7 @@ function yazpt_segment_cwd() {
 
 # Implements the "exit" prompt segment (reflecting the exit code of the last command).
 #
-function yazpt_segment_exit() {
+function @yazpt_segment_exit() {
 	local exit_code=$yazpt_state[exit_code]
 
 	if [[ $exit_code == 0 ]]; then
@@ -271,9 +290,9 @@ function yazpt_segment_exit() {
 # Implements the "git" prompt segment, which shows the Git branch/tag/SHA, any 'activity' in progress,
 # such as rebasing or merging, and 1-2 characters indicating the current status of the working tree.
 #
-function yazpt_segment_git() {
+function @yazpt_segment_git() {
 	# Check the whitelist
-	if [[ ${(t)YAZPT_VCS_GIT_WHITELIST} == array ]] && ! yazpt_test_whitelist YAZPT_VCS_GIT_WHITELIST; then
+	if [[ ${(t)YAZPT_VCS_GIT_WHITELIST} == array ]] && ! .yazpt_check_whitelist YAZPT_VCS_GIT_WHITELIST; then
 		return
 	fi
 
@@ -301,16 +320,16 @@ function yazpt_segment_git() {
 		activity="BARE-REPO"
 	elif [[ -d "$git_dir/rebase-merge" ]]; then
 		activity="|REBASING"
-		yazpt_read_line "$git_dir/rebase-merge/head-name" branch
-		yazpt_read_line "$git_dir/rebase-merge/msgnum" step
-		yazpt_read_line "$git_dir/rebase-merge/end" steps
+		.yazpt_read_line "$git_dir/rebase-merge/head-name" branch
+		.yazpt_read_line "$git_dir/rebase-merge/msgnum" step
+		.yazpt_read_line "$git_dir/rebase-merge/end" steps
 	elif [[ -d "$git_dir/rebase-apply" ]]; then
 		activity="|REBASING"
-		yazpt_read_line "$git_dir/rebase-apply/next" step
-		yazpt_read_line "$git_dir/rebase-apply/last" steps
+		.yazpt_read_line "$git_dir/rebase-apply/next" step
+		.yazpt_read_line "$git_dir/rebase-apply/last" steps
 
 		if [[ -f "$git_dir/rebase-apply/rebasing" ]]; then
-			yazpt_read_line "$git_dir/rebase-apply/head-name" branch
+			.yazpt_read_line "$git_dir/rebase-apply/head-name" branch
 		elif [[ -f "$git_dir/rebase-apply/applying" ]]; then
 			activity="|AM"
 		fi
@@ -324,7 +343,7 @@ function yazpt_segment_git() {
 		activity="|REVERTING"
 	else
 		local todo
-		if yazpt_read_line "$git_dir/sequencer/todo" todo; then
+		if .yazpt_read_line "$git_dir/sequencer/todo" todo; then
 			if [[ $todo == p* ]]; then
 				activity="|CHERRY-PICKING"
 			elif [[ $todo == r* ]]; then
@@ -339,7 +358,7 @@ function yazpt_segment_git() {
 
 	if [[ -z $branch && $bare_repo == false ]]; then
 		local head
-		yazpt_read_line "$git_dir/HEAD" head
+		.yazpt_read_line "$git_dir/HEAD" head
 
 		if [[ $head == ref:* ]]; then
 			branch="${head#ref: }"
@@ -368,10 +387,10 @@ function yazpt_segment_git() {
 	branch="%{%F{$color}%}${branch#refs/heads/}${activity}%{%f%}"
 
 	if [[ -o prompt_subst ]]; then
-		yazpt_branch="$branch"
-		branch='$yazpt_branch'
+		_yazpt_branch="$branch"
+		branch='$_yazpt_branch'
 	else
-		unset yazpt_branch
+		unset _yazpt_branch
 	fi
 
 	# Calculate Git status
@@ -383,7 +402,7 @@ function yazpt_segment_git() {
 			# show the linked worktree's status, else show the main worktree's status
 			info=(${(f)"$(
 				git_dir=${git_dir:a}
-				[[ ${git_dir:h:t} != "worktrees" ]] || yazpt_read_line "$git_dir/gitdir" git_dir
+				[[ ${git_dir:h:t} != "worktrees" ]] || .yazpt_read_line "$git_dir/gitdir" git_dir
 				cd ${git_dir:h}
 				git status --branch --porcelain --ignore-submodules 2> /dev/null
 				)"})
@@ -411,19 +430,19 @@ function yazpt_segment_git() {
 					# Through at least version 2.25.0, `git status` doesn't seem to know whether a branch
 					# in a bare repo's linked worktree has an upstream, so we always end up in this code path;
 					# often, showing a no-upstream status is a lie, and we should show diverged or clean instead
-					(( $+yazpt_worktrees )) || declare -Ag yazpt_worktrees
+					(( $+_yazpt_worktrees )) || declare -Ag _yazpt_worktrees
 					local abs_git_dir=${git_dir:a}  # Cache key
 
-					if [[ -z $yazpt_worktrees[$abs_git_dir] ]]; then
+					if [[ -z $_yazpt_worktrees[$abs_git_dir] ]]; then
 							if [[ -f "$abs_git_dir/gitdir" ]]; then
 							local linked_to_bare_repo=$(cd $abs_git_dir; git rev-parse --is-bare-repository)
-							yazpt_worktrees[$abs_git_dir]=$linked_to_bare_repo
+							_yazpt_worktrees[$abs_git_dir]=$linked_to_bare_repo
 						else
-							yazpt_worktrees[$abs_git_dir]="n/a"  # Not a linked worktree
+							_yazpt_worktrees[$abs_git_dir]="n/a"  # Not a linked worktree
 						fi
 					fi
 
-					if [[ $yazpt_worktrees[$abs_git_dir] == true ]]; then
+					if [[ $_yazpt_worktrees[$abs_git_dir] == true ]]; then
 						statuses+="LINKED_BARE"
 					else
 						statuses+="NO_UPSTREAM"
@@ -459,51 +478,32 @@ function yazpt_segment_git() {
 	yazpt_state[git]="$combined"
 }
 
-# Stub/loader for the real yazpt_segment_svn function in segment-svn.zsh,
+# Stub/loader for the real @yazpt_segment_svn function in segment-svn.zsh,
 # which implements the "svn" prompt segment.
 #
-function yazpt_segment_svn() {
+function @yazpt_segment_svn() {
 	local src="$yazpt_base_dir/functions/segment-svn.zsh"
 
 	if [[ -r $src ]]; then
 		source $src
-		yazpt_segment_svn
+		@yazpt_segment_svn
 	fi
 }
 
 # Implements the "vcs" prompt segment, which shows the "git" or "svn" prompt segment (or neither),
 # as dictated by $YAZPT_VCS_ORDER and VCS-specific whitelists.
 #
-function yazpt_segment_vcs() {
+function @yazpt_segment_vcs() {
 	local i
 	for (( i=1; i <= $#YAZPT_VCS_ORDER; i++ )); do
 		local vcs=$YAZPT_VCS_ORDER[$i]
 
-		if functions yazpt_segment_$vcs > /dev/null; then
-			yazpt_segment_$vcs
+		if functions @yazpt_segment_$vcs > /dev/null; then
+			@yazpt_segment_$vcs
 			yazpt_state[vcs]=$yazpt_state[$vcs]
 			[[ -n $yazpt_state[vcs] ]] && return
 		fi
 	done
-}
-
-# Tests whether the current directory is allowed by the given whitelist,
-# which is an array of path prefixes (pass the name of the array, without a '$').
-# An empty whitelist allows any value.
-#
-function yazpt_test_whitelist() {
-	local whitelist_name=$1
-	local whitelist=(${(P)${whitelist_name}})
-
-	if [[ -n $whitelist ]]; then
-		local i
-		for (( i=1; i <= $#whitelist; i++ )); do
-			local prefix=$whitelist[$i]
-			[[ $PWD == "$prefix"* ]] && return 0
-		done
-
-		return 1  # No configured path prefix matches the current directory
-	fi
 }
 
 # Begin using the yazpt prompt theme as soon as this file is sourced.
