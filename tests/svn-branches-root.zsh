@@ -112,7 +112,7 @@ test_case "On a tag with a scary name, with prompt_subst on"
 setopt prompt_subst
 cd 'tags/$(IFS=_;cmd=echo_arg;$cmd)'
 test_init_done
-contains '$yazpt_branch'
+contains '$_yazpt_branch'
 PROMPT="$(eval noglob echo $PROMPT)"  # Like prompt_subst will do
 contains_branch '$(IFS=_;cmd=echo_arg;$cmd)'
 
@@ -155,7 +155,7 @@ test_case "In a scary directory off the root of the repo, with prompt_subst on"
 setopt prompt_subst
 cd '$(IFS=_;cmd=echo_arg;$cmd)'
 test_init_done
-contains '$yazpt_branch'
+contains '$_yazpt_branch'
 PROMPT="$(eval noglob echo $PROMPT)"  # Like prompt_subst will do
 contains_branch '$(IFS=_;cmd=echo_arg;$cmd)'
 
