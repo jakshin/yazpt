@@ -7,7 +7,7 @@ cd -- "$(dirname -- "$0")"
 source ./utils.zsh
 before_tests $script_name
 
-function yazpt_segment_bar() {
+function @yazpt_segment_bar() {
 	yazpt_state[bar]="BAR"
 }
 
