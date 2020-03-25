@@ -211,9 +211,9 @@ function yazpt_precmd() {
 # Reads the first line of the given path into the given variable.
 #
 function yazpt_read_line() {
-	local path="$1"
-	local var="$2"
-	[[ -r "$path" ]] && IFS=$'\r\n' read "$var" < "$path"
+	local from_path="$1"
+	local into_var="$2"
+	[[ -r "$from_path" ]] && IFS=$'\r\n' read "$into_var" < "$from_path"
 }
 
 # Implements the "cwd" prompt segment.
