@@ -12,7 +12,7 @@ if [[ -z $ZSH_VERSION ]]; then
 fi
 
 {
-	local yazpt_zsh_ver=(${(s:.:)ZSH_VERSION})
+	yazpt_zsh_ver=(${(s:.:)ZSH_VERSION})
 	if (( $yazpt_zsh_ver[1] < 5 || ($yazpt_zsh_ver[1] == 5 && $yazpt_zsh_ver[2] < 1) )); then
 		echo "Sorry, the yazpt prompt theme only works on zsh version 5.1 or later."
 		return 1
