@@ -85,8 +85,8 @@ YAZPT_VCS_WRAPPER_CHARS=""              # Characters to show before and after th
                                         # Use an empty string or 2 characters, e.g. "()"
 
 # Set/restore default settings for input highlighting.
-if (( $+yazpt_default_zle_highlight )); then
-	zle_highlight=$yazpt_default_zle_highlight
+if (( $+_yazpt_default_zle_highlight )); then
+	zle_highlight=$_yazpt_default_zle_highlight
 else
-	yazpt_default_zle_highlight=$zle_highlight
+	_yazpt_default_zle_highlight=$zle_highlight
 fi
