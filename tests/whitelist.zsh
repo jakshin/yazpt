@@ -23,7 +23,7 @@ result=$(test_whitelist empty_array)
 equals "Whitelist result" $result "allowed"
 
 test_case "Whitelist with short prefix of current path allows it"
-whitelist=(dummy $TMPDIR)
+whitelist=(dummy ${TMPDIR:-/tmp/})
 result=$(test_whitelist whitelist)
 equals "Whitelist result" $result "allowed"
 
