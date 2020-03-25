@@ -14,9 +14,15 @@ function .yazpt_random_int() {
 }
 
 function .yazpt_random_char() {
-	local str=$1
+	local str=${1// /}
 	local rand=$(.yazpt_random_int 1 $#str)
-	echo $str[$rand]
+
+	local space=""
+	if [[ $OSTYPE == "linux-gnu" ]]; then
+		space=" "  # Add a manual space to pad wide emoji on the right
+	fi
+
+	echo "$str[$rand]$space"
 }
 
 function .yazpt_random_color() {
@@ -31,11 +37,11 @@ source "$yazpt_default_preset_file"
 YAZPT_LAYOUT=$'\n<exit><? ><cwd><? ><vcs>\n%# '
 YAZPT_CWD_COLOR=$(.yazpt_random_color)
 
-YAZPT_EXIT_ERROR_CHAR=$(.yazpt_random_char "😫😖😬")
+YAZPT_EXIT_ERROR_CHAR=$(.yazpt_random_char "😫 😖 😬 ")
 YAZPT_EXIT_ERROR_COLOR=""
 YAZPT_EXIT_ERROR_CODE_VISIBLE=false
 
-YAZPT_EXIT_OK_CHAR=$(.yazpt_random_char "🤘🤙👌")
+YAZPT_EXIT_OK_CHAR=$(.yazpt_random_char "👌 👍 👊 ")
 YAZPT_EXIT_OK_COLOR=""
 YAZPT_EXIT_OK_CODE_VISIBLE=false
 
