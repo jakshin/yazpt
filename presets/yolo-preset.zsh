@@ -16,13 +16,15 @@ function .yazpt_random_int() {
 function .yazpt_random_char() {
 	local str=${1// /}
 	local rand=$(.yazpt_random_int 1 $#str)
+	local rand_char=$str[$rand]
 
 	local space=""
 	if [[ $OSTYPE == "linux-gnu" ]]; then
-		space=" "  # Add a manual space to pad wide emoji on the right
+		local width=$(echo $rand_char | wc -L)
+		[[ $width == 1 ]] && space=" "  # Add a manual space to pad wide emoji on the right
 	fi
 
-	echo "$str[$rand]$space"
+	echo "$rand_char$space"
 }
 
 function .yazpt_random_color() {
