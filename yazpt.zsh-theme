@@ -280,6 +280,11 @@ function @yazpt_segment_cwd() {
 function @yazpt_segment_exit() {
 	local exit_code=$yazpt_state[exit_code]
 
+	if [[ $YAZPT_IGNORE_NEXT_EXIT_ERROR == true ]]; then
+		unset YAZPT_IGNORE_NEXT_EXIT_ERROR
+		exit_code=0
+	fi
+
 	if [[ $exit_code == 0 ]]; then
 		if [[ -n $YAZPT_EXIT_OK_CHAR ]]; then
 			yazpt_state[exit]+="%{%F{${YAZPT_EXIT_OK_COLOR:=default}}%}$YAZPT_EXIT_OK_CHAR%{%f%}"
