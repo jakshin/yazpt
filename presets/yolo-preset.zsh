@@ -58,7 +58,9 @@ if [[ $OSTYPE == "linux-gnu" ]]; then
 		YAZPT_EXIT_ERROR_CHAR="😬"
 	elif [[ -n $XTERM_VERSION ]]; then
 		YAZPT_EXIT_ERROR_CHAR=":-/"
+		YAZPT_EXIT_ERROR_COLOR=217
 		YAZPT_EXIT_OK_CHAR=":)"
+		YAZPT_EXIT_OK_COLOR=229
 		YAZPT_VCS_WRAPPER_CHARS="()"
 	fi
 fi
