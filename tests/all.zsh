@@ -6,7 +6,9 @@ cd -- "$(dirname -- "$0")"
 source ./utils.zsh
 summaries="$(mktemp)"
 
+declare -a failing_suites=()
 first=true
+
 for suite in *.zsh; do
 	if [[ $suite == $script_name || ! -x $suite ]]; then
 		continue  # Skip this file and utils.zsh
@@ -18,6 +20,10 @@ for suite in *.zsh; do
 	{ ./$suite 2>&1 } \
 		> >(awk '/===|---|✔|✖︎|↪/{print}') \
 		> >(grep -F ↪ >> "$summaries")
+
+	if ! tail -n 1 "$summaries" | grep -Fq " 0 failed"; then
+		failing_suites+=$suite
+	fi
 done
 
 # Summarize the summaries
@@ -39,5 +45,9 @@ fi
 
 echo -e "\n${bright}~~~ Overall results ~~~${normal}"
 echo -e "${emoji} ${color}Ran $(( total_passed + total_failed )) tests: $total_passed passed, $total_failed failed${normal}"
+
+if [[ -n $failing_suites ]]; then
+	echo -e "   ${color}Failing suites: $failing_suites${normal}"
+fi
 
 rm $summaries
