@@ -17,6 +17,7 @@ function sanity_check_rebase() {
 	fi
 
 	if [[ $interactive == true ]] || (( $git_ver[1] > 2 || ($git_ver[1] == 2 && $git_ver[2] >= 26) )); then
+		# Seems like v2.26+ always tracks a rebase using the files previously only used in an interactive rebase
 		dir_exists "$git_dir/rebase-merge"
 		dir_does_not_exist "$git_dir/rebase-apply"
 	else
@@ -33,8 +34,6 @@ function run_tests() {
 	export GIT_EDITOR=true
 	git checkout rebase-me
 	git rebase -i master
-# 	dir_exists "$git_dir/rebase-merge"          # Sanity check
-# 	dir_does_not_exist "$git_dir/rebase-apply"  # Sanity check
 	sanity_check_rebase true
 	test_init_done
 	contains_branch "rebase-me"
@@ -51,8 +50,6 @@ function run_tests() {
 	test_case "Rebasing"
 	git checkout rebase-me
 	git rebase master
-# 	dir_does_not_exist "$git_dir/rebase-merge"  # Sanity check
-# 	dir_exists "$git_dir/rebase-apply"          # Sanity check
 	sanity_check_rebase false
 	test_init_done
 	contains_branch "rebase-me"
