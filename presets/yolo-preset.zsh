@@ -1,5 +1,5 @@
-# A preset with emoji and randomized but complementary colors.
-# The cwd and git branch colors are different each time the preset is loaded,
+# A preset with randomized but complementary colors, and emoji (emoticons under XTerm).
+# The current directory and Git/Subversion branch colors change each time the preset is loaded,
 # then stay constant within that terminal session.
 
 emulate -L zsh
@@ -49,6 +49,19 @@ YAZPT_EXIT_OK_CODE_VISIBLE=false
 
 YAZPT_VCS_BRANCH_COLOR=$((YAZPT_CWD_COLOR + 6))
 YAZPT_VCS_WRAPPER_CHARS="❨❩"
+
+# Fixups for Konsole and XTerm
+if [[ $OSTYPE == "linux-gnu" ]]; then
+	if [[ -n $KONSOLE_VERSION ]]; then
+		# Only one of the sad faces renders as color emoji; issue found on openSUSE Tumbleweed,
+		# not actually sure if it's a KDE/Konsole-specific thing or a distro-specific thing
+		YAZPT_EXIT_ERROR_CHAR="😬"
+	elif [[ -n $XTERM_VERSION ]]; then
+		YAZPT_EXIT_ERROR_CHAR=":-/"
+		YAZPT_EXIT_OK_CHAR=":)"
+		YAZPT_VCS_WRAPPER_CHARS="()"
+	fi
+fi
 
 unfunction .yazpt_random_int .yazpt_random_char .yazpt_random_color
 unset _yazpt_yolo_color_ranges
