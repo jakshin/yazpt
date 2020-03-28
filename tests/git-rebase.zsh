@@ -8,6 +8,23 @@ source ./utils.zsh
 before_tests $script_name "git"
 YAZPT_VCS_ORDER=(git)
 
+function sanity_check_rebase() {
+	local interactive=$1
+
+	if [[ -z $git_ver ]]; then
+		local git_ver_str=$(git --version | awk '{ print $3 }')
+		git_ver=(${(s:.:)git_ver_str})
+	fi
+
+	if [[ $interactive == true ]] || (( $git_ver[1] > 2 || ($git_ver[1] == 2 && $git_ver[2] >= 26) )); then
+		dir_exists "$git_dir/rebase-merge"
+		dir_does_not_exist "$git_dir/rebase-apply"
+	else
+		dir_does_not_exist "$git_dir/rebase-merge"
+		dir_exists "$git_dir/rebase-apply"
+	fi
+}
+
 # Test
 function run_tests() {
 	local git_dir=$(git rev-parse --git-dir)
@@ -16,8 +33,9 @@ function run_tests() {
 	export GIT_EDITOR=true
 	git checkout rebase-me
 	git rebase -i master
-	dir_exists "$git_dir/rebase-merge"          # Sanity check
-	dir_does_not_exist "$git_dir/rebase-apply"  # Sanity check
+# 	dir_exists "$git_dir/rebase-merge"          # Sanity check
+# 	dir_does_not_exist "$git_dir/rebase-apply"  # Sanity check
+	sanity_check_rebase true
 	test_init_done
 	contains_branch "rebase-me"
 	contains_status "dirty"
@@ -33,8 +51,9 @@ function run_tests() {
 	test_case "Rebasing"
 	git checkout rebase-me
 	git rebase master
-	dir_does_not_exist "$git_dir/rebase-merge"  # Sanity check
-	dir_exists "$git_dir/rebase-apply"          # Sanity check
+# 	dir_does_not_exist "$git_dir/rebase-merge"  # Sanity check
+# 	dir_exists "$git_dir/rebase-apply"          # Sanity check
+	sanity_check_rebase false
 	test_init_done
 	contains_branch "rebase-me"
 	contains_status "dirty"
