@@ -1,4 +1,4 @@
-# Ignore everything here except predefined presets
+# Ignore everything here except presets shipped with yazpt
 *
 !.gitignore
 !README.md
@@ -7,6 +7,7 @@
 !elite-preset.zsh
 !jakshin-preset.zsh
 !kilroy-preset.zsh
+!plain-preset.zsh
 !purity-preset.zsh
 !spearmint-preset.zsh
 !technocrat-preset.zsh
