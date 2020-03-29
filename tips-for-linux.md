@@ -34,7 +34,7 @@ _GNOME Terminal 3.34.2, XTerm v348_
 
 Terminal doesn't render yazpt's Unicode characters very well by default; to fix it, click `Terminal` in the menu bar > `Preferences` > `Unnamed` (or whatever your profile is named) > `Text` tab > check `Custom font`.
 
-in XTerm, the blues preset's exit-status characters aren't rendered (which is weird, because they _are_ rendered on earlier Ubuntu versions); to fit it, use my [.Xresources file](./resources/Xresources), or at least its `xterm*faceName: DejaVu Sans Mono` line (or a similar one).
+in XTerm, the blues preset's exit-status characters aren't rendered (which is weird, because they _are_ rendered on earlier Ubuntu versions); to fix it, use my [.Xresources file](./resources/Xresources), or at least its `xterm*faceName: DejaVu Sans Mono` line (or a similar one).
 
 
 ## Ubuntu 18.04 (Bionic Beaver)
