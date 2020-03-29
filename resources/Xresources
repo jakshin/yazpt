@@ -1,0 +1,39 @@
+! XTerm tends to suck with default settings; this file makes it better.
+! To use it, tweak to preference, then symlink or copy it to ~/.Xresources.
+! Run `xrdb -merge .Xresources` after making any changes to it.
+
+! Choose a nicer font
+! Use `fc-list :scalable=true:spacing=mono: family` to find out available fonts
+! See http://futurile.net/2016/06/14/xterm-setup-and-truetype-font-configuration/ for details
+xterm*faceName: DejaVu Sans Mono
+xterm*faceSize: 10
+
+! Set the main window size, without affecting the popup menus (Ctrl + mouse buttons)
+xterm.vt100.geometry: 120x45
+
+! Many colors are possible
+xterm*termName: xterm-256color
+
+! Set sane default colors
+! xterm*background: black
+! xterm*foreground: white
+
+! Apply theme ten from http://web.archive.org/web/20090130061234/http://phraktured.net/terminal-colors/
+xterm*background: rgb:1a/1a/1a
+xterm*foreground: rgb:d6/d6/d6
+xterm*color0:     rgb:00/00/00
+xterm*color1:     rgb:98/56/5e
+xterm*color2:     rgb:66/82/5d
+xterm*color3:     rgb:96/91/76
+xterm*color4:     rgb:4d/65/85
+xterm*color5:     rgb:96/73/95
+xterm*color6:     rgb:5f/7f/7b
+xterm*color7:     rgb:b3/b3/b3
+xterm*color8:     rgb:73/73/73
+xterm*color9:     rgb:cf/a3/a9
+xterm*color10:    rgb:ca/f7/bb
+xterm*color11:    rgb:ff/f8/bc
+xterm*color12:    rgb:83/a3/be
+xterm*color13:    rgb:bb/a9/cf
+xterm*color14:    rgb:96/cc/cc
+xterm*color15:    rgb:ff/ff/ff
