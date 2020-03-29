@@ -16,7 +16,7 @@ Everything just works, out of the box.
 
 _GNOME Terminal 3.18.3, XTerm v322_
 
-Everything works well out of the box, except the yolo preset, whose emoji renders terribly in GNOME Terminal. You can upgrade to correctly-rendered but monochrome emojis by installing the [Noto Emoji font](https://github.com/googlefonts/noto-emoji/blob/master/fonts/NotoColorEmoji.ttf).
+Everything works well out of the box, except the yolo preset, whose emoji renders poorly in GNOME Terminal. You can upgrade to correctly-rendered but monochrome emojis by installing the [Noto Emoji font](https://github.com/googlefonts/noto-emoji/blob/master/fonts/NotoEmoji-Regular.ttf).
 
 
 ## openSUSE Tumbleweed with KDE Plasma
