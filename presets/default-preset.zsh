@@ -94,6 +94,14 @@ if [[ $OSTYPE == "linux-gnu" ]]; then
 	fi
 fi
 
+# Fixups for Windows
+if [[ $OS == "Windows"* ]]; then
+	if [[ $(uname -s) == "CYGWIN_NT-6.1" ]]; then
+		# Assume DejaVu Sans Mono font is used on Windows 7, but the Unicode "link" character still isn't rendered
+		YAZPT_VCS_STATUS_LINKED_BARE_CHAR="↪"
+	fi
+fi
+
 # Set/restore default settings for input highlighting.
 if (( $+_yazpt_default_zle_highlight )); then
 	zle_highlight=$_yazpt_default_zle_highlight
