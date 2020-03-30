@@ -4,6 +4,8 @@
 
 emulate -L zsh
 declare -a _yazpt_yolo_color_ranges=('22-39' '58-75' '94-111' '130-147')
+declare -a _yazpt_yolo_happy_chars=("👌 " "👍 " "👊 ")
+declare -a _yazpt_yolo_sad_chars=("😫 " "😖 " "😬 ")
 
 function .yazpt_random_int() {
 	local lowest=$1
@@ -14,9 +16,12 @@ function .yazpt_random_int() {
 }
 
 function .yazpt_random_char() {
-	local str=${1// /}
-	local rand=$(.yazpt_random_int 1 $#str)
-	local rand_char=$str[$rand]
+	local char_array_name=$1
+	local char_array=(${(P)${char_array_name}})
+
+	local rand=$(.yazpt_random_int 1 $#char_array)
+	local rand_char=$char_array[$rand]
+	rand_char=${rand_char// /}
 
 	local space=""
 	if [[ $OSTYPE == "linux-gnu" ]]; then
@@ -39,11 +44,11 @@ source "$yazpt_default_preset_file"
 YAZPT_LAYOUT=$'\n<exit><? ><cwd><? ><vcs>\n%# '
 YAZPT_CWD_COLOR=$(.yazpt_random_color)
 
-YAZPT_EXIT_ERROR_CHAR=$(.yazpt_random_char "😫 😖 😬 ")
+YAZPT_EXIT_ERROR_CHAR=$(.yazpt_random_char _yazpt_yolo_sad_chars)
 YAZPT_EXIT_ERROR_COLOR=""
 YAZPT_EXIT_ERROR_CODE_VISIBLE=false
 
-YAZPT_EXIT_OK_CHAR=$(.yazpt_random_char "👌 👍 👊 ")
+YAZPT_EXIT_OK_CHAR=$(.yazpt_random_char _yazpt_yolo_happy_chars)
 YAZPT_EXIT_OK_COLOR=""
 YAZPT_EXIT_OK_CODE_VISIBLE=false
 
@@ -66,4 +71,4 @@ if [[ $OSTYPE == "linux-gnu" ]]; then
 fi
 
 unfunction .yazpt_random_int .yazpt_random_char .yazpt_random_color
-unset _yazpt_yolo_color_ranges
+unset _yazpt_yolo_color_ranges _yazpt_yolo_happy_chars _yazpt_yolo_sad_chars
