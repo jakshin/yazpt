@@ -69,9 +69,7 @@ I've tested yazpt in the following distros, using both their standard terminal e
 * **Linux Mint Cinnamon 19.3 (Tricia)**
 * **Linux Mint Cinnamon 18.3 (Sylvia)**;
   You'll need to [install a font](./tips-for-linux.md#linux-mint-cinnamon-183-sylvia) for the yolo preset to render well
-
 * **openSUSE Tumbleweed**, running KDE Plasma
-
 * **Ubuntu 19.10 (Eoan)**;
   You'll need to [tweak .Xresources](./tips-for-linux.md#ubuntu-1910-eoan-ermine) for the blues preset to render well in XTerm
 * **Ubuntu 18.04 (Bionic)**
