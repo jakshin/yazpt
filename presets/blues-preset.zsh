@@ -30,3 +30,8 @@ YAZPT_VCS_STATUS_UNKNOWN_COLOR=15
 if [[ $OSTYPE == "linux-gnu" && -n $XTERM_VERSION ]]; then
 	YAZPT_EXIT_OK_CHAR="✓"
 fi
+
+# Fixups for Windows
+if [[ $OS == "Windows"* ]]; then
+	YAZPT_EXIT_OK_CHAR="✓"
+fi
