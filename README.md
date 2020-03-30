@@ -78,7 +78,7 @@ I've tested yazpt in the following distros, using both their standard terminal e
 
 In all recent versions of Ubuntu (even Eoan), you'll need to check GNOME Terminal's "Custom font" checkbox to get decent rendering of yazpt's Unicode characters.
 
-I don't always run zsh on Windows, but when I do, I prefer to use Cygwin. Here's a list of the Windows versions that I've used yazpt on, in Mintty 3.x (Cygwin's default terminal):
+I don't always run zsh on Windows, but when I do, I prefer to use [Cygwin](https://cygwin.com). Here's a list of the Windows versions that I've used yazpt on, in Mintty 3.x (Cygwin's default terminal):
 
 * **Windows 10 Pro (version 1909)**
 * **Windows 8.1 Pro**
