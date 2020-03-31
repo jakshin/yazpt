@@ -1,8 +1,13 @@
-# yazpt
-
-Yet another [zsh](http://zsh.sourceforge.net) prompt theme
+# yazpt = yet another [zsh](http://zsh.sourceforge.net) prompt theme
 
 A clean, fast, good-looking prompt theme that thoughtfully incorporates Git and Subversion status info, integrates with popular zsh plugin managers like [Oh My Zsh](https://ohmyz.sh), and is straightforward to customize and extend.
+
+<p align="center">[
+  <a href="#features">Features</a>
+• <a href="#supportedtested-environments">Supported/Tested Environments</a>
+• <a href="#installation">Installation</a>
+• <a href="#customization">Customization</a>
+]</p><br>
 
 
 ## Features
@@ -19,7 +24,7 @@ A clean, fast, good-looking prompt theme that thoughtfully incorporates Git and 
   Yazpt thinks of itself as an add-on or power-up, not a replacement, for zsh's built-in prompt logic, so if you've already spent time pimping out your `$PS1`, there's no need to throw it away - you can copy your current `$PS1` straight into `$YAZPT_LAYOUT`, and then add any yazpt-specific segments you'd like.
 
 * **It's secure.**
-  A surprising number of prompt themes will execute arbitrary shell code if you [browse an unsafe repo](https://github.com/jakshin/pw3nage). Others fail to escape the info they show in ways that lead to corrupted display, e.g. allowing zsh to interpret percent escape sequences or exclamation marks. Yazpt tries hard to avoid those mistakes, and works properly regardless of your preferences about zsh settings like `prompt_subst` and `prompt_bang`.
+  A surprising number of prompt themes will execute arbitrary shell code if you [browse an unsafe repo](https://github.com/jakshin/pw3nage). Others fail to escape the info they show in ways that lead to corrupted display, e.g. allowing zsh to interpret percent escape sequences or exclamation marks in either the current directory's path or a VCS branch name. Yazpt tries hard to avoid those mistakes, and works properly regardless of your preferences about zsh settings like `prompt_subst` and `prompt_bang`.
 
 * **It doesn't require a patched font.**
   Because it uses only standard Unicode characters, yazpt works fine with most standard terminal fonts. You don't need a patched one, like from [Nerd Fonts](https://www.nerdfonts.com) or [Powerline Fonts](https://github.com/powerline/fonts) - but of course if you use any of those fonts in your terminal, you can configure yazpt to use its special glyphs.
@@ -28,7 +33,7 @@ A clean, fast, good-looking prompt theme that thoughtfully incorporates Git and 
   Rather than try to display every detail about the Git status in the prompt, like many prompt themes do, and which has always seemed a bit visually busy to me, yazpt tries to boil it all down to a few key bits of info: the current branch, whether a significant activity is in progress (like merging or rebasing), and one of 3 meaningful, action-oriented statuses:
   * The working tree is dirty (with untracked files, and/or staged or unstaged changes),
   * The local branch has different commits than its remote branch, or
-  * The working tree and branch are clean, i.e. neither of the above is true.
+  * Both the working tree and branch are clean, i.e. neither of the above is true.
 
   There are a couple of other statuses that can be shown in less-common situations; in any case, if you don't know or remember what one of the status characters means, you can just run the explainer function, `yazpt_explain_git`, for full details.
 
@@ -49,6 +54,7 @@ A clean, fast, good-looking prompt theme that thoughtfully incorporates Git and 
   So that's exactly what yazpt shows - even, unlike many other prompt themes, while the current directory is ignored or unversioned, including in the `.svn` directory.
 
   Yazpt also has an explainer function for Subversion statuses - just run `yazpt_explain_svn` for a list of all possible Subversion statuses and their meanings.
+  <p align="center">•</p>
 
 
 ## Supported/Tested Environments
@@ -86,6 +92,7 @@ I don't always run zsh on Windows, but when I do, I prefer to use [Cygwin](https
   with the [DejaVu Sans Mono font installed](./tips-for-windows.md#windows-7-professional) so yazpt's Unicode characters will render right
 
 Mintty doesn't show color emoji in any version of Windows, unless you [install emoji support](./tips-for-windows.md#color-emoji-in-cygwin-mintty).
+<p align="center">•</p>
 
 
 ## Installation
@@ -200,6 +207,7 @@ yazpt_load_preset yolo  # Optionally, and for example
 ```
 
 Yazpt implements an unload function as specified in the [Zdharma Zsh Plugin Standard](https://github.com/zdharma/Zsh-100-Commits-Club/blob/master/Zsh-Plugin-Standard.adoc#unload-fun), so you can unload it by calling `zinit unload jakshin/yazpt`.
+<p align="center">•</p>
 
 
 ## Customization
