@@ -1,7 +1,7 @@
 # Yazpt's default preset, automatically loaded with yazpt itself. Other presets here are defined relative to this baseline,
 # i.e. they're expected to `source` this to reset to defaults, then apply their specific overrides.
 
-# All of the YAZPT_*_COLOR variables below accept the same range of values: anything valid in a `%F{...}` expression.
+# All of the YAZPT_*_COLOR variables below accept the same range of values: anything valid in a zsh `%F{...}` expression.
 # See http://zsh.sourceforge.net/Doc/Release/Zsh-Line-Editor.html#Character-Highlighting's "fg=colour" section for details,
 # but to summarize, valid values include: default (the terminal's default foreground colour);
 # black, red, green, yellow, blue, magenta, cyan, white; numbers from 0-255 (where 0-7 are the named colors above,
@@ -35,7 +35,7 @@ YAZPT_EXIT_OK_CHAR=""                   # Set to empty string for no success ind
 YAZPT_EXIT_OK_CODE_VISIBLE=false        # Display the command's numeric exit code if it's zero?
 YAZPT_EXIT_OK_COLOR=29                  # Dark green/cyan
 
-# Settings for the "vcs", "git" and "svn" prompt segments, including characters which indicate status at a glance.
+# Settings for the "vcs", "git", "svn", and "tfvc" prompt segments, including characters which indicate status at a glance.
 # You can unset any of the *_CHAR variables below if you don't want to see an indicator for that status.
 #
 # The "git" segment shows the Git branch/tag/SHA, any 'activity' in progress, such as rebasing or merging,
@@ -44,45 +44,51 @@ YAZPT_EXIT_OK_COLOR=29                  # Dark green/cyan
 # The "svn" segment shows the Subversion branch/tag, relevant extra info, e.g. if the current directory is unversioned,
 # and 1-3 characters indicating the current status of the working copy.
 #
-# The "vcs" segment shows either or neither of the above segments, checking each VCS listed in $YAZPT_VCS_ORDER.
+# The "tfvc" prompt segment shows the Team Foundation Version Control local workspace's server path,
+# and 1-2 characters indicating the current status of the workspace.
+#
+# The "vcs" segment shows either one or none of the above segments, checking each VCS listed in $YAZPT_VCS_ORDER.
 # If a VCS adds nothing to the prompt for any reason (e.g. because the current directory doesn't match its whitelist),
 # checking continues with the next VCS in the list.
 
-YAZPT_VCS_ORDER=(git svn)               # Order in which VCS checks will be made; checks stop when any VCS has output for the prompt
-                                        # Re-declare with VCS names removed to disable them entirely
+YAZPT_VCS_ORDER=(git)                   # VCSs to check, in the order listed in this array; for best prompt performance,
+                                        # list the VCS you use most first, then any others you use, e.g. use `(git svn tfvc)`
+                                        # to enable all of them in a likely order (Subversion and TFVC are disabled by default)
 
-YAZPT_VCS_GIT_WHITELIST=()              # Whitelists for activating VCS checks; Git and/or Subversion checks will only be made
+YAZPT_VCS_GIT_WHITELIST=()              # Whitelists for activating VCS checks; Git, Subversion and/or TFVC checks will only be made
 YAZPT_VCS_SVN_WHITELIST=()              # in directories whose full paths begin with one of the strings in these arrays;
-                                        # unset one, or set it to an empty array, to enable the corresponding VCS anywhere
+YAZPT_VCS_TFVC_WHITELIST=()             # an empty array, or unset variable, enables the corresponding VCS in any directory
+                                        # Examples: YAZPT_VCS_GIT_WHITELIST=(~/Code/ ~/.yazpt /usr/local/Homebrew)
+                                        # YAZPT_VCS_TFVC_WHITELIST=(/cygdrive/c/Users/$USER/Source/Workspaces/ ~/Source/Workspaces/)
 
-YAZPT_VCS_BARE_REPO_VISIBLE=true        # Show "BARE-REPO" as Git branch in bare Git repos? Otherwise hide Git info entirely;
-                                        # Not applicable in Subversion working copies
+YAZPT_VCS_TFVC_CHECK_LOCKS=true         # Enable to check for locked files in TFVC workspaces by parsing pendingchanges.tf1,
+                                        # or disable to treat any locked files as just "dirty" and make the prompt a bit faster
 
-YAZPT_VCS_BRANCH_COLOR=255              # Bright white; default color for the branch/tag/SHA, and any applicable activity or extra info
-YAZPT_VCS_BRANCH_IN_META_COLOR=240      # Dark gray; used when the CWD is in/under the .git or .svn directory (or a bare Git repo)
-YAZPT_VCS_BRANCH_IN_IGNORED_COLOR=240   # Dark gray; used when the CWD is in/under a directory ignored by Git (not Subversion)
-YAZPT_VCS_BRANCH_IN_UNVERSION_COLOR=240 # Dark gray; used when the CWD is in/under an unversioned, and maybe ignored, directory
-                                        # in a Subversion working copy; not applicable in Git repos
+YAZPT_VCS_CONTEXT_COLOR=255             # Bright white; default color for VCS context (branch/tag/SHA, activity or extra info)
+YAZPT_VCS_CONTEXT_META_COLOR=240        # Dark gray; used when the cwd is in/under the .git, .svn or $tf/.tf directory (or a bare Git repo)
+YAZPT_VCS_CONTEXT_IGNORED_COLOR=240     # Dark gray; used when the cwd is in/under a directory ignored by Git (not Subversion/TFVC)
+YAZPT_VCS_CONTEXT_UNVERSIONED_COLOR=240 # Dark gray; used when the cwd is in/under an unversioned, and maybe ignored, directory
+                                        # in a Subversion working copy; not used in Git repos or TFVC workspaces
 
-YAZPT_VCS_STATUS_CLEAN_CHAR="●"         # Used when the repo is clean: no changes, nothing staged, no need to push/pull (Git/Subversion)
+YAZPT_VCS_STATUS_CLEAN_CHAR="●"         # Used when the repo, working copy, or workspace is clean, i.e. has no changes (Git/Subversion/TFVC)
 YAZPT_VCS_STATUS_CLEAN_COLOR=29         # Dark green/cyan
 YAZPT_VCS_STATUS_CONFLICT_CHAR="≠"      # Used when files are conflicted after an `svn update` (Subversion only)
 YAZPT_VCS_STATUS_CONFLICT_COLOR=9       # Bright red, probably (based on terminal color scheme)
-YAZPT_VCS_STATUS_DIRTY_CHAR="⚑"         # Used when there are untracked files, unstaged or uncommitted changes (Git/Subversion)
+YAZPT_VCS_STATUS_DIRTY_CHAR="⚑"         # Used when there are untracked files or unstaged/uncommitted/pending changes (Git/Subversion/TFVC)
 YAZPT_VCS_STATUS_DIRTY_COLOR=208        # Orange
-YAZPT_VCS_STATUS_DIVERGED_CHAR="◆"      # Used when the local branch's commits don't match its remote/upstream branch's (Git only)
+YAZPT_VCS_STATUS_DIVERGED_CHAR="◆"      # Used when the local Git branch's commits don't match its remote/upstream branch's (Git only)
 YAZPT_VCS_STATUS_DIVERGED_COLOR=166     # Reddish orange
-YAZPT_VCS_STATUS_LINKED_BARE_CHAR="⚭"	# Used in bare repos' linked worktrees, where `git status` only partly works (Git only)
+YAZPT_VCS_STATUS_LINKED_BARE_CHAR="⚭"	# Used in bare Git repos' linked worktrees, where `git status` only partly works (Git only)
 YAZPT_VCS_STATUS_LINKED_BARE_COLOR=81   # Light blue
-YAZPT_VCS_STATUS_LOCKED_CHAR="⊠"        # Used when something is locked in the working copy for exclusive commit (Subversion only)
+YAZPT_VCS_STATUS_LOCKED_CHAR="⊠"        # Used when something is locked in the working copy for exclusive commit/check-in (Subversion/TFVC)
 YAZPT_VCS_STATUS_LOCKED_COLOR=229       # Light yellow, almost bright white
 YAZPT_VCS_STATUS_NO_UPSTREAM_CHAR="◆"   # Used when the local Git branch has no remote/upstream branch (Git only)
 YAZPT_VCS_STATUS_NO_UPSTREAM_COLOR=31   # Dark cyan
-YAZPT_VCS_STATUS_UNKNOWN_CHAR="⌀"       # Used when the repo's status can't be determined (Git/Subversion)
+YAZPT_VCS_STATUS_UNKNOWN_CHAR="⌀"       # Used when the repo's status can't be determined (Git/Subversion/TFVC)
 YAZPT_VCS_STATUS_UNKNOWN_COLOR=9        # Bright red, probably (based on terminal color scheme)
 
-YAZPT_VCS_WRAPPER_CHARS=""              # Characters to show before and after the Git/Subversion branch+status;
-                                        # Use an empty string or 2 characters, e.g. "()"
+YAZPT_VCS_WRAPPER_CHARS=""              # Characters shown before and after the Git/Subversion/TFVC context & status;
+                                        # Should be an empty string or 2 characters, e.g. "()"
 
 # Fixups for Konsole and XTerm
 if [[ $OSTYPE == "linux-gnu" ]]; then
