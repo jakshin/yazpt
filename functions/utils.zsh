@@ -1,4 +1,5 @@
-# Utility functions. These are only means to be called by yazpt's other functions.
+# Utility functions. These are only meant to be called by yazpt's other functions.
+# Copyright (c) 2020 Jason Jackson <jasonjackson@pobox.com>. Distributed under GPL v2.0, see LICENSE for details.
 
 # Details one Git/Subversion status; shows its character, in its configured color, and a description.
 # If the character is empty, it's shown as a gray "n/a".
