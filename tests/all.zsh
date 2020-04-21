@@ -1,5 +1,6 @@
 #!/bin/zsh
 # Runs all of yazpt's test suites.
+# Copyright (c) 2020 Jason Jackson <jasonjackson@pobox.com>. Distributed under GPL v2.0, see LICENSE for details.
 
 script_name="$(basename -- "$0")"
 cd -- "$(dirname -- "$0")"
@@ -18,7 +19,7 @@ for suite in *.zsh; do
 	first=false
 
 	{ ./$suite 2>&1 } \
-		> >(awk '/===|---|✔|✖︎|↪/{print}') \
+		> >(awk '/===|---|✔|✖|↪|⚠/{print}') \
 		> >(grep -F ↪ >> "$summaries")
 
 	if ! tail -n 1 "$summaries" | grep -Fq " 0 failed"; then
