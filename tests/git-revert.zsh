@@ -14,23 +14,23 @@ function run_tests() {
 	git checkout master
 	git revert ca438ac307d0e64ada849f0a540f02ca83662628 764967017eb9e65d8f55a54e28e4f4d44c675af6
 	test_init_done
-	contains_branch "master"
+	contains_context "master"
 	contains_status "dirty"
 	contains "REVERTING"
 	git rm foo.txt && git commit -m "Delete foo.txt"
 	test_init_done
-	contains_branch "master"
+	contains_context "master"
 	contains_status "diverged"
 	contains "REVERTING"
 	git revert --continue
 	test_init_done
-	contains_branch "master"
+	contains_context "master"
 	contains_status "dirty"
 	contains_status "diverged"
 	contains "REVERTING"
 	cd $(git rev-parse --git-dir)
 	test_init_done
-	contains_dim_branch "master"
+	contains_dim_context "master"
 	contains_status "diverged"
 	contains "REVERTING"
 }
