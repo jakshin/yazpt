@@ -27,11 +27,11 @@ contains_status "clean"
 test_case "In an ignored directory"
 cd ignored-dir
 test_init_done
-contains_dim_branch "trunk"
+contains_dim_context "trunk"
 contains "|UNVERSIONED"
 contains_status "clean"
 mkdir subdir && cd subdir
-contains_dim_branch "trunk"
+contains_dim_context "trunk"
 contains "|UNVERSIONED"
 contains_status "clean"
 
@@ -42,22 +42,22 @@ test_init_done
 contains_status "dirty"  # Sanity check
 cd unversioned-dir
 test_init_done
-contains_dim_branch "trunk"
+contains_dim_context "trunk"
 contains "|UNVERSIONED"
 contains_status "dirty"
 cd .svn
 test_init_done
-contains_dim_branch "trunk"
+contains_dim_context "trunk"
 contains "|UNVERSIONED"
 contains_status "dirty"
 cd subdir
 test_init_done
-contains_dim_branch "trunk"
+contains_dim_context "trunk"
 contains "|UNVERSIONED"
 contains_status "dirty"
 cd ../../sibling-dir
 test_init_done
-contains_dim_branch "trunk"
+contains_dim_context "trunk"
 contains "|UNVERSIONED"
 contains_status "dirty"
 cd ../.. && rm -rf unversioned-dir
@@ -65,12 +65,12 @@ cd ../.. && rm -rf unversioned-dir
 test_case "In the .svn directory"
 cd .svn
 test_init_done
-contains_dim_branch "trunk"
+contains_dim_context "trunk"
 contains "|IN-SVN-DIR"
 contains_status "clean"
 cd pristine
 test_init_done
-contains_dim_branch "trunk"
+contains_dim_context "trunk"
 contains "|IN-SVN-DIR"
 contains_status "clean"
 
