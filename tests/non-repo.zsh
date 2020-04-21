@@ -6,6 +6,7 @@ script_name="$(basename -- "$0")"
 cd -- "$(dirname -- "$0")"
 source ./utils.zsh
 before_tests $script_name
+YAZPT_VCS_ORDER=(git)
 
 # Test
 test_case "Not in a repo"
