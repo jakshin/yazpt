@@ -14,7 +14,7 @@ mkdir "bare"
 cd "bare"
 git init --bare
 test_init_done
-contains_dim_branch "BARE-REPO"
+contains_dim_context "BARE-REPO"
 excludes "master"
 excludes_git_status
 
@@ -22,12 +22,7 @@ test_case "Cloned bare repo"
 git clone --bare "https://github.com/jakshin/yazpt-test.git"
 cd "yazpt-test.git"
 test_init_done
-contains_dim_branch "BARE-REPO"
-excludes "master"
-excludes_git_status
-YAZPT_VCS_BARE_REPO_VISIBLE=false
-test_init_done
-excludes "BARE-REPO"
+contains_dim_context "BARE-REPO"
 excludes "master"
 excludes_git_status
 
