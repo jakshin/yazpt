@@ -35,10 +35,10 @@ function svn_mock_locked() {
 }
 
 # Test
-test_case "Subversion branch color"
-YAZPT_VCS_BRANCH_COLOR=1
-YAZPT_VCS_BRANCH_IN_META_COLOR=2
-YAZPT_VCS_BRANCH_IN_UNVERSION_COLOR=3
+test_case "Subversion context color"
+YAZPT_VCS_CONTEXT_COLOR=1
+YAZPT_VCS_CONTEXT_META_COLOR=2
+YAZPT_VCS_CONTEXT_UNVERSIONED_COLOR=3
 test_init_done
 contains '%{%F{1}%}trunk%{%f%}'
 cd .svn
