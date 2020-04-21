@@ -1,5 +1,5 @@
 #!/bin/zsh
-# Tests for branch (and non-branch) display in a Git repo.
+# Tests for branch/tag/SHA display in a Git repo.
 
 # Initialize
 script_name="$(basename -- "$0")"
@@ -15,13 +15,13 @@ function run_tests() {
 	test_case "On a branch"
 	git checkout branch1
 	test_init_done
-	contains_branch "branch1"
+	contains_context "branch1"
 	contains_status "clean"
 
 	test_case "In the .git directory, on a branch"
 	cd $git_dir
 	test_init_done
-	contains_dim_branch "branch1"
+	contains_dim_context "branch1"
 	contains_status "clean"
 	contains "IN-GIT-DIR"
 
@@ -29,17 +29,17 @@ function run_tests() {
 	setopt prompt_subst
 	git checkout '$(IFS=_;cmd=echo_arg;$cmd)'
 	test_init_done
-	contains '$_yazpt_branch'
+	contains '$_yazpt_context'
 	PROMPT="$(eval noglob echo $PROMPT)"  # Like prompt_subst will do
-	contains_branch '$(IFS=_;cmd=echo_arg;$cmd)'
+	contains_context '$(IFS=_;cmd=echo_arg;$cmd)'
 	contains_status "clean"
 
 	test_case "In the .git directory, on a branch with a scary name, with prompt_subst on"
 	cd $git_dir
 	test_init_done
-	contains '$_yazpt_branch'
+	contains '$_yazpt_context'
 	PROMPT="$(eval noglob echo $PROMPT)"  # Like prompt_subst will do
-	contains_dim_branch '$(IFS=_;cmd=echo_arg;$cmd)'
+	contains_dim_context '$(IFS=_;cmd=echo_arg;$cmd)'
 	contains_status "clean"
 	contains "IN-GIT-DIR"
 
@@ -47,13 +47,13 @@ function run_tests() {
 	setopt no_prompt_subst
 	git checkout '$(IFS=_;cmd=echo_arg;$cmd)'
 	test_init_done
-	contains_branch '$(IFS=_;cmd=echo_arg;$cmd)'
+	contains_context '$(IFS=_;cmd=echo_arg;$cmd)'
 	contains_status "clean"
 
 	test_case "In the .git directory, on a branch with a scary name, with prompt_subst off"
 	cd $git_dir
 	test_init_done
-	contains_dim_branch '$(IFS=_;cmd=echo_arg;$cmd)'
+	contains_dim_context '$(IFS=_;cmd=echo_arg;$cmd)'
 	contains_status "clean"
 	contains "IN-GIT-DIR"
 
@@ -61,13 +61,13 @@ function run_tests() {
 	setopt prompt_bang
 	git checkout -b 'is!a!test'
 	test_init_done
-	contains_branch 'is!!a!!test'
+	contains_context 'is!!a!!test'
 	contains_status "no-upstream"
 
 	test_case "In the .git directory, on a branch that could trigger prompt expansion, with prompt_bang on"
 	cd $git_dir
 	test_init_done
-	contains_dim_branch 'is!!a!!test'
+	contains_dim_context 'is!!a!!test'
 	contains_status "no-upstream"
 	contains "IN-GIT-DIR"
 
@@ -75,26 +75,26 @@ function run_tests() {
 	setopt no_prompt_bang
 	git checkout -b 'is!a!test'
 	test_init_done
-	contains_branch 'is!a!test'
+	contains_context 'is!a!test'
 	contains_status "no-upstream"
 
 	test_case "In the .git directory, on a branch that could trigger prompt expansion, with prompt_bang off"
 	cd $git_dir
 	test_init_done
-	contains_dim_branch 'is!a!test'
+	contains_dim_context 'is!a!test'
 	contains_status "no-upstream"
 	contains "IN-GIT-DIR"
 
 	test_case "On a branch that could trigger prompt expansion (prompt_percent)"
 	git checkout -b '%F{160}red'
 	test_init_done
-	contains_branch '%%F{160}red'
+	contains_context '%%F{160}red'
 	contains_status "no-upstream"
 
 	test_case "In the .git directory, on a branch that could trigger prompt expansion (prompt_percent)"
 	cd $git_dir
 	test_init_done
-	contains_dim_branch '%%F{160}red'
+	contains_dim_context '%%F{160}red'
 	contains_status "no-upstream"
 	contains "IN-GIT-DIR"
 
@@ -102,26 +102,26 @@ function run_tests() {
 	first_commit="$(git log --format=%h --reverse | head -n 1)"
 	git checkout $first_commit
 	test_init_done
-	contains_branch "$first_commit"
+	contains_context "$first_commit"
 	contains_status "clean"
 
 	test_case "In the .git directory, with an arbitrary commit checked out"
 	cd $git_dir
 	test_init_done
-	contains_dim_branch "$first_commit"
+	contains_dim_context "$first_commit"
 	contains_status "clean"
 	contains "IN-GIT-DIR"
 
 	test_case "With an arbitrary tagged commit checked out"
 	git checkout taggy
 	test_init_done
-	contains_branch "taggy"
+	contains_context "taggy"
 	contains_status "clean"
 
 	test_case "In the .git directory, with an arbitrary tagged commit checked out"
 	cd $git_dir
 	test_init_done
-	contains_dim_branch "taggy"
+	contains_dim_context "taggy"
 	contains_status "clean"
 	contains "IN-GIT-DIR"
 }
