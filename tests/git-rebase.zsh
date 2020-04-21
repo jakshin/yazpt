@@ -36,12 +36,12 @@ function run_tests() {
 	git rebase -i master
 	sanity_check_rebase true
 	test_init_done
-	contains_branch "rebase-me"
+	contains_context "rebase-me"
 	contains_status "dirty"
 	contains "REBASING 1/2"
 	cd $git_dir
 	test_init_done
-	contains_dim_branch "rebase-me"
+	contains_dim_context "rebase-me"
 	contains_status "dirty"
 	contains "REBASING 1/2"
 	unset GIT_EDITOR
@@ -52,12 +52,12 @@ function run_tests() {
 	git rebase master
 	sanity_check_rebase false
 	test_init_done
-	contains_branch "rebase-me"
+	contains_context "rebase-me"
 	contains_status "dirty"
 	contains "REBASING 1/2"
 	cd $git_dir
 	test_init_done
-	contains_dim_branch "rebase-me"
+	contains_dim_context "rebase-me"
 	contains_status "dirty"
 	contains "REBASING 1/2"
 	cd - && git rebase --abort  # Cleanup
@@ -66,11 +66,11 @@ function run_tests() {
 	git checkout rebase-me-too
 	git rebase master
 	test_init_done
-	contains_branch "rebase-me-too"
+	contains_context "rebase-me-too"
 	contains_status "diverged"
 	cd $git_dir
 	test_init_done
-	contains_dim_branch "rebase-me-too"
+	contains_dim_context "rebase-me-too"
 	contains_status "diverged"
 	contains "IN-GIT-DIR"
 	cd - && git checkout master  # Cleanup
