@@ -19,11 +19,11 @@ contains_status "clean"  # Sanity check
 cd grandparent
 svn switch "^/branches/branch1/grandparent"
 test_init_done
-contains_branch "branch1"
+contains_context "branch1"
 contains_status "dirty"
 cd ..
 test_init_done
-contains_branch "trunk"
+contains_context "trunk"
 contains_status "dirty"
 
 # Clean up
