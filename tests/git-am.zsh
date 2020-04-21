@@ -14,17 +14,17 @@ function run_tests() {
 	git checkout master
 	git am patches/*
 	test_init_done
-	contains_branch "master"
+	contains_context "master"
 	contains_status "clean"
 	contains "AM 1/2"
 	echo bleh >> foo.txt && git add . && git am --continue
 	test_init_done
-	contains_branch "master"
+	contains_context "master"
 	contains_status "diverged"
 	contains "AM 2/2"
 	cd $(git rev-parse --git-dir)
 	test_init_done
-	contains_dim_branch "master"
+	contains_dim_context "master"
 	contains_status "diverged"
 	contains "AM 2/2"
 }
