@@ -1,3 +1,6 @@
+# Explains yazpt's Subversion status characters and their meanings.
+# Copyright (c) 2020 Jason Jackson <jasonjackson@pobox.com>. Distributed under GPL v2.0, see LICENSE for details.
+#
 function yazpt_explain_svn() {
 	emulate -L zsh
 
