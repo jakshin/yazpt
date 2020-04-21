@@ -15,12 +15,12 @@ function run_tests() {
 	git checkout master
 	git merge merge-me
 	test_init_done
-	contains_branch "master"
+	contains_context "master"
 	contains_status "dirty"
 	contains "MERGING"
 	cd $(git rev-parse --git-dir)
 	test_init_done
-	contains_dim_branch "master"
+	contains_dim_context "master"
 	contains_status "dirty"
 	contains "MERGING"
 }
