@@ -17,10 +17,10 @@ function git_mock() {
 }
 
 # Test
-test_case "Git branch color"
-YAZPT_VCS_BRANCH_COLOR=1
-YAZPT_VCS_BRANCH_IN_META_COLOR=2
-YAZPT_VCS_BRANCH_IN_IGNORED_COLOR=3
+test_case "Git context color"
+YAZPT_VCS_CONTEXT_COLOR=1
+YAZPT_VCS_CONTEXT_META_COLOR=2
+YAZPT_VCS_CONTEXT_IGNORED_COLOR=3
 test_init_done
 contains '%{%F{1}%}master%{%f%}'
 cd $(git rev-parse --git-dir)
