@@ -1,5 +1,5 @@
 #!/bin/zsh
-# Tests for various types of file/folder changes in a TFVC workspace.
+# Tests for various file/folder changes in a TFVC workspace.
 
 # Initialize
 script_name="$(basename -- "$0")"
