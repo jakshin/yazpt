@@ -1,5 +1,5 @@
 #!/bin/zsh
-# Tests for various types of file/directory changes in a Subversion working copy.
+# Tests for various file/directory changes in a Subversion working copy.
 
 # Initialize
 script_name="$(basename -- "$0")"
