@@ -1,5 +1,8 @@
-# Yet another zsh prompt theme
+# Yet another zsh prompt theme, with Git/Subversion/TFVC awareness
 # https://github.com/jakshin/yazpt
+#
+# Copyright (c) 2020 Jason Jackson <jasonjackson@pobox.com>.
+# Distributed under GPL v2.0, see LICENSE for details.
 #
 # This file integrates yazpt with zsh's "promptinit" prompt theme system:
 # http://zsh.sourceforge.net/Doc/Release/User-Contributions.html#Prompt-Themes
@@ -14,9 +17,9 @@
 # Run `prompt -h yazpt` to use.
 #
 function prompt_yazpt_help() {
-	echo 'Yazpt is a clean, fast prompt theme with Git and Subversion support.'
-	echo "It's straightforward to customize and extend. Multi-line by default,"
-	echo 'it can easily be configured as a single-line prompt.\n'
+	echo 'Yazpt is a clean, fast prompt theme with support for Git, Subversion'
+	echo "and Microsoft Team Foundation Version Control (TFVC). It's easy to"
+	echo "customize and extend. Renders multi-line (default), or single-line."
 
 	echo 'It comes with a handful of "presets" which change its appearance,'
 	echo 'and is fully configurable via its $YAZPT_* environment variables.\n'
@@ -25,13 +28,14 @@ function prompt_yazpt_help() {
 	echo '* The current working directory'
 	echo '* The exit status of the most recent command'
 	echo '* The Git branch and working tree status'
-	echo '* The Subversion branch and working copy status\n'
+	echo '* The Subversion branch and working copy status'
+	echo "* The TFVC local workspace's server path and status\n"
 
 	echo "Type \`prompt -p \"yazpt all\"' to preview all of yazpt's presets,"
 	echo "or \`prompt yazpt PRESET' to use one, where PRESET is its name."
-	echo "Note that your working directory should be in a Git working tree"
-	echo "or Subversion working copy when you preview the theme,"
-	echo "if you want to see its Git/Subversion features in action."
+	echo "Note that your working directory should be in a Git working tree,"
+	echo "Subversion working copy, or TFVC local workspace when you preview"
+	echo "the theme, if you want to preview its version control features."
 }
 
 # Called by the prompt theme system to preview the yazpt theme. 
