@@ -1,18 +1,83 @@
-# Utilities for testing yazpt.
-# This file is meant to be sourced by each test suite, not invoked directly.
+# Utilities for testing yazpt. This file is meant to be sourced by each test suite, not invoked directly.
+# Copyright (c) 2020 Jason Jackson <jasonjackson@pobox.com>. Distributed under GPL v2.0, see LICENSE for details.
 
 # Colored output
 bright='\e[1m'
 normal='\e[0m'
+warning='\e[38;5;204m'
 success='\e[38;5;76m'
 failure='\e[38;5;160m'
-success_bullet="${success}✔${normal}"
-failure_bullet="${failure}✖︎${normal}"
+success_bullet="${success}✔ ${normal}"
+failure_bullet="${failure}✖ ${normal}"
+
+# Default VCS settings (overridden in many test suites)
+YAZPT_VCS_ORDER=()
+YAZPT_VCS_GIT_WHITELIST=()
+YAZPT_VCS_SVN_WHITELIST=()
+YAZPT_VCS_TFVC_WHITELIST=()
+
+# Utility function which converts the string passed to it to a series of hex characters representing its raw bytes
+function convert_to_hex() {
+	local str="$1"
+	local hex_str hex i
+
+	for (( i=1; i <= $#str; i++ )); do
+		printf -v hex %.2x "'$str[$i]"
+		hex_str+=$hex
+	done
+
+	echo $hex_str
+}
 
 # Utility function for getting the current time with higher resolution than seconds,
 # since macOS's "date" doesn't allow that
 function current_timestamp() {
 	perl -MTime::HiRes=time -e 'printf "%.9f\n", time'
+}
+
+# Utility function that tries to find a TFVC CLI,
+# first checking $path, then a few likely locations on Windows
+function find_tfvc_cli() {
+	if which tf > /dev/null; then
+		tf_cli='tf'
+	elif [[ $OS == "Windows"* ]]; then
+		local subpath="/Community/Common7/IDE/CommonExtensions/Microsoft/TeamFoundation/Team Explorer/TF.exe"
+		local found=$(echo "C:/Program Files"*"/Microsoft Visual Studio/"[[:digit:]]*"$subpath"(nN[1]^on))
+		if [[ -n $found ]]; then
+			tf_cli="$found"
+		else
+			found=$(echo "C:/Program Files"*"/Microsoft Visual Studio "[[:digit:]]*"/Common7/IDE/TF.exe"(nN[1]^on))
+			[[ -n $found ]] && tf_cli="$found"
+		fi
+	fi
+
+	if [[ -n $tf_cli && $OS == "Windows"* ]]; then
+		if $tf_cli | head -n 1 | grep -Fq "Version 10."; then
+			unset tf_cli  # VS 2010 and its TF.exe don't appear to support local workspaces
+		fi
+	fi
+}
+
+# Utility function that initializes variables which are helpful when running the TFVC CLI
+function init_tfvc_vars() {
+	if [[ $OS == "Windows"* ]]; then
+		tf_dir_name='$tf'
+		tf_opt_char='/'
+	else
+		tf_dir_name='.tf'
+		tf_opt_char='-'
+		tf_args="-collection:https://dev.azure.com/jasonjackson0568 -login:$TF_PAT,"
+
+		if [[ $OSTYPE == "darwin"* ]]; then
+			# TEE-CLC apparently needs Java 8 in order to run (it doesn't work on Zulu OpenJDK 12, anyway)
+			export JAVA_HOME="$(/usr/libexec/java_home --version 1.8 --failfast)"
+		fi
+	fi
+}
+
+# Utility function that makes TFVC notice local file/folder changes which were made without using the TFVC CLI
+function tf_status() {
+  $tf_cli status ${=tf_args} -format:detailed | grep -vF -- "-----"
 }
 
 # Initializes the test suite
@@ -43,6 +108,35 @@ function before_tests() {
 		svn checkout "https://svn.riouxsvn.com/yazpt-svn-test" .
 	elif [[ $repo_type == *svn* ]]; then
 		svn checkout "https://svn.riouxsvn.com/yazpt-svn-test/trunk" .
+	elif [[ $repo_type == *tfvc* ]]; then
+		find_tfvc_cli
+		init_tfvc_vars
+
+		if [[ -z $tf_cli ]]; then
+			echo "${warning}⚠ Skipping this test suite because no compatible 'tf' CLI was found${normal}"
+			[[ $OS == "Windows"* ]] && echo "(Note that VS 2010's TF.exe isn't compatible, because it doesn't support local workspaces)"
+			after_tests
+			exit
+		fi
+
+		local host=${HOST:-$HOSTNAME}
+		local host_parts=(${(s:.:)host})
+		local short_host=$host_parts[1]
+
+		if [[ $repo_type == *"tfvc-winky"* ]]; then
+			local workspace_name="${short_host}_yazpt_winky_tests"
+			local server_path='$/yazpt-tfvc-test/Wîñky-ßränçh 😉'
+		else
+			local workspace_name="${short_host}_yazpt_tests"
+			local server_path='$/yazpt-tfvc-test/Main'
+		fi
+
+		if ! $tf_cli workspaces ${=tf_args} $workspace_name > /dev/null; then
+			$tf_cli workspace ${=tf_args} -new $workspace_name
+		fi
+
+		$tf_cli workfold ${=tf_args} -map -workspace:$workspace_name "$server_path" .
+		$tf_cli get ${=tf_args}
 	fi
 }
 
@@ -95,7 +189,7 @@ function test_init_done() {
 	yazpt_precmd
 
 	PROMPT="${PROMPT//$'\n'/}"  # Remove linebreaks for easier comparison
-	echo $'\n'"-- \$PROMPT is: $PROMPT"
+	echo $'\n'"--> \$PROMPT is: $PROMPT"
 
 	[[ $1 == "no-standard-tests" ]] || standard_tests
 }
@@ -139,7 +233,17 @@ function excludes() {
 # Verifies that $PROMPT contains the given string
 function contains() {
 	local contains_str="$1"
-	if [[ $PROMPT == *"$contains_str"* ]]; then
+	local has_special_chars="$2"  # Boolean
+
+	if [[ $has_special_chars == true ]]; then
+		local prompt_=$(convert_to_hex "$PROMPT")
+		local contains_str_=$(convert_to_hex "$contains_str")
+	else
+		local prompt_="$PROMPT"
+		local contains_str_="$contains_str"
+	fi
+
+	if [[ $prompt_ == *"$contains_str_"* ]]; then
 		echo " ${success_bullet} \$PROMPT contains $contains_str"
 		(( passed++ ))
 	else
@@ -148,16 +252,18 @@ function contains() {
 	fi
 }
 
-# Verifies that $PROMPT contains the given git branch name, in bright text
-function contains_branch() {
-	local branch_name="$1"
-	contains "%{%F{255}%}$branch_name"
+# Verifies that $PROMPT contains the given string at the start of its VCS context, in bright text
+function contains_context() {
+	local context_str="$1"
+	local has_special_chars="$2"  # Boolean
+	contains "%{%F{255}%}$context_str" $has_special_chars
 }
 
-# Verifies that $PROMPT contains the given git branch name, in dim text
-function contains_dim_branch() {
-	local branch_name="$1"
-	contains "%{%F{240}%}$branch_name"
+# Verifies that $PROMPT contains the given string at the start of its VCS context, in dim text
+function contains_dim_context() {
+	local context_str="$1"
+	local has_special_chars="$2"  # Boolean
+	contains "%{%F{240}%}$context_str" $has_special_chars
 }
 
 # Verifies that $PROMPT contains the given git status indicator
@@ -203,6 +309,17 @@ function excludes_svn_status() {
 		(( passed++ ))
 	else
 		echo " ${failure_bullet} \$PROMPT erroneously contains Subversion status"
+		(( failed++ ))
+	fi
+}
+
+# Verifies that $PROMPT doesn't contain any of the standard TFVC status indicators
+function excludes_tfvc_status() {
+	if [[ $PROMPT != *●* && $PROMPT != *⚑* && $PROMPT != *⊠* && $PROMPT != *⌀* ]]; then
+		echo " ${success_bullet} \$PROMPT doesn't contain TFVC status"
+		(( passed++ ))
+	else
+		echo " ${failure_bullet} \$PROMPT erroneously contains TFVC status"
 		(( failed++ ))
 	fi
 }
