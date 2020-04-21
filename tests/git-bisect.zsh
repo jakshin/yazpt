@@ -14,12 +14,12 @@ function run_tests() {
 	git checkout branch1
 	git bisect start
 	test_init_done
-	contains_branch "branch1"
+	contains_context "branch1"
 	contains_status "clean"
 	contains "BISECTING"
 	cd $(git rev-parse --git-dir)
 	test_init_done
-	contains_dim_branch "branch1"
+	contains_dim_context "branch1"
 	contains_status "clean"
 	contains "BISECTING"
 }
