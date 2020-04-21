@@ -1,9 +1,19 @@
-# Yet another zsh prompt theme with Git & Subversion awareness
+# Yet another zsh prompt theme, with Git/Subversion/TFVC awareness
 # https://github.com/jakshin/yazpt
 #
 # Copyright (c) 2020 Jason Jackson <jasonjackson@pobox.com>
-# Based on https://github.com/git/git/blob/master/contrib/completion/git-prompt.sh
-# Distributed under the GNU General Public License, version 2.0
+# Based initially on https://github.com/git/git/blob/master/contrib/completion/git-prompt.sh
+#
+# This program is free software; you can redistribute it and/or modify it under the terms
+# of the GNU General Public License version 2 as published by the Free Software Foundation.
+#
+# This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+# without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+# See the GNU General Public License for more details.
+#
+# A copy of the GNU General Public License should accompany this program; if not,
+# see http://www.gnu.org/licenses/gpl-2.0.html or write to the Free Software Foundation,
+# 59 Temple Place, Suite 330, Boston, MA 02111.
 
 # Try to ensure we're running in a compatible environment.
 if [[ -z $ZSH_VERSION ]]; then
@@ -61,6 +71,21 @@ function yazpt_explain_svn() {
 	fi
 }
 
+# Explains yazpt's Team Foundation Version Control status characters and their meanings.
+#
+function yazpt_explain_tfvc() {
+	emulate -L zsh
+	local src="$yazpt_base_dir/functions/explain-tfvc.zsh"
+
+	if [[ -r $src ]]; then
+		source $src
+		yazpt_explain_tfvc "$@"
+	else
+		echo "Error: Can't find explain-tfvc.zsh"
+		return 1
+	fi
+}
+
 # Lists all yazpt presets which can be loaded by yazpt_load_preset.
 #
 function yazpt_list_presets() {
@@ -79,6 +104,7 @@ function yazpt_list_presets() {
 }
 
 # Loads one of the yazpt presets (use yazpt_list_presets to get a list of them).
+# If you have a ~/.yazptrc, it's sourced after loading the preset.
 #
 function yazpt_load_preset() {
 	emulate -L zsh
@@ -94,6 +120,7 @@ function yazpt_load_preset() {
 
 	if [[ -r $preset_file ]]; then
 		source "$preset_file"
+		[[ -e ~/.yazptrc ]] && source ~/.yazptrc
 
 		if [[ $YAZPT_PREVIEW != true && $prompt_theme[1] == "yazpt" ]]; then
 			prompt_theme[2]=$preset  # So `prompt -h yazpt` will restore the right preset
@@ -130,7 +157,7 @@ function yazpt_plugin_unload() {
 
 	# This isn't ideal, but if we don't reset PS1 to something generic,
 	# we can leave the last PS1 calculated by yazpt in place indefinitely,
-	# including zombie current working directory & Git/Subversion info :-/
+	# including zombie current working directory & Git/Subversion/TFVC info :-/
 	PS1='%n@%m %1~ %# '
 }
 
@@ -320,7 +347,7 @@ function @yazpt_segment_git() {
 	# Ignore $GIT_DIR in this function, including subshells launched from it
 	local GIT_DIR; unset GIT_DIR
 
-	# Calculate Git branch/tag/SHA first (also including any in-flight activity, such as rebasing)
+	# Calculate Git context first (branch/tag/SHA, and any in-flight activity, such as rebasing)
 	local info git_exit_code
 	info=(${(f)"$(git rev-parse --is-bare-repository --git-dir --is-inside-git-dir --short HEAD 2> /dev/null)"})
 	git_exit_code=$?
@@ -334,14 +361,13 @@ function @yazpt_segment_git() {
 	local git_dir="$info[2]"       # Relative or absolute path, "." if in a bare repo
 	local in_git_dir="$info[3]"    # Boolean, true if in a bare repo
 	local sha="$info[4]"           # Empty if new repo with no commits (but we'll have $git_dir/HEAD to read)
-	local branch="" activity="" step="" steps=""
+	local context="" activity="" step="" steps=""
 
 	if [[ $bare_repo == true ]]; then
-		[[ ${YAZPT_VCS_BARE_REPO_VISIBLE:l} == true ]] || return
 		activity="BARE-REPO"
 	elif [[ -d "$git_dir/rebase-merge" ]]; then
 		activity="|REBASING"
-		.yazpt_read_line "$git_dir/rebase-merge/head-name" branch
+		.yazpt_read_line "$git_dir/rebase-merge/head-name" context
 		.yazpt_read_line "$git_dir/rebase-merge/msgnum" step
 		.yazpt_read_line "$git_dir/rebase-merge/end" steps
 	elif [[ -d "$git_dir/rebase-apply" ]]; then
@@ -350,7 +376,7 @@ function @yazpt_segment_git() {
 		.yazpt_read_line "$git_dir/rebase-apply/last" steps
 
 		if [[ -f "$git_dir/rebase-apply/rebasing" ]]; then
-			.yazpt_read_line "$git_dir/rebase-apply/head-name" branch
+			.yazpt_read_line "$git_dir/rebase-apply/head-name" context
 		elif [[ -f "$git_dir/rebase-apply/applying" ]]; then
 			activity="|AM"
 		fi
@@ -377,41 +403,41 @@ function @yazpt_segment_git() {
 		activity+=" $step/$steps"
 	fi
 
-	if [[ -z $branch && $bare_repo == false ]]; then
+	if [[ -z $context && $bare_repo == false ]]; then
 		local head
 		.yazpt_read_line "$git_dir/HEAD" head
 
 		if [[ $head == ref:* ]]; then
-			branch="${head#ref: }"
+			context="${head#ref: }"
 		else
-			branch="$(git describe --tags --exact-match HEAD 2> /dev/null || echo $sha)"
+			context="$(git describe --tags --exact-match HEAD 2> /dev/null || echo $sha)"
 		fi
 	fi
 
 	local color
 	if [[ $in_git_dir == true ]]; then
-		color="${YAZPT_VCS_BRANCH_IN_META_COLOR:=default}"
+		color="${YAZPT_VCS_CONTEXT_META_COLOR:=default}"
 		: ${activity:=|IN-GIT-DIR}
 	elif git check-ignore -q .; then
-		color="${YAZPT_VCS_BRANCH_IN_IGNORED_COLOR:=default}"
+		color="${YAZPT_VCS_CONTEXT_IGNORED_COLOR:=default}"
 		: ${activity:=|IGNORED}
 	else
-		color="${YAZPT_VCS_BRANCH_COLOR:=default}"
+		color="${YAZPT_VCS_CONTEXT_COLOR:=default}"
 	fi
 
 	if [[ -o prompt_bang ]]; then
 		# Escape exclamation marks from prompt expansion, by doubling them
-		branch=${branch//'!'/'!!'}
+		context=${context//'!'/'!!'}
 	fi
 
-	branch="${branch//\%/%%}"  # Escape percent signs from prompt expansion
-	branch="%{%F{$color}%}${branch#refs/heads/}${activity}%{%f%}"
+	context="${context//\%/%%}"  # Escape percent signs from prompt expansion
+	context="%{%F{$color}%}${context#refs/heads/}${activity}%{%f%}"
 
 	if [[ -o prompt_subst ]]; then
-		_yazpt_branch="$branch"
-		branch='$_yazpt_branch'
+		_yazpt_context="$context"
+		context='$_yazpt_context'
 	else
-		unset _yazpt_branch
+		unset _yazpt_context
 	fi
 
 	# Calculate Git status
@@ -484,8 +510,8 @@ function @yazpt_segment_git() {
 		done
 	fi
 
-	# Combine Git branch+activity and status
-	local combined="$branch"
+	# Combine Git context and status
+	local combined="$context"
 	if [[ -n $git_status ]]; then
 		combined+=" $git_status"
 	fi
@@ -511,7 +537,21 @@ function @yazpt_segment_svn() {
 	fi
 }
 
-# Implements the "vcs" prompt segment, which shows the "git" or "svn" prompt segment (or neither),
+# Stub/loader for the real @yazpt_segment_tfvc function in segment-tfvc.zsh,
+# which implements the "tfvc" prompt segment.
+#
+# Note that the segment works only in local TFVC workspaces, not server workspaces.
+#
+function @yazpt_segment_tfvc() {
+	local src="$yazpt_base_dir/functions/segment-tfvc.zsh"
+
+	if [[ -r $src ]]; then
+		source $src
+		@yazpt_segment_tfvc
+	fi
+}
+
+# Implements the "vcs" prompt segment, which shows one or none of the "git", "svn" or "tfvc" prompt segments,
 # as dictated by $YAZPT_VCS_ORDER and VCS-specific whitelists.
 #
 function @yazpt_segment_vcs() {

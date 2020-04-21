@@ -1,12 +1,13 @@
-# yazpt = yet another [zsh](http://zsh.sourceforge.net) prompt theme
+# yazpt = yet another zsh prompt theme
 
-A clean, fast, good-looking prompt theme that thoughtfully incorporates Git and Subversion status info, integrates with popular zsh plugin managers like [Oh My Zsh](https://ohmyz.sh), and is straightforward to customize and extend.
+Yazpt is a clean, fast, good-looking [zsh](http://zsh.sourceforge.net) prompt theme that thoughtfully incorporates Git/Subversion/TFVC status info, integrates with popular plugin managers like [Oh My Zsh](https://ohmyz.sh), and is straightforward to customize and extend.
 
 <p align="center">[
   <a href="#features">Features</a>
 • <a href="#supportedtested-environments">Supported/Tested Environments</a>
-• <a href="#installation">Installation</a>
-• <a href="#customization">Customization</a>
+• <a href="#installing">Installing</a>
+• <a href="#enabling-subversion-andor-team-foundation-version-control">Enabling Subversion/TFVC</a>
+• <a href="#customizing">Customizing</a>
 ]</p><br>
 
 
@@ -15,7 +16,7 @@ A clean, fast, good-looking prompt theme that thoughtfully incorporates Git and 
 * **It's pretty fast, without async.**
   It's faster than any prompt theme which relies on [vcs_info](https://github.com/zsh-users/zsh/tree/master/Functions/VCS_Info), and faster than nearly all prompt themes which don't use async approaches for obtaining and displaying VCS status. Prompt themes which populate the VCS parts of the prompt asynchronously can be faster, but I actually tend not to love them, as I personally find it a bit distracting when part of the prompt pops into existence a bit later than the rest.
 
-  Yazpt also allows you to whitelist sets of path prefixes in which you expect to find Git repos and/or Subversion working trees - if you've done so, then while working in any path which isn't whitelisted, it skips checking for Git/Subversion status, improving performance even further. If you don't happen to use either Git or Subversion, you can also entirely disable yazpt's use of either or both of them.
+  Yazpt also allows you to whitelist sets of path prefixes in which you expect to find Git repos, Subversion working copies, and/or Team Foundation Version Control local workspaces - if you've done so, then while working in any path which isn't whitelisted, it skips checking for Git/Subversion/TFVC status, improving performance even further. If you don't happen to use one or more of the supported VCSs, you can also entirely disable yazpt's use of any of them.
 
 * **It's as configurable as you want it to be.**
   Yazpt uses about three dozen environment variables to tweak its appearance and behavior. If that sounds like too much to bother with, it also comes with a handful of "presets", i.e. preconfigured settings for the environment variables, in a variety of styles. Or if, on the other hand, you really want to dig in and customize it, it's straightforward to add new prompt segments, or override the default implementations of existing prompt segments, using zsh functions. Either way, the details are [documented](customizing.md).
@@ -27,7 +28,7 @@ A clean, fast, good-looking prompt theme that thoughtfully incorporates Git and 
   A surprising number of prompt themes will execute arbitrary shell code if you [browse an unsafe repo](https://github.com/jakshin/pw3nage). Others fail to escape the info they show in ways that lead to corrupted display, e.g. allowing zsh to interpret percent escape sequences or exclamation marks in either the current directory's path or a VCS branch name. Yazpt tries hard to avoid those mistakes, and works properly regardless of your preferences about zsh settings like `prompt_subst` and `prompt_bang`.
 
 * **It doesn't require a patched font.**
-  Because it uses only standard Unicode characters, yazpt works fine with most standard terminal fonts. You don't need a patched one, like from [Nerd Fonts](https://www.nerdfonts.com) or [Powerline Fonts](https://github.com/powerline/fonts) - but of course if you use any of those fonts in your terminal, you can configure yazpt to use its special glyphs.
+  Because it uses only standard Unicode characters, yazpt works fine with most standard terminal fonts. You don't need a patched one, like from [Nerd Fonts](https://www.nerdfonts.com) or [Powerline Fonts](https://github.com/powerline/fonts) - but of course if you use one of those fonts in your terminal, you can configure yazpt to use its special glyphs.
 
 * **It incorporates Git info thoughtfully.**
   Rather than try to display every detail about the Git status in the prompt, like many prompt themes do, and which has always seemed a bit visually busy to me, yazpt tries to boil it all down to a few key bits of info: the current branch, whether a significant activity is in progress (like merging or rebasing), and one of 3 meaningful, action-oriented statuses:
@@ -53,7 +54,23 @@ A clean, fast, good-looking prompt theme that thoughtfully incorporates Git and 
 
   So that's exactly what yazpt shows - even, unlike many other prompt themes, while the current directory is ignored or unversioned, including in the `.svn` directory.
 
-  Yazpt also has an explainer function for Subversion statuses - just run `yazpt_explain_svn` for a list of all possible Subversion statuses and their meanings.
+  Yazpt also has an explainer function for its Subversion statuses - just run `yazpt_explain_svn` for a list of all possible Subversion statuses and their meanings.
+
+  Note that yazpt's Subversion support is disabled by default, and needs to be <a href="#enabling-subversion-andor-team-foundation-version-control">enabled</a>.
+
+* **It incorporates Team Foundation Version Control info.**
+  While I'd probably be a bit happier if TFVC went the way of VSS, the world doesn't always work exactly how I'd like. 😉
+
+  When I use TFVC, it's usually in Visual Studio - and I think I'm normal in that regard - so only lightweight support for TFVC at a prompt seems warranted:
+  * Some basic context, i.e. the workspace's server path,
+  * Whether the workspace is dirty at all, i.e. has any pending additions/modifications/deletions, and
+  * Whether I have any items locked.
+
+  Command-line tools for TFVC exist - a `TF.exe` ships with Visual Studio for Windows, and on other platforms there's a CLI tool called [TEE-CLC](https://github.com/microsoft/team-explorer-everywhere) - but they run far too slowly to be used while generating a prompt, so instead yazpt parses a couple of TFVC's data files itself (`properties.tf1` and `pendingchanges.tf1`).
+
+  The `yazpt_explain_tfvc` explainer function shows the details.
+
+  Note that yazpt's TFVC support is disabled by default, and needs to be <a href="#enabling-subversion-andor-team-foundation-version-control">enabled</a>.
   <p align="center">•</p>
 
 
@@ -61,14 +78,14 @@ A clean, fast, good-looking prompt theme that thoughtfully incorporates Git and 
 
 Yazpt's code logic should work just about anywhere zsh 5.1+ itself does, and with any semi-recent version of the Git and Subversion CLIs, but how well its Unicode VCS status characters get rendered can vary a bit across environments; a bit of tinkering usually fixes things up nicely, or you can load the [plain preset](./presets/plain-preset.zsh), which only uses ASCII characters.
 
-My primary environment is macOS, and yazpt works without fuss on recent versions, in Terminal.app and [iTerm](https://iterm2.com) v3.3, with the system zsh, and either the system or [Homebrew](https://brew.sh) versions of git and svn. Here's what I've tested myself:
+My primary environment is macOS, and yazpt works without fuss on recent versions, in Terminal.app and [iTerm](https://iterm2.com) v3.3, with the system zsh, and either the system or [Homebrew](https://brew.sh) versions of git and svn. Here's what I've tested:
 
 * **macOS 10.15 Catalina**,
   using Andale Mono, Bitstream Vera Sans Mono, Courier, Menlo, Meslo, Monaco, and Source Code Pro fonts
 * **macOS 10.14.6 Mojave**
 * **macOS 10.13.6 High Sierra**
 
-In the most recent version of each GNU/Linux distro I've tried, yazpt is rendered well either out of the box, or with minimal adjustments. A bit more tinkering is sometimes needed in older versions to make yazpt look nice; see the [tips for GNU/Linux](./tips-for-linux.md).
+In the most recent version of each GNU/Linux distro I've tried, yazpt is rendered well either out of the box, or with minimal adjustments. A bit more tinkering is sometimes needed in older versions to make yazpt look nice; see the [tips for GNU/Linux](./tips-for-linux.md) for details.
 
 I've tested yazpt in the following distros, using both their standard terminal emulator (either GNOME Terminal or Konsole), and XTerm, with default settings for each:
 
@@ -95,7 +112,7 @@ Mintty doesn't show color emoji in any version of Windows, unless you [install e
 <p align="center">•</p>
 
 
-## Installation
+## Installing
 
 Yazpt can be installed in a variety of ways, with popular zsh frameworks or completely on its own.
 
@@ -210,6 +227,29 @@ Yazpt implements an unload function as specified in the [Zdharma Zsh Plugin Stan
 <p align="center">•</p>
 
 
-## Customization
+## Enabling Subversion and/or Team Foundation Version Control
+
+By default, yazpt disables its support for Subversion and Team Foundation Version Control. To enable either or both of those VCSs in the prompt, you'll need to adjust the `$YAZPT_VCS_ORDER` - a good place to do this is right after you load yazpt in your `.zshrc`. For example, if you mostly use Git, but occasionally work in Subversion and TFVC repos, you can use this setting:
+
+```sh
+YAZPT_VCS_ORDER=(git svn tfvc)
+```
+
+In order to prevent performance from dropping with the additional VCSs enabled, you'll probably also want to configure yazpt's path whitelists for each VCS, so it only spends time trying to gather VCS status when it needs to. For example, on Windows with Cygwin, something like this might work well:
+
+```sh
+user_profile_path="$(cygpath "$USERPROFILE")"
+YAZPT_VCS_GIT_WHITELIST=("$user_profile_path/Documents/Visual Studio 2019/Projects/" ~/.yazpt)
+YAZPT_VCS_SVN_WHITELIST=("$user_profile_path/Documents/Code/")
+YAZPT_VCS_TFVC_WHITELIST=("$user_profile_path/Source/Workspaces/")
+```
+
+Note that while yazpt does know when the current directory is ignored by Git or Subversion, and use a different color when displaying the VCS context, it doesn't know this for TFVC. The existence of ignored directories and/or files in the local workspace is correctly not shown as a dirty state, though.
+
+Also, when using TFVC on Windows, with the workspace open in Visual Studio, any changes in the workspace get noticed immediately, whether they're made through Visual Studio or otherwise, and TFVC updates its metadata in the `$tf` directory right away. The same is true when making changes via the `tf` CLI, whether VS is running or not. But otherwise, like while changing files using general terminal utilities, either on macOS or without Visual Studio running, TFVC won't notice changes until you kick it a little - by, say, running `tf info` or `tf status`. I hope to improve on this situation eventually.
+<p align="center">•</p>
+
+
+## Customizing
 
 Yazpt is quite customizable, with options ranging from very simple (loading a preset) to somewhat complex (implementing a custom segment). [Read on for details](customizing.md).

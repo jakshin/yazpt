@@ -1,6 +1,10 @@
-Tests for yazpt. These are mostly kind of like unit tests,
-but many of them do require network access to run successfully.
+Yazpt's tests.
 
-They utilitize a couple of repos:
+These are halfway between unit and integration tests; each covers a small unit of functionality,
+and some of them use mocks, but they mostly call out to the real VCS command-line tools,
+and the Git/Subversion/TFVC tests need network access to run successfully.
+
+They utilitize a few pre-existing repos:
 * https://github.com/jakshin/yazpt-test
 * https://svn.riouxsvn.com/yazpt-svn-test
+* https://dev.azure.com/jasonjackson0568/yazpt-tfvc-test
