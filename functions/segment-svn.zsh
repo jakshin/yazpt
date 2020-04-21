@@ -1,6 +1,8 @@
 # Implements the "svn" prompt segment, which shows the Subversion branch/tag, relevant extra info, 
 # e.g. if the current directory is unversioned, and 1-3 characters indicating the current status of the working copy.
 #
+# Copyright (c) 2020 Jason Jackson <jasonjackson@pobox.com>. Distributed under GPL v2.0, see LICENSE for details.
+#
 function @yazpt_segment_svn() {
 	# Check the whitelist
 	if [[ ${(t)YAZPT_VCS_SVN_WHITELIST} == array ]] && ! .yazpt_check_whitelist YAZPT_VCS_SVN_WHITELIST; then
@@ -12,7 +14,7 @@ function @yazpt_segment_svn() {
 	xml=(${(f)"$(svn info --xml 2>&1)"})
 	svn_exit_code=$?
 
-	local rel_url wc_root extra color=$YAZPT_VCS_BRANCH_COLOR
+	local rel_url wc_root extra color=$YAZPT_VCS_CONTEXT_COLOR
 
 	if [[ $xml[3] == "svn: E155007:"* ]]; then
 		# The current working directory isn't in a Subversion working copy
@@ -31,10 +33,10 @@ function @yazpt_segment_svn() {
 
 		if [[ $PWD == "$wc_root/.svn"* ]]; then
 			extra="|IN-SVN-DIR"
-			color=$YAZPT_VCS_BRANCH_IN_META_COLOR
+			color=$YAZPT_VCS_CONTEXT_META_COLOR
 		else
 			extra="|UNVERSIONED"
-			color=$YAZPT_VCS_BRANCH_IN_UNVERSION_COLOR
+			color=$YAZPT_VCS_CONTEXT_UNVERSIONED_COLOR
 		fi
 	elif [[ $svn_exit_code != 0 ]]; then
 		# Subversion CLI isn't installed or isn't working
@@ -60,34 +62,34 @@ function @yazpt_segment_svn() {
 	fi
 
 	rel_url=${rel_url#^}
-	local branch
+	local context
 
 	if [[ $rel_url == "/trunk" || $rel_url == "/trunk/"* ]]; then
-		branch="trunk"
+		context="trunk"
 	else
 		local words=(${(s./.)rel_url})
 		if [[ $#words == 0 || $words[1] == ".svn" ]]; then
-			branch="SVN-ROOT"
+			context="SVN-ROOT"
 		elif [[ $#words == 1 ]]; then
-			branch=$words[1]
+			context=$words[1]
 		else
-			branch=$words[2]  # e.g. /branches/foo -> foo
+			context=$words[2]  # e.g. /branches/foo -> foo
 		fi
 	fi
 
 	if [[ -o prompt_bang ]]; then
 		# Escape exclamation marks from prompt expansion, by doubling them
-		branch=${branch//'!'/'!!'}
+		context=${context//'!'/'!!'}
 	fi
 
-	branch="${branch//\%/%%}"  # Escape percent signs from prompt expansion
-	branch="%{%F{$color}%}${branch}${extra}%{%f%}"
+	context="${context//\%/%%}"  # Escape percent signs from prompt expansion
+	context="%{%F{$color}%}${context}${extra}%{%f%}"
 
 	if [[ -o prompt_subst ]]; then
-		_yazpt_branch="$branch"
-		branch='$_yazpt_branch'
+		_yazpt_context="$context"
+		context='$_yazpt_context'
 	else
-		unset _yazpt_branch
+		unset _yazpt_context
 	fi
 
 	# Find out the working copy's status (not the current working directory's)
@@ -131,8 +133,8 @@ function @yazpt_segment_svn() {
 		unset _yazpt_svn_status_lines _yazpt_svn_status
 	}
 
-	# Combine branch and status
-	local combined="$branch"
+	# Combine context and status
+	local combined="$context"
 	if [[ -n $svn_status ]]; then
 		combined+=" $svn_status"
 	fi
