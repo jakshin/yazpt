@@ -1,5 +1,5 @@
 # A preset with randomized but complementary colors, and emoji (emoticons under XTerm).
-# The current directory and Git/Subversion branch colors change each time the preset is loaded,
+# The current directory and VCS context colors change each time the preset is loaded,
 # then stay constant within that terminal session.
 
 emulate -L zsh
@@ -52,7 +52,7 @@ YAZPT_EXIT_OK_CHAR=$(.yazpt_random_char _yazpt_yolo_happy_chars)
 YAZPT_EXIT_OK_COLOR=""
 YAZPT_EXIT_OK_CODE_VISIBLE=false
 
-YAZPT_VCS_BRANCH_COLOR=$((YAZPT_CWD_COLOR + 6))
+YAZPT_VCS_CONTEXT_COLOR=$((YAZPT_CWD_COLOR + 6))
 YAZPT_VCS_WRAPPER_CHARS="❨❩"
 
 # Fixups for Konsole and XTerm
