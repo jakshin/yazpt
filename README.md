@@ -11,6 +11,21 @@ Yazpt is a clean, fast, good-looking [zsh](http://zsh.sourceforge.net) prompt th
 ]</p><br>
 
 
+Git | Subversion | TFVC
+----| ---------- | ----
+<img src="Screenshots/Git.png"> | <img src="Screenshots/Subversion.png"> | <img src="Screenshots/TFVC.png">
+
+Yazpt's appearance can be easily changed by loading one of its presets:
+
+blues preset | jakshin preset | plain preset
+-------------| -------------- | ------------
+<img src="Screenshots/blues-preset.png"> | <img src="Screenshots/jakshin-preset.png"> | <img src="Screenshots/plain-preset.png">
+
+spearmint preset | tight preset | yolo preset
+-----------------| ------------ | -----------
+<img src="Screenshots/spearmint-preset.png"> | <img src="Screenshots/tight-preset.png"> | <img src="Screenshots/yolo-preset.png">
+
+
 ## Features
 
 * **It's pretty fast, without async.**
@@ -244,7 +259,7 @@ YAZPT_VCS_SVN_WHITELIST=("$user_profile_path/Documents/Code/")
 YAZPT_VCS_TFVC_WHITELIST=("$user_profile_path/Source/Workspaces/")
 ```
 
-Note that while yazpt does know when the current directory is ignored by Git or Subversion, and use a different color when displaying the VCS context, it doesn't know this for TFVC. The existence of ignored directories and/or files in the local workspace is correctly not shown as a dirty state, though.
+Note that while yazpt does know when the current directory is ignored by Git or Subversion, and uses a different color when displaying the VCS context, it doesn't know this for TFVC. The existence of ignored directories and/or files in the local workspace is correctly not shown as a dirty state, though.
 
 Also, when using TFVC on Windows, with the workspace open in Visual Studio, any changes in the workspace get noticed immediately, whether they're made through Visual Studio or otherwise, and TFVC updates its metadata in the `$tf` directory right away. The same is true when making changes via the `tf` CLI, whether VS is running or not. But otherwise, like while changing files using general terminal utilities, either on macOS or without Visual Studio running, TFVC won't notice changes until you kick it a little - by, say, running `tf info` or `tf status`. I hope to improve on this situation eventually.
 <p align="center">•</p>
