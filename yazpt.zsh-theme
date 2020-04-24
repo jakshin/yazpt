@@ -278,6 +278,25 @@ function .yazpt_read_line() {
 	[[ -r "$from_path" ]] && IFS=$'\r\n' read "$into_var" < "$from_path"
 }
 
+# Implements the "char" prompt segment,
+# which shows either a '#' (root/Administrator) or '%' (for all other users).
+#
+function @yazpt_segment_char() {
+	if [[ $OS == "Windows"* ]]; then
+		if [[ -z $_yazpt_char ]]; then
+			if net session &> /dev/null; then
+				_yazpt_char='#'  # Running as Administrator
+			else
+				_yazpt_char='%#'
+			fi
+		fi
+
+		yazpt_state[char]=$_yazpt_char
+	else
+		yazpt_state[char]='%#'
+	fi
+}
+
 # Implements the "cwd" prompt segment.
 #
 function @yazpt_segment_cwd() {
