@@ -45,7 +45,7 @@ function net() {
 	echo "THIS FUNCTION SHOULDN'T HAVE RUN"
 }
 test_init_done "no-standard-tests"
-contains '@@@'
+[[ $OS == "Windows"* ]] && contains '@@@'
 unfunction net
 
 # Clean up
