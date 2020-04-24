@@ -18,7 +18,7 @@
 
 # Layout: Like a template for $PS1, with anything $PS1 can contain, plus prompt segments/separators.
 
-YAZPT_LAYOUT=$'\n[<cwd><? ><exit><? ><vcs>]\n%# '
+YAZPT_LAYOUT=$'\n[<cwd><? ><exit><? ><vcs>]\n<char> '
 
 # Settings for the "cwd" prompt segment, which shows the current working directory.
 
