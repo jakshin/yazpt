@@ -41,7 +41,7 @@ function .yazpt_random_color() {
 
 source "$yazpt_default_preset_file"
 
-YAZPT_LAYOUT=$'\n<exit><? ><cwd><? ><vcs>\n%# '
+YAZPT_LAYOUT=$'\n<exit><? ><cwd><? ><vcs>\n<char> '
 YAZPT_CWD_COLOR=$(.yazpt_random_color)
 
 YAZPT_EXIT_ERROR_CHAR=$(.yazpt_random_char _yazpt_yolo_sad_chars)
