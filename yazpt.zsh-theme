@@ -573,6 +573,12 @@ function @yazpt_segment_git() {
 # which implements the "svn" prompt segment.
 #
 function @yazpt_segment_svn() {
+	# Check the whitelist
+	if [[ ${(t)YAZPT_VCS_SVN_WHITELIST} == array ]] && ! .yazpt_check_whitelist YAZPT_VCS_SVN_WHITELIST; then
+		return
+	fi
+
+	# Source and execute the real version of this function
 	local src="$yazpt_base_dir/functions/segment-svn.zsh"
 
 	if [[ -r $src ]]; then
@@ -587,6 +593,12 @@ function @yazpt_segment_svn() {
 # Note that the segment works only in local TFVC workspaces, not server workspaces.
 #
 function @yazpt_segment_tfvc() {
+	# Check the whitelist
+	if [[ ${(t)YAZPT_VCS_TFVC_WHITELIST} == array ]] && ! .yazpt_check_whitelist YAZPT_VCS_TFVC_WHITELIST; then
+		return
+	fi
+
+	# Source and execute the real version of this function
 	local src="$yazpt_base_dir/functions/segment-tfvc.zsh"
 
 	if [[ -r $src ]]; then
