@@ -66,9 +66,28 @@ function yazpt_explain_tfvc() {
 		fi
 	fi
 
-	if [[ $YAZPT_LAYOUT != *"<vcs>"* && $YAZPT_LAYOUT != *"<tfvc>"* ]]; then
+	local warnings=()
+	[[ $YAZPT_LAYOUT == *"<vcs>"* || $YAZPT_LAYOUT == *"<tfvc>"* ]] || \
+		warnings+="\$YAZPT_LAYOUT doesn't contain '<vcs>' or '<tfvc>'"
+	[[ $YAZPT_VCS_ORDER[(Ie)tfvc] != 0 ]] || \
+		warnings+="\$YAZPT_VCS_ORDER doesn't contain 'tfvc'"
+
+	if [[ -n $warnings ]]; then
 		echo
-		.yazpt_print_wrapped_warning "\$YAZPT_LAYOUT doesn't contain '<vcs>' or '<tfvc>', so TFVC status won't be shown in the prompt."
+		.yazpt_print_wrapped_warning "Current settings keep Team Foundation Version Control status from showing in the prompt:"
+
+		local i=1
+		for (( i=1; i <= $#warnings; i++ )); do
+			.yazpt_print_wrapped "• $warnings[$i]"
+		done
+	elif [[ -n $YAZPT_VCS_TFVC_WHITELIST ]]; then
+		echo
+		.yazpt_print_wrapped "TFVC status will be checked in/under these directories (see \$YAZPT_VCS_TFVC_WHITELIST):"
+
+		local i=1
+		for (( i=1; i <= $#YAZPT_VCS_TFVC_WHITELIST; i++ )); do
+			.yazpt_print_wrapped "• $YAZPT_VCS_TFVC_WHITELIST[$i]"
+		done
 	fi
 
 	unset _yazpt_wrap_cmd
