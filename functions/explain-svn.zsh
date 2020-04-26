@@ -67,9 +67,35 @@ function yazpt_explain_svn() {
 		print -P "Otherwise only one status character is shown at a time."
 	fi
 
-	if [[ $YAZPT_LAYOUT != *"<vcs>"* && $YAZPT_LAYOUT != *"<svn>"* ]]; then
+	local svn_type warnings=()
+
+	if svn_type=$(type svn); then
+		echo "\nSubversion CLI: $svn_type"
+	else
+		warnings+=$svn_type
+	fi
+
+	[[ $YAZPT_LAYOUT == *"<vcs>"* || $YAZPT_LAYOUT == *"<svn>"* ]] || \
+		warnings+="\$YAZPT_LAYOUT doesn't contain '<vcs>' or '<svn>'"
+	[[ $YAZPT_VCS_ORDER[(Ie)svn] != 0 ]] || \
+		warnings+="\$YAZPT_VCS_ORDER doesn't contain 'svn'"
+
+	if [[ -n $warnings ]]; then
 		echo
-		.yazpt_print_wrapped_warning "\$YAZPT_LAYOUT doesn't contain '<vcs>' or '<svn>', so Subversion status won't be shown in the prompt."
+		.yazpt_print_wrapped_warning "Current settings keep Subversion status from showing in the prompt:"
+
+		local i=1
+		for (( i=1; i <= $#warnings; i++ )); do
+			.yazpt_print_wrapped "• $warnings[$i]"
+		done
+	elif [[ -n $YAZPT_VCS_SVN_WHITELIST ]]; then
+		echo
+		.yazpt_print_wrapped "Subversion status will be checked in/under these directories (see \$YAZPT_VCS_SVN_WHITELIST):"
+
+		local i=1
+		for (( i=1; i <= $#YAZPT_VCS_SVN_WHITELIST; i++ )); do
+			.yazpt_print_wrapped "• $YAZPT_VCS_SVN_WHITELIST[$i]"
+		done
 	fi
 
 	unset _yazpt_wrap_cmd
