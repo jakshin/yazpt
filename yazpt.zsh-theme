@@ -92,7 +92,8 @@ function yazpt_list_presets() {
 	emulate -L zsh
 
 	if [[ $1 != '' ]]; then
-		echo "Lists all available presets; load one using the yazpt_load_preset function"
+		echo "Lists all available presets; load one using the yazpt_load_preset function."
+		echo "You can also load an arbitrary preset by passing an absolute/relative path."
 		echo "Usage: $0"
 		return
 	fi
@@ -110,15 +111,29 @@ function yazpt_load_preset() {
 	emulate -L zsh
 
 	if [[ $1 == '' || $1 == '-h' || $1 == '--help' ]]; then
-		echo "Loads an available preset; list them using the yazpt_list_presets function"
+		echo "Loads an available preset; list them using the yazpt_list_presets function."
+		echo "You can also load an arbitrary preset by passing a path containing a slash."
 		echo "Usage: $0 <preset-name>"
 		return
 	fi
 
-	local preset="$1"
-	local preset_file="$yazpt_base_dir/presets/$preset-preset.zsh"
+	local preset="$1" preset_file
 
-	if [[ -r $preset_file ]]; then
+	if [[ $preset == */* ]]; then
+		preset_file="$preset"
+	else
+		preset_file="$yazpt_base_dir/presets/$preset-preset.zsh"
+	fi
+
+	if [[ -r $preset_file && ! -d $preset_file ]]; then
+		local valid=true
+
+		if which file > /dev/null; then
+			[[ "$(file -L -- "$preset_file")" == *text* ]] || valid=false
+		fi
+	fi
+
+	if [[ $valid == true ]]; then
 		source "$preset_file"
 		[[ -e ~/.yazptrc ]] && source ~/.yazptrc
 
@@ -126,18 +141,28 @@ function yazpt_load_preset() {
 			prompt_theme[2]=$preset  # So `prompt -h yazpt` will restore the right preset
 		fi
 	else
-		echo "Error: Can't find preset '$preset'"
-		echo "Run the yazpt_list_presets function for a complete list"
+		echo "Error: Can't find or read preset '$preset'\n"
+		echo "Run the yazpt_list_presets function for a list,"
+		echo "or pass a path to a preset file, containing a slash."
 		return 1
 	fi
 }
 
 # Performs tab completion for the yazpt_load_preset function.
+# Completes path/file names if it looks like you're entering one,
+# or otherwise preset names based on the files in the presets directory.
 #
 function _yazpt_load_preset() {
 	emulate -L zsh
-	local presets=(${(f)"$(yazpt_list_presets)"})
-	compadd -a presets
+	setopt local_options extended_glob
+
+	local last_word=$words[$#words]
+	if [[ $last_word == */* || $last_word == "~"/ ]]; then
+		_files
+	else
+		local presets=(${(f)"$(yazpt_list_presets)"})
+		compadd -a presets
+	fi
 }
 
 autoload -Uz compinit &> /dev/null
