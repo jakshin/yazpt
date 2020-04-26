@@ -75,9 +75,35 @@ function yazpt_explain_git() {
 		fi
 	fi
 
-	if [[ $YAZPT_LAYOUT != *"<vcs>"* && $YAZPT_LAYOUT != *"<git>"* ]]; then
+	local git_type warnings=()
+
+	if git_type=$(type git); then
+		echo "\nGit CLI: $git_type"
+	else
+		warnings+=$git_type
+	fi
+
+	[[ $YAZPT_LAYOUT == *"<vcs>"* || $YAZPT_LAYOUT == *"<git>"* ]] || \
+		warnings+="\$YAZPT_LAYOUT doesn't contain '<vcs>' or '<git>'"
+	[[ $YAZPT_VCS_ORDER[(Ie)git] != 0 ]] || \
+		warnings+="\$YAZPT_VCS_ORDER doesn't contain 'git'"
+
+	if [[ -n $warnings ]]; then
 		echo
-		.yazpt_print_wrapped_warning "\$YAZPT_LAYOUT doesn't contain '<vcs>' or '<git>', so Git status won't be shown in the prompt."
+		.yazpt_print_wrapped_warning "Current settings keep Git status from showing in the prompt:"
+
+		local i=1
+		for (( i=1; i <= $#warnings; i++ )); do
+			.yazpt_print_wrapped "• $warnings[$i]"
+		done
+	elif [[ -n $YAZPT_VCS_GIT_WHITELIST ]]; then
+		echo
+		.yazpt_print_wrapped "Git status will be checked in/under these directories (see \$YAZPT_VCS_GIT_WHITELIST):"
+
+		local i=1
+		for (( i=1; i <= $#YAZPT_VCS_GIT_WHITELIST; i++ )); do
+			.yazpt_print_wrapped "• $YAZPT_VCS_GIT_WHITELIST[$i]"
+		done
 	fi
 
 	unset _yazpt_wrap_cmd
