@@ -295,6 +295,15 @@ function .yazpt_check_whitelist() {
 	fi
 }
 
+# Compiles a yazpt file with zcompile, if needed.
+#
+function .yazpt_compile() {
+	local file=$1
+	if [[ -s $file && (! -s $file.zwc || $file -nt $file.zwc) ]]; then
+		zcompile "$file"
+	fi
+}
+
 # Reads the first line of the given path into the given variable.
 #
 function .yazpt_read_line() {
@@ -626,3 +635,12 @@ function @yazpt_segment_vcs() {
 # Begin using the yazpt prompt theme as soon as this file is sourced.
 autoload -Uz add-zsh-hook
 add-zsh-hook precmd yazpt_precmd
+
+# Compile this file and our default preset file, for faster loading next time,
+# and in the background (it doesn't affect this session anyway).
+if [[ ${YAZPT_COMPILE:l} != false ]]; then
+	{
+		.yazpt_compile ${${(%):-%x}:A}  # This file
+		.yazpt_compile $yazpt_default_preset_file
+	} &> /dev/null &!
+fi
