@@ -324,6 +324,19 @@ function excludes_tfvc_status() {
 	fi
 }
 
+# Verifies that the given file contains the given string
+function file_contains() {
+	local file="$1" str="$2"
+	local display_str="${str//$'\n'/}"
+	if grep -Fq "$str" "$file"; then
+		echo " ${success_bullet} File '$file' contains string \"$display_str\""
+		(( passed++ ))
+	else
+		echo " ${failure_bullet} File '$file' does not contain string \"$display_str\""
+		(( failed++ ))
+	fi
+}
+
 # Verifies that the given directory exists
 function dir_exists() {
 	local dir="$1"
