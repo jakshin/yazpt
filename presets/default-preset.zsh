@@ -110,7 +110,7 @@ fi
 
 # Set/restore default settings for input highlighting.
 if (( $+_yazpt_default_zle_highlight )); then
-	zle_highlight=$_yazpt_default_zle_highlight
+	zle_highlight=($_yazpt_default_zle_highlight)
 else
-	_yazpt_default_zle_highlight=$zle_highlight
+	_yazpt_default_zle_highlight=($zle_highlight)
 fi
