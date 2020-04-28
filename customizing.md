@@ -45,7 +45,9 @@ Since yazpt needs to parse `YAZPT_LAYOUT` looking for segments, which are surrou
 
 ## Create your own preset
 
-Once you've set yazpt's environment variables up exactly how you like them, by the way, feel free to save your preferences into a new preset for easy loading. Just name your shell script like `*-preset.zsh` and put it in yazpt's `presets` directory; then you can load it with `yazpt_load_preset`.
+Once you've set yazpt's environment variables up exactly how you like them, by the way, feel free to save your preferences into a new preset for easy loading. If you name your shell script like `*-preset.zsh` and put it in yazpt's `presets` directory, it'll be shown by `yazpt_list_presets`, and you'll be able to load it with `yazpt_load_preset`, using auto-complete. Or you can save it anywhere you'd like, and load it with `yazpt_load_preset` by passing its path.
+
+Either way, the `yazpt_make_preset` function might be helpful: it lets you save your current settings to a new preset file, saving only the settings which differ from the defaults. Or you can copy an existing preset file and use it as a starting point.
 
 If you need to run some code logic to decide how to configure yazpt's environment variables, you can do that in a preset, too - see the [yolo preset](./presets/yolo-preset.zsh) for an example.
 
