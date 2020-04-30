@@ -10,7 +10,7 @@ function yazpt_explain_git() {
 		return
 	fi
 
-	if [[ -z $YAZPT_LAYOUT ]] || ! which yazpt_precmd &> /dev/null; then
+	if ! functions yazpt_precmd &> /dev/null; then
 		echo "Error: Yazpt must be loaded for $0 to run"
 		return 1
 	fi
@@ -83,8 +83,8 @@ function yazpt_explain_git() {
 		warnings+=$git_type
 	fi
 
-	[[ $YAZPT_LAYOUT == *"<vcs>"* || $YAZPT_LAYOUT == *"<git>"* ]] || \
-		warnings+="\$YAZPT_LAYOUT doesn't contain '<vcs>' or '<git>'"
+	[[ $YAZPT_LAYOUT == *"<vcs>"* || $YAZPT_LAYOUT == *"<git>"* || $YAZPT_RLAYOUT == *"<vcs>"* || $YAZPT_RLAYOUT == *"<git>"* ]] || \
+		warnings+="Neither \$YAZPT_LAYOUT nor \$YAZPT_RLAYOUT contains '<vcs>' or '<git>'"
 	[[ $YAZPT_VCS_ORDER[(Ie)git] != 0 ]] || \
 		warnings+="\$YAZPT_VCS_ORDER doesn't contain 'git'"
 
