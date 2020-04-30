@@ -88,7 +88,7 @@ function before_tests() {
 	bright='\e[1m'
 	echo -e "${bright}=== Running test suite: $test_suite ===${normal}"
 
-	# We'll need to call yazpt_precmd manually
+	# We'll need to call yazpt_precmd and yazpt_preexec manually
 	source ../yazpt.zsh-theme
 
 	# We'll want to keep score
@@ -109,6 +109,13 @@ function before_tests() {
 	elif [[ $repo_type == *svn* ]]; then
 		svn checkout "https://svn.riouxsvn.com/yazpt-svn-test/trunk" .
 	elif [[ $repo_type == *tfvc* ]]; then
+		if [[ $OS != "Windows"* ]]; then
+			# As of 4/30/2020, TEE-CLC can't authenticate against Azure DevOps with a PAT anymore
+			echo "${warning}⚠ Skipping this test suite because it can only run successfully on Windows${normal}"
+			after_tests
+			exit
+		fi
+
 		find_tfvc_cli
 		init_tfvc_vars
 
@@ -185,6 +192,7 @@ function test_case() {
 
 # Declares initialization of the test case to be complete, and calculates the new $PROMPT
 function test_init_done() {
+	yazpt_preexec
 	[[ $1 == "" || $1 == "no-standard-tests" ]] || eval $1
 	yazpt_precmd
 
@@ -396,6 +404,41 @@ function has_no_precmd_function() {
 	(( passed++ ))
 }
 
+# Verifies that preexec_functions contains exactly one of our functions
+function has_one_preexec_function() {
+	local i count=0
+	for (( i=1; i <= $#preexec_functions; i++ )); do
+		local fn=$preexec_functions[$i]
+		[[ $fn == *"yazpt"* ]] && (( count++ ))
+	done
+
+	if [[ $count == 1 ]]; then
+		echo " ${success_bullet} The preexec_functions array contains exactly one of our functions"
+		(( passed++ ))
+	elif [[ $count == 0 ]]; then
+		echo " ${failure_bullet} The preexec_functions array doesn't contain one of our functions"
+		(( failed++ ))
+	else
+		echo " ${failure_bullet} The preexec_functions array erroneously contains $count of our functions"
+		(( failed++ ))
+	fi
+}
+
+# Verifies that preexec_functions contains none of our functions
+function has_no_preexec_function() {
+	local i
+	for (( i=1; i <= $#preexec_functions; i++ )); do
+		local fn=$preexec_functions[$i]
+		if [[ fn == *"yazpt"* ]]; then
+			echo " ${failure_bullet} The preexec_functions array erroneously contains one of our functions"
+			(( failed++ ))
+		fi
+	done
+
+	echo " ${success_bullet} The preexec_functions array contains none of our functions"
+	(( passed++ ))
+}
+
 # Verifies that the given variable equals its expected value
 function equals() {
 	local val_name=$1
@@ -403,10 +446,10 @@ function equals() {
 	local expected_val=$3
 
 	if [[ $actual_val == $expected_val ]]; then
-		echo " ${success_bullet} $val_name equals $expected_val"
+		echo " ${success_bullet} $val_name equals \"$expected_val\""
 		(( passed++ ))
 	else
-		echo " ${failure_bullet} $val_name doesn't equal $expected_val ($actual_val instead)"
+		echo " ${failure_bullet} $val_name doesn't equal \"$expected_val\" (\"$actual_val\" instead)"
 		(( failed++ ))
 	fi
 }
