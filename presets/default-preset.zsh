@@ -16,13 +16,22 @@
 # You can work around this limitation with zsh's "nearcolor" module:
 # [[ $COLORTERM = *(24bit|truecolor)* ]] || zmodload zsh/nearcolor
 
-# Layout: Like a template for $PS1, with anything $PS1 can contain, plus prompt segments/separators.
+# Layout settings. These are like templates for $PS1 and $RPS1;
+# they can contain anything $PS1/$RPS1 can, plus yazpt-style prompt segments/separators.
 
 YAZPT_LAYOUT=$'\n[<cwd><? ><exit><? ><vcs>]\n<char> '
+YAZPT_RLAYOUT='<exectime>'              # Works well with `setopt transient_rprompt`
 
 # Settings for the "cwd" prompt segment, which shows the current working directory.
 
 YAZPT_CWD_COLOR=73                      # Cyan
+
+# Settings for the "exectime" prompt segment, which shows the execution time of the previous command,
+# i.e how long it took to run. Formatted with hours/minutes/seconds, eliding any values which are zeros.
+
+YAZPT_EXECTIME_CHAR="⌛︎"	                # Shown to the left of the execution time
+YAZPT_EXECTIME_COLOR=195                # Pale light blue
+YAZPT_EXECTIME_MIN_SECONDS=10           # Minimum execution time to trigger display in the prompt
 
 # Settings for the "exit" prompt segment, which shows the previous command's exit code
 # and optionally a preceding success/failure indicator character.
@@ -94,16 +103,26 @@ YAZPT_VCS_WRAPPER_CHARS=""              # Characters shown before and after the 
 if [[ $OSTYPE == "linux-gnu" ]]; then
 	if [[ -n $KONSOLE_VERSION ]]; then
 		YAZPT_VCS_STATUS_LINKED_BARE_CHAR="↪"
+
 	elif [[ -n $XTERM_VERSION ]]; then
+		if (( ${XTERM_VERSION//[a-zA-Z()]/} < 348 )); then
+			YAZPT_EXECTIME_CHAR=""
+		fi
+
 		YAZPT_VCS_STATUS_DIRTY_CHAR="*"
 		YAZPT_VCS_STATUS_LINKED_BARE_CHAR="↪"
+
+	elif [[ $(echo $YAZPT_EXECTIME_CHAR | wc -L) == 1 ]]; then
+		YAZPT_EXECTIME_CHAR="⌛"  # The emoji is rendered as monochrome, with ANSI color
 	fi
 fi
 
 # Fixups for Windows
 if [[ $OS == "Windows"* ]]; then
 	if [[ $(uname -s) == "CYGWIN_NT-6.1" ]]; then
-		# Assume DejaVu Sans Mono font is used on Windows 7, but the Unicode "link" character still isn't rendered
+		# Assume DejaVu Sans Mono font is used on Windows 7,
+		# but the Unicode hourglass & link characters still aren't rendered
+		YAZPT_EXECTIME_CHAR=""
 		YAZPT_VCS_STATUS_LINKED_BARE_CHAR="↪"
 	fi
 fi
