@@ -7,14 +7,6 @@ declare -a _yazpt_yolo_color_ranges=('22-39' '58-75' '94-111' '130-147')
 declare -a _yazpt_yolo_happy_chars=("👌 " "👍 " "👊 ")
 declare -a _yazpt_yolo_sad_chars=("😫 " "😖 " "😬 ")
 
-function .yazpt_random_int() {
-	local lowest=$1
-	local highest=$2
-	local rand=$(hexdump -e '"%u"' -n 1 /dev/urandom)  # Seems better than $RANDOM
-	local modulo=$((highest - lowest + 1))
-	echo $((rand % modulo + lowest))
-}
-
 function .yazpt_random_char() {
 	local char_array_name=$1
 	local char_array=(${(P)${char_array_name}})
@@ -39,10 +31,23 @@ function .yazpt_random_color() {
 	.yazpt_random_int $range[1] $range[2]	
 }
 
+function .yazpt_random_int() {
+	local lowest=$1
+	local highest=$2
+
+	local rand=$(hexdump -e '"%u"' -n 1 /dev/urandom)  # Seems better than $RANDOM
+	local modulo=$((highest - lowest + 1))
+	echo $((rand % modulo + lowest))
+}
+
 source "$yazpt_default_preset_file"
+_yazpt_yolo_base_color=$(.yazpt_random_color)
 
 YAZPT_LAYOUT=$'\n<exit><? ><cwd><? ><vcs>\n<char> '
-YAZPT_CWD_COLOR=$(.yazpt_random_color)
+YAZPT_CWD_COLOR=$_yazpt_yolo_base_color
+
+YAZPT_EXECTIME_CHAR="⌛"
+YAZPT_EXECTIME_COLOR=$(( _yazpt_yolo_base_color + 12 ))
 
 YAZPT_EXIT_ERROR_CHAR=$(.yazpt_random_char _yazpt_yolo_sad_chars)
 YAZPT_EXIT_ERROR_COLOR=""
@@ -52,16 +57,25 @@ YAZPT_EXIT_OK_CHAR=$(.yazpt_random_char _yazpt_yolo_happy_chars)
 YAZPT_EXIT_OK_COLOR=""
 YAZPT_EXIT_OK_CODE_VISIBLE=false
 
-YAZPT_VCS_CONTEXT_COLOR=$((YAZPT_CWD_COLOR + 6))
+YAZPT_VCS_CONTEXT_COLOR=$(( _yazpt_yolo_base_color + 6 ))
 YAZPT_VCS_WRAPPER_CHARS="❨❩"
 
 # Fixups for Konsole and XTerm
 if [[ $OSTYPE == "linux-gnu" ]]; then
 	if [[ -n $KONSOLE_VERSION ]]; then
+		YAZPT_EXECTIME_CHAR="⌛︎"  # The default hourglass looks better
+
 		# Only one of the sad faces renders as color emoji; issue found on openSUSE Tumbleweed,
 		# not actually sure if it's a KDE/Konsole-specific thing or a distro-specific thing
 		YAZPT_EXIT_ERROR_CHAR="😬"
+
 	elif [[ -n $XTERM_VERSION ]]; then
+		if (( ${XTERM_VERSION//[a-zA-Z()]/} < 348 )); then
+			YAZPT_EXECTIME_CHAR=""
+		else
+			YAZPT_EXECTIME_CHAR="⌛︎"  # The default hourglass looks better
+		fi
+
 		YAZPT_EXIT_ERROR_CHAR=":-/"
 		YAZPT_EXIT_ERROR_COLOR=217
 		YAZPT_EXIT_OK_CHAR=":)"
@@ -71,4 +85,4 @@ if [[ $OSTYPE == "linux-gnu" ]]; then
 fi
 
 unfunction .yazpt_random_int .yazpt_random_char .yazpt_random_color
-unset _yazpt_yolo_color_ranges _yazpt_yolo_happy_chars _yazpt_yolo_sad_chars
+unset _yazpt_yolo_base_color _yazpt_yolo_color_ranges _yazpt_yolo_happy_chars _yazpt_yolo_sad_chars
