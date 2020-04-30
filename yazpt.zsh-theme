@@ -40,6 +40,7 @@ fi
 [[ -n $yazpt_default_preset_file ]] || declare -rg yazpt_default_preset_file="$yazpt_base_dir/presets/default-preset.zsh"
 source "$yazpt_default_preset_file"
 setopt prompt_percent
+unset _yazpt_cmd_exec_start
 
 # Explains yazpt's Git status characters and their meanings.
 #
@@ -211,7 +212,7 @@ function yazpt_make_preset() {
 	eval "${(j:; :)stash}"
 
 	# Compare the stashed settings with the defaults, storing any which differ
-	local default_val differences="" unset=""
+	local default_val differences="" layouts="" unset=""
 	declare -A stash_map=()
 
 	for (( i=1; i <= $#stash; i++ )); do
@@ -231,12 +232,19 @@ function yazpt_make_preset() {
 			[[ $val == "$'"* ]] && val=${val//$'\n'/\n}
 
 			if [[ $var == 'YAZPT_LAYOUT' ]]; then
-				differences="$var=$val"$'\n'"$differences"
+				layouts="$var=$val"$'\n'"$layouts"
+			elif [[ $var == 'YAZPT_RLAYOUT' ]]; then
+				layouts="$layouts$var=$val"$'\n'
 			else
 				differences="$differences$var=$val"$'\n'
 			fi
 		fi
 	done
+
+	if [[ -n $layouts ]]; then
+		differences="${layouts}${differences}"
+		unset layouts
+	fi
 
 	local unset=""	# Settings in $defaults_map but not the stash
 	for var in ${(k)defaults_map}; do
@@ -270,6 +278,7 @@ function yazpt_make_preset() {
 		echo -n "${desc} \"$preset_file\" exists.\nReplace it [y|n]? "
 		read -rq
 		echo
+
 		[[ $REPLY == "y" ]] || return 0
 
 		if [[ -L $preset_file ]]; then
@@ -314,105 +323,44 @@ compdef _yazpt_preset_completion yazpt_load_preset yazpt_make_preset
 function yazpt_plugin_unload() {
 	emulate -L zsh
 
+	# Not ideal, but if we don't reset yazpt-populated prompt variables to generic values,
+	# we can leave the last PS1 and/or RPS1 calculated by yazpt in place indefinitely,
+	# including zombie current working directory & Git/Subversion/TFVC info :-/
+	[[ -z $YAZPT_LAYOUT ]] || PS1='%n@%m %1~ %# '
+	[[ -z $YAZPT_RLAYOUT ]] || RPS1=''
+
+	# Remove our hooks, functions, and environment variables
 	add-zsh-hook -d precmd yazpt_precmd
+	add-zsh-hook -d preexec yazpt_preexec
 	unfunction -m 'yazpt_*' '.yazpt_*' '@yazpt_*'
 	typeset +r -m 'yazpt_*'
 	unset -m 'YAZPT_*' 'yazpt_*' '_yazpt_*'
-
-	# This isn't ideal, but if we don't reset PS1 to something generic,
-	# we can leave the last PS1 calculated by yazpt in place indefinitely,
-	# including zombie current working directory & Git/Subversion/TFVC info :-/
-	PS1='%n@%m %1~ %# '
 }
 
-# Sets $PS1, just before the shell uses it.
+# Runs just before the prompt is displayed.
+# Sets $PS1 and maybe $RPS1, just before the shell uses it/them.
 #
 function yazpt_precmd() {
 	local exit_code=$?
-	local escaped=false
-	local last_was_segment=false  # Was the last character appended to PS1 from a segment?
-	local parsing_segment=false   # Are we parsing a segment right now?
-	local segment=""              # The segment we've parsed so far, if any
-	local separator=""            # The pending segment separator, if any
 
 	emulate -L zsh
 	declare -Ag yazpt_state=(exit_code $exit_code)  # State shared across segment functions
 
-	PS1=""
-	: ${YAZPT_LAYOUT:=<cwd> %# }
+	: ${YAZPT_LAYOUT:=<cwd> <char> }
 	local layout=$YAZPT_LAYOUT
 	[[ $YAZPT_PREVIEW == true && $layout[1] == $'\n' ]] && layout=$layout[2,-1]
-	local i len=${#layout}
 
-	for (( i=1; i <= len; i++ )); do
-		local ch=$layout[$i]
-
-		if [[ $parsing_segment == true ]]; then
-			if [[ $escaped == true ]]; then
-				# The previous character escaped this one
-				segment+="$ch"
-				escaped=false
-			elif [[ $ch == '<' ]]; then
-				if [[ -z $segment ]]; then
-					# If the first character of a segment is another angle-bracket,
-					# it was actually just an escaped angle-bracket, not a segment at all
-					last_was_segment=false
-					parsing_segment=false
-					PS1+='<'
-				else
-					# An angle-bracket inside a segment/separator is an escape character;
-					# drop the angle-bracket, and set a flag so we handle the next character literally
-					escaped=true
-				fi
-			elif [[ $ch == '>' ]]; then
-				# Ending the segment (which might be a separator, and/or might be empty)
-				if [[ $segment[1] == '?' ]]; then
-					if [[ $last_was_segment == true && -z $separator ]]; then
-						separator="$segment"
-					fi
-				elif functions "@yazpt_segment_$segment" > /dev/null; then
-					"@yazpt_segment_$segment"  # Execute the segment's function
-
-					if [[ -n $yazpt_state[$segment] ]]; then
-						# If we have a pending separator, append it before the new segment (without its question mark)
-						[[ -z $separator ]] || PS1+="${separator[2,-1]}"
-
-						last_was_segment=true
-						PS1+="$yazpt_state[$segment]"
-					fi
-
-					separator=""  # Clear any pending separator (whether we appended it just above or not)
-				else
-					# We don't have a function for this segment;
-					# just append it verbatim, i.e. treat it as not a segment after all
-					last_was_segment=false
-					separator=""
-					PS1+="<$segment>"
-				fi
-
-				parsing_segment=false
-				segment=""
-			else
-				# Keep collecting characters into the segment, until it's closed with an angle-bracket
-				segment+="$ch"
-			fi
-		elif [[ $ch == '<' ]]; then
-			parsing_segment=true  # Starting a segment; discard the opening angle-bracket
-		else
-			# Just a normal character, and we're not in a segment, so append it to the prompt
-			last_was_segment=false
-			separator=""
-			PS1+="$ch"
-		fi
-	done
-
-	if [[ -n $segment ]]; then
-		# We were in a segment, but it never ended;
-		# just append it verbatim, i.e. treat it as not a segment after all
-		PS1+="<$segment"
-	fi
+	.yazpt_parse_layout $layout PS1
+	[[ -z $YAZPT_RLAYOUT ]] || .yazpt_parse_layout $YAZPT_RLAYOUT RPS1
 
 	unset yazpt_state
+}
+
+# Runs when Enter is pressed at a prompt, i.e. just before the command executes.
+# Sets a variable containing a timestamp, so we can later tell how long the command took to run.
+#
+function yazpt_preexec() {
+	[[ $YAZPT_PREVIEW == true ]] || _yazpt_cmd_exec_start=$SECONDS
 }
 
 # Checks whether the current directory is allowed by the given whitelist,
@@ -441,6 +389,92 @@ function .yazpt_compile() {
 	if [[ -s $file && (! -s $file.zwc || $file -nt $file.zwc) ]]; then
 		zcompile "$file"
 	fi
+}
+
+# Parses the given layout into the given variable, intended to be $PS1 or $RPS1.
+# This is called from yazpt_precmd (possibly twice).
+#
+function .yazpt_parse_layout() {
+	local layout=$1
+	local var=$2
+
+	local output=""               # Stand-in for PS1 or RPS1; copied into $var at the end
+	local escaped=false           # Did the previous character escape this one?
+	local last_was_segment=false  # Was the last character appended to the output from a segment?
+	local parsing_segment=false   # Are we parsing a segment right now?
+	local segment=""              # The segment we've parsed so far, if any
+	local separator=""            # The pending segment separator, if any
+
+	local i len=${#layout}
+	for (( i=1; i <= len; i++ )); do
+		local ch=$layout[$i]
+
+		if [[ $parsing_segment == true ]]; then
+			if [[ $escaped == true ]]; then
+				# The previous character escaped this one
+				segment+="$ch"
+				escaped=false
+			elif [[ $ch == '<' ]]; then
+				if [[ -z $segment ]]; then
+					# If the first character of a segment is another angle-bracket,
+					# it was actually just an escaped angle-bracket, not a segment at all
+					last_was_segment=false
+					parsing_segment=false
+					output+='<'
+				else
+					# An angle-bracket inside a segment/separator is an escape character;
+					# drop the angle-bracket, and set a flag so we handle the next character literally
+					escaped=true
+				fi
+			elif [[ $ch == '>' ]]; then
+				# Ending the segment (which might be a separator, and/or might be empty)
+				if [[ $segment[1] == '?' ]]; then
+					if [[ $last_was_segment == true && -z $separator ]]; then
+						separator="$segment"
+					fi
+				elif functions "@yazpt_segment_$segment" > /dev/null; then
+					"@yazpt_segment_$segment"  # Execute the segment's function
+
+					if [[ -n $yazpt_state[$segment] ]]; then
+						# If we have a pending separator, append it before the new segment (without its question mark)
+						[[ -z $separator ]] || output+="${separator[2,-1]}"
+
+						last_was_segment=true
+						output+="$yazpt_state[$segment]"
+					fi
+
+					separator=""  # Clear any pending separator (whether we appended it just above or not)
+				else
+					# We don't have a function for this segment;
+					# just append it verbatim, i.e. treat it as not a segment after all
+					last_was_segment=false
+					separator=""
+					output+="<$segment>"
+				fi
+
+				parsing_segment=false
+				segment=""
+			else
+				# Keep collecting characters into the segment, until it's closed with an angle-bracket
+				segment+="$ch"
+			fi
+		elif [[ $ch == '<' ]]; then
+			parsing_segment=true  # Starting a segment; discard the opening angle-bracket
+		else
+			# Just a normal character, and we're not in a segment, so append it to the prompt
+			last_was_segment=false
+			separator=""
+			output+="$ch"
+		fi
+	done
+
+	if [[ -n $segment ]]; then
+		# We were in a segment, but it never ended;
+		# just append it verbatim, i.e. treat it as not a segment after all
+		output+="<$segment"
+	fi
+
+	eval "$var=${(q)output}"
 }
 
 # Reads the first line of the given path into the given variable.
@@ -492,6 +526,39 @@ function @yazpt_segment_cwd() {
 
 	[[ -n $cwd ]] || cwd='%~'
 	yazpt_state[cwd]="%{%F{${YAZPT_CWD_COLOR:=default}}%}${cwd}%{%f%}"
+}
+
+# Implements the "exectime" prompt segment, which shows the previous command's execution time,
+# formatted with hours/minutes/seconds, eliding any values which are zeros.
+#
+function @yazpt_segment_exectime() {
+	[[ -n $_yazpt_cmd_exec_start ]] || return
+	local secs=$(( SECONDS - _yazpt_cmd_exec_start ))
+	unset _yazpt_cmd_exec_start
+	(( secs >= YAZPT_EXECTIME_MIN_SECONDS )) || return
+
+	# Format as hours/minutes/seconds
+	local minutes=$(( secs / 60 )) && secs=$(( secs % 60 ))
+	local hours=$(( minutes / 60 )) && minutes=$(( minutes % 60 ))
+
+	local fmt=""
+	(( hours > 0 )) && fmt+="${hours}h"
+
+	if (( minutes > 0 )); then
+		[[ -n $fmt ]] && fmt+=" "
+		fmt+="${minutes}m"
+	fi
+
+	if (( secs > 0 )); then
+		[[ -n $fmt ]] && fmt+=" "
+		fmt+="${secs}s"
+	fi
+
+	# Include char if configured
+	local char=$YAZPT_EXECTIME_CHAR
+	[[ -n $char && $char != '⌛︎' ]] && char+=" "
+
+	yazpt_state[exectime]="%{%F{${YAZPT_EXECTIME_COLOR:=default}}%}${char}${fmt}%{%f%}"
 }
 
 # Implements the "exit" prompt segment (reflecting the exit code of the last command).
@@ -774,6 +841,7 @@ function @yazpt_segment_vcs() {
 # Begin using the yazpt prompt theme as soon as this file is sourced.
 autoload -Uz add-zsh-hook
 add-zsh-hook precmd yazpt_precmd
+add-zsh-hook preexec yazpt_preexec
 
 # Compile this file and our default preset file, for faster loading next time,
 # and in the background (it doesn't affect this session anyway).
