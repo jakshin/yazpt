@@ -3,6 +3,8 @@
 
 source "$yazpt_default_preset_file"
 
+YAZPT_EXECTIME_CHAR=""
+
 YAZPT_EXIT_ERROR_CHAR="x"
 YAZPT_EXIT_OK_CHAR=""
 
