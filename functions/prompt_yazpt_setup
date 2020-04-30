@@ -26,6 +26,7 @@ function prompt_yazpt_help() {
 
 	echo 'Depending on your configuration, it shows any/all of:'
 	echo '* The current working directory'
+	echo '* The execution time of the most recent command'
 	echo '* The exit status of the most recent command'
 	echo '* The Git branch and working tree status'
 	echo '* The Subversion branch and working copy status'
@@ -101,10 +102,14 @@ function prompt_yazpt_setup() {
 	source "$prompt_yazpt_setup_dir/../yazpt.zsh-theme"
 	[[ -z $preset ]] || yazpt_load_preset $preset
 
-	# Use a wrapper function for precmd, named so it'll be automatically cleaned up
+	# Use wrapper functions for precmd and preexec, named so they'll be automatically cleaned up
 	function prompt_yazpt_precmd() { yazpt_precmd }
 	add-zsh-hook precmd prompt_yazpt_precmd
 	add-zsh-hook -d precmd yazpt_precmd
+
+	function prompt_yazpt_preexec() { yazpt_preexec }
+	add-zsh-hook preexec prompt_yazpt_preexec
+	add-zsh-hook -d preexec yazpt_preexec
 }
 
 [[ -o kshautoload ]] || prompt_yazpt_setup "$@"
