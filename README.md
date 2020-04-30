@@ -36,8 +36,8 @@ spearmint preset | tight preset | yolo preset
 * **It's as configurable as you want it to be.**
   Yazpt uses about three dozen environment variables to tweak its appearance and behavior. If that sounds like too much to bother with, it also comes with a handful of "presets", i.e. preconfigured settings for the environment variables, in a variety of styles. Or if, on the other hand, you really want to dig in and customize it, it's straightforward to add new prompt segments, or override the default implementations of existing prompt segments, using zsh functions. Either way, the details are [documented](customizing.md).
 
-* **It lets you do your own thing with $PS1.**
-  Yazpt thinks of itself as an add-on or power-up, not a replacement, for zsh's built-in prompt logic, so if you've already spent time pimping out your `$PS1`, there's no need to throw it away - you can copy your current `$PS1` straight into `$YAZPT_LAYOUT`, and then add any yazpt-specific segments you'd like.
+* **It lets you do your own thing with $PS1 and $RPS1.**
+  Yazpt thinks of itself as an add-on or power-up, not a replacement, for zsh's built-in prompt logic, so if you've already spent time pimping out your `$PS1` or `$RPS1`, there's no need to throw that work away - you can copy your current `$PS1` straight into `$YAZPT_LAYOUT` (and/or `$RPS1` into `$YAZPT_RLAYOUT`), and then add any yazpt-specific segments you'd like.
 
 * **It's secure.**
   A surprising number of prompt themes will execute arbitrary shell code if you [browse an unsafe repo](https://github.com/jakshin/pw3nage). Others fail to escape the info they show in ways that lead to corrupted display, e.g. allowing zsh to interpret percent escape sequences or exclamation marks in either the current directory's path or a VCS branch name. Yazpt tries hard to avoid those mistakes, and works properly regardless of your preferences about zsh settings like `prompt_subst` and `prompt_bang`.
@@ -221,7 +221,7 @@ yazpt_load_preset blues
 YAZPT_GIT_HIDE_IN_BARE_REPO=true
 ```
 
-If you explicitly configure Prezto's [pwd-length](https://github.com/sorin-ionescu/prezto/tree/master/modules/prompt#prompt-display-length) or [show-return-val](https://github.com/sorin-ionescu/prezto/tree/master/modules/prompt#display-return-value) settings, yazpt will respect those settings while running under Prezto - but you _do_ need to configure them explicitly, rather than relying on Prezto's defaults for those settings, as yazpt doesn't know or care about Prezto's defaults. You'll also still need an `<exit>` somewhere in your $YAZPT_LAYOUT for setting `show-return-val` to `yes` to work.
+If you explicitly configure Prezto's [pwd-length](https://github.com/sorin-ionescu/prezto/tree/master/modules/prompt#prompt-display-length) or [show-return-val](https://github.com/sorin-ionescu/prezto/tree/master/modules/prompt#display-return-value) settings, yazpt will respect those settings while running under Prezto - but you _do_ need to configure them explicitly, rather than relying on Prezto's defaults for those settings, as yazpt doesn't know or care about Prezto's defaults. You'll also still need an `<exit>` somewhere in your $YAZPT_LAYOUT or $YAZPT_RLAYOUT for setting `show-return-val` to `yes` to work.
 
 ```sh
 # Optionally, and for example
