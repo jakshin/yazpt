@@ -10,7 +10,7 @@ function yazpt_explain_svn() {
 		return
 	fi
 
-	if [[ -z $YAZPT_LAYOUT ]] || ! which yazpt_precmd &> /dev/null; then
+	if ! functions yazpt_precmd &> /dev/null; then
 		echo "Error: Yazpt must be loaded for $0 to run"
 		return 1
 	fi
@@ -75,8 +75,8 @@ function yazpt_explain_svn() {
 		warnings+=$svn_type
 	fi
 
-	[[ $YAZPT_LAYOUT == *"<vcs>"* || $YAZPT_LAYOUT == *"<svn>"* ]] || \
-		warnings+="\$YAZPT_LAYOUT doesn't contain '<vcs>' or '<svn>'"
+	[[ $YAZPT_LAYOUT == *"<vcs>"* || $YAZPT_LAYOUT == *"<svn>"* || $YAZPT_RLAYOUT == *"<vcs>"* || $YAZPT_RLAYOUT == *"<svn>"* ]] || \
+		warnings+="Neither \$YAZPT_LAYOUT nor \$YAZPT_RLAYOUT contains '<vcs>' or '<svn>'"
 	[[ $YAZPT_VCS_ORDER[(Ie)svn] != 0 ]] || \
 		warnings+="\$YAZPT_VCS_ORDER doesn't contain 'svn'"
 
