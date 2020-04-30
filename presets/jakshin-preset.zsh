@@ -11,4 +11,6 @@
 source "$yazpt_default_preset_file"
 
 YAZPT_LAYOUT=$'\n[<vcs><? ><cwd><? ><exit>]\n<char> '
+YAZPT_RLAYOUT=''
+
 YAZPT_CWD_COLOR=226  # Yellow
