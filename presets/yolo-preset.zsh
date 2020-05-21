@@ -2,12 +2,12 @@
 # The current directory and VCS context colors change each time the preset is loaded,
 # then stay constant within that terminal session.
 
-emulate -L zsh
 declare -a _yazpt_yolo_color_ranges=('22-39' '58-75' '94-111' '130-147')
 declare -a _yazpt_yolo_happy_chars=("👌 " "👍 " "👊 ")
 declare -a _yazpt_yolo_sad_chars=("😫 " "😖 " "😬 ")
 
 function .yazpt_random_char() {
+	emulate -L zsh
 	local char_array_name=$1
 	local char_array=(${(P)${char_array_name}})
 
@@ -25,6 +25,7 @@ function .yazpt_random_char() {
 }
 
 function .yazpt_random_color() {
+	emulate -L zsh
 	local rand=$(.yazpt_random_int 1 $#_yazpt_yolo_color_ranges)
 	local range=$_yazpt_yolo_color_ranges[$rand]
 	echo $range | IFS=- read -A range
@@ -32,6 +33,7 @@ function .yazpt_random_color() {
 }
 
 function .yazpt_random_int() {
+	emulate -L zsh
 	local lowest=$1
 	local highest=$2
 
@@ -46,41 +48,47 @@ _yazpt_yolo_base_color=$(.yazpt_random_color)
 YAZPT_LAYOUT=$'\n<exit><? ><cwd><? ><vcs>\n<char> '
 YAZPT_CWD_COLOR=$_yazpt_yolo_base_color
 
-YAZPT_EXECTIME_CHAR="⌛"
+YAZPT_EXECTIME_CHAR="$yazpt_hourglass_emoji"
 YAZPT_EXECTIME_COLOR=$(( _yazpt_yolo_base_color + 12 ))
 
 YAZPT_EXIT_ERROR_CHAR=$(.yazpt_random_char _yazpt_yolo_sad_chars)
-YAZPT_EXIT_ERROR_COLOR=""
+YAZPT_EXIT_ERROR_COLOR="217"
 YAZPT_EXIT_ERROR_CODE_VISIBLE=false
 
 YAZPT_EXIT_OK_CHAR=$(.yazpt_random_char _yazpt_yolo_happy_chars)
-YAZPT_EXIT_OK_COLOR=""
+YAZPT_EXIT_OK_COLOR="229"
 YAZPT_EXIT_OK_CODE_VISIBLE=false
 
 YAZPT_VCS_CONTEXT_COLOR=$(( _yazpt_yolo_base_color + 6 ))
 YAZPT_VCS_WRAPPER_CHARS="❨❩"
 
-# Fixups for Konsole and XTerm
-if [[ $OSTYPE == "linux-gnu" ]]; then
-	if [[ -n $KONSOLE_VERSION ]]; then
-		YAZPT_EXECTIME_CHAR="⌛︎"  # The default hourglass looks better
+# Tweaks and fixups for various environments
+if [[ -z $YAZPT_NO_TWEAKS ]]; then
+	if [[ $OS == "Windows"* || -n $WSL_DISTRO_NAME ]]; then
+		_yazpt_tweaks_file="tweaks-for-windows.zsh"
 
-		# Only one of the sad faces renders as color emoji; issue found on openSUSE Tumbleweed,
-		# not actually sure if it's a KDE/Konsole-specific thing or a distro-specific thing
-		YAZPT_EXIT_ERROR_CHAR="😬"
-
-	elif [[ -n $XTERM_VERSION ]]; then
-		if (( ${XTERM_VERSION//[a-zA-Z()]/} < 348 )); then
-			YAZPT_EXECTIME_CHAR=""
-		else
-			YAZPT_EXECTIME_CHAR="⌛︎"  # The default hourglass looks better
+		if [[ $yazpt_terminal == "terminus" ]]; then
+			# Try to hack around Terminus 1.0.110's weird emoji-rendering issues
+			_yazpt_terminus_hacks=true  # Activates special behavior in segment functions
+			YAZPT_EXECTIME_COLOR=$(( _yazpt_yolo_base_color + 6 ))
+			YAZPT_VCS_CONTEXT_COLOR=7
+			YAZPT_VCS_CONTEXT_META_COLOR=7
+			YAZPT_VCS_CONTEXT_IGNORED_COLOR=7
+			YAZPT_VCS_CONTEXT_UNVERSIONED_COLOR=7
 		fi
+	elif [[ $OSTYPE == "linux-gnu" ]]; then
+		_yazpt_tweaks_file="tweaks-for-linux.zsh"
+	elif [[ $OSTYPE == "freebsd"* ]]; then
+		_yazpt_tweaks_file="tweaks-for-freebsd.zsh"
+	else
+		unset _yazpt_tweaks_file
+	fi
 
-		YAZPT_EXIT_ERROR_CHAR=":-/"
-		YAZPT_EXIT_ERROR_COLOR=217
-		YAZPT_EXIT_OK_CHAR=":)"
-		YAZPT_EXIT_OK_COLOR=229
-		YAZPT_VCS_WRAPPER_CHARS="()"
+	if [[ -n $_yazpt_tweaks_file ]]; then
+		functions .yazpt_tweak_emoji > /dev/null || source "$yazpt_base_dir/functions/$_yazpt_tweaks_file"
+		unset _yazpt_tweaks_file
+		.yazpt_tweak_emoji
+		.yazpt_tweak_hourglass_emoji
 	fi
 fi
 
