@@ -2,55 +2,88 @@
 
 Yazpt mostly just works on recently-released Linux distros, but sometimes a little tweaking is needed to get its Unicode characters and/or emoji rendering well. Here are a few tips based on my experiences using yazpt on various distros.
 
-Regardless of distro, using XTerm is kind of miserable unless you put a little time into configuring it. Using a reasonable [.Xresources file](./resources/Xresources) goes a long way.
+Regardless of distro, using XTerm is kind of miserable unless you put a little time into configuring it - so much so, in fact, that I only ever run XTerm, or test yazpt in XTerm, with a reasonable [.Xresources file](./resources/Xresources) installed. Using yazpt in XTerm without first loading my `.Xresources` isn't recommended (if you try it, you'll see why 😉). Even with my `.Xresources` loaded, in many environments XTerm doesn't render emoji well, so yazpt's yolo preset tries to detect those cases, and substitute emoticons for emoji.
+
+
+## CentOS 8.1, installed as a "server with GUI"
+
+By default, all of yazpt's emoji and the `<exectime>` segment's Unicode hourglass get rendered as ugly "missing glyph" boxes in GNOME Terminal. You can fix both issues by installing the [Noto Color Emoji](https://github.com/googlefonts/noto-emoji/blob/master/fonts/NotoColorEmoji.ttf) and [Noto Emoji](https://github.com/googlefonts/noto-emoji/blob/master/fonts/NotoEmoji-Regular.ttf) fonts.
+
+CentOS doesn't automatically load `~/.Xresources`, which I suppose has something to do with the transition to Wayland. One way to address the problem is to use `~/.Xdefaults-HOSTNAME` instead, e.g. `ln -sv ~/.yazpt/resource/Xresources ~/.Xdefaults-$(hostname)`.
+
+
+## Debian 10.3, installed with default settings
+
+In GNOME Terminal, yazpt's default hourglass as rendered as a colored emoji, rather than in monochrome and the same color as the execution time text next to it. If this bothers you, you can fix it by installing the [Noto Emoji font](https://github.com/googlefonts/noto-emoji/blob/master/fonts/NotoEmoji-Regular.ttf).
+
+In XTerm, you can get decent monochrome rendering of yolo's emoji by downloading and manually installing the [Noto Emoji font](https://github.com/googlefonts/noto-emoji/blob/master/fonts/NotoEmoji-Regular.ttf).
+
+On a default installation of Debian, `~/.Xresources` isn't automatically loaded, I guess because Wayland. One way to fix it is to use `~/.Xdefaults-HOSTNAME` instead, e.g. `ln -sv ~/.yazpt/resource/Xresources ~/.Xdefaults-$(hostname)`.
+
+
+## Fedora 32
+
+GNOME Terminal doesn't render yazpt's Unicode characters very well by default; to fix things up, click `Terminal` in the menu bar > `Preferences` > `Unnamed` (or whatever your profile is named) > `Text` tab > check `Custom font`. Otherwise everything just works.
+
+
+## Kubuntu 20.04
+
+In Konsole, yazpt works well out of the box, except the default hourglass Unicode character is rendered as a color emoji instead of monochrome in the same color as nearby text, as intended. I haven't found a way to fix this. 🤷
 
 
 ## Linux Mint Cinnamon 19.3 (Tricia)
 
-_GNOME Terminal 3.28.1, XTerm v330_
-
-Everything just works, out of the box.
+Everything just works out of the box.
 
 
 ## Linux Mint Cinnamon 18.3 (Sylvia)
 
-_GNOME Terminal 3.18.3, XTerm v322_
-
-Everything works well out of the box, except the yolo preset, whose emoji renders poorly in GNOME Terminal. You can upgrade to correctly-rendered but monochrome emojis by installing the [Noto Emoji font](https://github.com/googlefonts/noto-emoji/blob/master/fonts/NotoEmoji-Regular.ttf).
+Everything works well out of the box, except the yolo preset's emoji, which are rendered poorly in GNOME Terminal. You can upgrade to correctly-rendered but monochrome emoji by installing the [Noto Emoji font](https://github.com/googlefonts/noto-emoji/blob/master/fonts/NotoEmoji-Regular.ttf).
 
 
-## openSUSE Tumbleweed with KDE Plasma
+## Manjaro 20.0 (Lysia), running XFCE
 
-_Konsole 19.12.3, XTerm v345_
+In Xfce Terminal, most of the yolo preset's emoji aren't rendered; to fix things up, install `noto-fonts-emoji` in Manjaro's "Add/Remove Software" application. The "Dark Pastels" terminal color scheme is much nicer than the default, by the way, especially when using yazpt's blues preset.
+
+In XTerm, you can get decent monochrome rendering of yolo's emoji by installing the [Noto Emoji font](https://github.com/googlefonts/noto-emoji/blob/master/fonts/NotoEmoji-Regular.ttf). It's not listed in "Add/Remove Software", so you'll need install it manually, by downloading it and copying it into ~/.local/share/fonts.
+
+
+## MX Linux 19.1 (patito feo)
+
+In Xfce Terminal, the yolo preset's emoji are rendered as monochrome line drawings by default; if you'd prefer the full-color experience, install `fonts-noto-color-emoji` in "MX Package Installer". The "Dark Pastels" terminal color scheme is much nicer than the default, by the way, especially when using yazpt's blues preset.
+
+
+## openSUSE Tumbleweed, running KDE Plasma 5
 
 Everything just works out of the box.
 
-"Hack" is the default font in Konsole, and it's nice. XTerm is configured to use black text on a white background by default, which is especially awful - [.Xresources](./resources/Xresources) to the rescue!
+In XTerm, you can get decent monochrome rendering of yolo's emoji by downloading the [Noto Emoji font](https://github.com/googlefonts/noto-emoji/blob/master/fonts/NotoEmoji-Regular.ttf), and manually installing it with Font Viewer - BUT note that doing so will cause Konsole to switch from full-color emoji to awkward monochrome emoji. Lame. 😞
 
 
-## Ubuntu 19.10 (Eoan Ermine)
+## Solus 4.1 (Fortitude), running Budgie
 
-_GNOME Terminal 3.34.2, XTerm v348_
+GNOME Terminal doesn't render yazpt's Unicode characters very well by default; to fix things up, click the kebab button in the menu bar > `Preferences` > `Unnamed` (or whatever your profile is named) > `Text` tab > check `Custom font`. Otherwise everything just works.
 
-Terminal doesn't render yazpt's Unicode characters very well by default; to fix it, click `Terminal` in the menu bar > `Preferences` > `Unnamed` (or whatever your profile is named) > `Text` tab > check `Custom font`.
+Solus is a very pretty distro, by the way, but I found the default theme a bit too dark - choosing the Adapta-Nokto-Eta theme in Budgie Desktop Settings > Style > Widgets made everything more comfortable.
 
-in XTerm, the blues preset's exit-status characters aren't rendered (which is weird, because they _are_ rendered on earlier Ubuntu versions); to fix it, use my [.Xresources file](./resources/Xresources), or at least its `xterm*faceName: DejaVu Sans Mono` line (or a similar one).
+
+## Ubuntu 20.04 (Focal Fossa) and 19.10 (Eoan Ermine)
+
+GNOME Terminal doesn't render yazpt's Unicode characters very well by default; to fix things up, click `Terminal` in the menu bar > `Preferences` > `Unnamed` (or whatever your profile is named) > `Text` tab > check `Custom font`. Otherwise everything just works.
+
+In XTerm, you can get decent monochrome rendering of yolo's emoji by downloading and manually installing the [Noto Emoji font](https://github.com/googlefonts/noto-emoji/blob/master/fonts/NotoEmoji-Regular.ttf).
 
 
 ## Ubuntu 18.04 (Bionic Beaver)
 
-_GNOME Terminal 3.28.2, XTerm v330_
-
-Terminal doesn't render yazpt's Unicode characters very well by default; to fix it, click the `Edit` menu > `Preferences` > `Unnamed` (or whatever your profile is named) > `Text` tab > check `Custom font`.
+GNOME Terminal doesn't render yazpt's Unicode characters very well by default; to fix things up, click the `Edit` menu > `Preferences` > `Unnamed` (or whatever your profile is named) > `Text` tab > check `Custom font`. Otherwise everything just works.
 
 
 ## Ubuntu 16.04 (Xenial Xerus)
 
-_GNOME Terminal 3.18.3, XTerm v322_
+GNOME Terminal doesn't render yazpt's Unicode characters very well by default; to fix things up, click the `Edit` menu > `Profile Preferences` > `General` tab > check `Custom font`.
 
-Terminal doesn't render yazpt's Unicode characters very well by default; to fix it, click the `Edit` menu > `Profile Preferences` > `General` tab > check `Custom font`.
-
-The yolo preset's emoji look terrible in Terminal; to upgrade to correctly-rendered but monochrome emojis, install the [Noto Emoji font](https://github.com/googlefonts/noto-emoji/tree/master/fonts/NotoEmoji-Regular.ttf), and create `~/.config/fontconfig/fonts.conf` with this text:
+The yolo preset's emoji look terrible in GNOME Terminal; to upgrade to correctly-rendered but monochrome emoji, install the [Noto Emoji font](https://github.com/googlefonts/noto-emoji/tree/master/fonts/NotoEmoji-Regular.ttf), and create `~/.config/fontconfig/fonts.conf` with this text:
 
 ```xml
 <alias>
@@ -60,3 +93,10 @@ The yolo preset's emoji look terrible in Terminal; to upgrade to correctly-rende
   </prefer>
 </alias>
 ```
+
+
+## Ubuntu MATE 20.04 and 19.10
+
+MATE Terminal doesn't render yazpt's Unicode characters very well by default; to fix things up, click the `Edit` menu > `Profile Preferences` > `General` tab > uncheck `Use the system fixed width font`.
+
+In XTerm, you can get decent monochrome rendering of yolo's emoji by downloading and manually installing the [Noto Emoji font](https://github.com/googlefonts/noto-emoji/blob/master/fonts/NotoEmoji-Regular.ttf).
