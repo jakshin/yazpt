@@ -29,7 +29,7 @@ YAZPT_CWD_COLOR=73                      # Cyan
 # Settings for the "exectime" prompt segment, which shows the execution time of the previous command,
 # i.e how long it took to run. Formatted with hours/minutes/seconds, eliding any values which are zeros.
 
-YAZPT_EXECTIME_CHAR="⌛︎"	                # Shown to the left of the execution time
+YAZPT_EXECTIME_CHAR="$yazpt_hourglass"  # Shown to the left of the execution time (include a trailing space if you want one)
 YAZPT_EXECTIME_COLOR=195                # Pale light blue
 YAZPT_EXECTIME_MIN_SECONDS=10           # Minimum execution time to trigger display in the prompt
 
@@ -64,7 +64,7 @@ YAZPT_VCS_ORDER=(git)                   # VCSs to check, in the order listed in 
                                         # list the VCS you use most first, then any others you use, e.g. use `(git svn tfvc)`
                                         # to enable all of them in a likely order (Subversion and TFVC are disabled by default)
 
-YAZPT_VCS_GIT_WHITELIST=()              # Whitelists for activating VCS checks; Git, Subversion and/or TFVC checks will only be made
+YAZPT_VCS_GIT_WHITELIST=()              # Whitelists for activating VCS checks; Git, Subversion and/or TFVC checks are only made
 YAZPT_VCS_SVN_WHITELIST=()              # in directories whose full paths begin with one of the strings in these arrays;
 YAZPT_VCS_TFVC_WHITELIST=()             # an empty array, or unset variable, enables the corresponding VCS in any directory
                                         # Examples: YAZPT_VCS_GIT_WHITELIST=(~/Code/ ~/.yazpt /usr/local/Homebrew)
@@ -74,58 +74,57 @@ YAZPT_VCS_TFVC_CHECK_LOCKS=true         # Enable to check for locked files in TF
                                         # or disable to treat any locked files as just "dirty" and make the prompt a bit faster
 
 YAZPT_VCS_CONTEXT_COLOR=255             # Bright white; default color for VCS context (branch/tag/SHA, activity or extra info)
-YAZPT_VCS_CONTEXT_META_COLOR=240        # Dark gray; used when the cwd is in/under the .git, .svn or $tf/.tf directory (or a bare Git repo)
-YAZPT_VCS_CONTEXT_IGNORED_COLOR=240     # Dark gray; used when the cwd is in/under a directory ignored by Git (not Subversion/TFVC)
-YAZPT_VCS_CONTEXT_UNVERSIONED_COLOR=240 # Dark gray; used when the cwd is in/under an unversioned, and maybe ignored, directory
+YAZPT_VCS_CONTEXT_META_COLOR=240        # Dark gray; the cwd is in the .git, .svn or $tf (or .tf) directory (or a bare Git repo)
+YAZPT_VCS_CONTEXT_IGNORED_COLOR=240     # Dark gray; the cwd is in a directory ignored by Git (not Subversion/TFVC)
+YAZPT_VCS_CONTEXT_UNVERSIONED_COLOR=240 # Dark gray; the cwd is in an unversioned, and maybe ignored, directory
                                         # in a Subversion working copy; not used in Git repos or TFVC workspaces
 
-YAZPT_VCS_STATUS_CLEAN_CHAR="●"         # Used when the repo, working copy, or workspace is clean, i.e. has no changes (Git/Subversion/TFVC)
-YAZPT_VCS_STATUS_CLEAN_COLOR=29         # Dark green/cyan
-YAZPT_VCS_STATUS_CONFLICT_CHAR="≠"      # Used when files are conflicted after an `svn update` (Subversion only)
-YAZPT_VCS_STATUS_CONFLICT_COLOR=9       # Bright red, probably (based on terminal color scheme)
-YAZPT_VCS_STATUS_DIRTY_CHAR="⚑"         # Used when there are untracked files or unstaged/uncommitted/pending changes (Git/Subversion/TFVC)
-YAZPT_VCS_STATUS_DIRTY_COLOR=208        # Orange
-YAZPT_VCS_STATUS_DIVERGED_CHAR="◆"      # Used when the local Git branch's commits don't match its remote/upstream branch's (Git only)
-YAZPT_VCS_STATUS_DIVERGED_COLOR=166     # Reddish orange
-YAZPT_VCS_STATUS_LINKED_BARE_CHAR="⚭"	# Used in bare Git repos' linked worktrees, where `git status` only partly works (Git only)
-YAZPT_VCS_STATUS_LINKED_BARE_COLOR=81   # Light blue
-YAZPT_VCS_STATUS_LOCKED_CHAR="⊠"        # Used when something is locked in the working copy for exclusive commit/check-in (Subversion/TFVC)
-YAZPT_VCS_STATUS_LOCKED_COLOR=229       # Light yellow, almost bright white
-YAZPT_VCS_STATUS_NO_UPSTREAM_CHAR="◆"   # Used when the local Git branch has no remote/upstream branch (Git only)
-YAZPT_VCS_STATUS_NO_UPSTREAM_COLOR=31   # Dark cyan
-YAZPT_VCS_STATUS_UNKNOWN_CHAR="⌀"       # Used when the repo's status can't be determined (Git/Subversion/TFVC)
-YAZPT_VCS_STATUS_UNKNOWN_COLOR=9        # Bright red, probably (based on terminal color scheme)
+YAZPT_VCS_STATUS_CLEAN_CHAR="●"         # The repo, working copy, or workspace has no changes or differing commits
+YAZPT_VCS_STATUS_CLEAN_COLOR=29         # Dark green/cyan; used in Git/Subversion/TFVC
+YAZPT_VCS_STATUS_CONFLICT_CHAR="≠"      # Items are conflicted after an `svn update`
+YAZPT_VCS_STATUS_CONFLICT_COLOR=9       # Bright red, probably (based on terminal color scheme); used only in Subversion
+YAZPT_VCS_STATUS_DIRTY_CHAR="⚑"         # There are untracked files or unstaged/uncommitted/pending changes
+YAZPT_VCS_STATUS_DIRTY_COLOR=208        # Orange; used in Git/Subversion/TFVC
+YAZPT_VCS_STATUS_DIVERGED_CHAR="◆"      # The local Git branch's commits don't match its remote/upstream branch's
+YAZPT_VCS_STATUS_DIVERGED_COLOR=166     # Reddish orange; used only in Git
+YAZPT_VCS_STATUS_LINKED_BARE_CHAR="↪"   # The cwd is in a bare Git repo's linked worktree, where `git status` only partly works
+YAZPT_VCS_STATUS_LINKED_BARE_COLOR=81   # Light blue; used only in Git
+YAZPT_VCS_STATUS_LOCKED_CHAR="⊠"        # An item is locked in the working copy for exclusive commit/check-in
+YAZPT_VCS_STATUS_LOCKED_COLOR=229       # Light yellow, almost bright white; used in Subversion/TFVC
+YAZPT_VCS_STATUS_NO_UPSTREAM_CHAR="◆"   # The local Git branch has no remote/upstream branch
+YAZPT_VCS_STATUS_NO_UPSTREAM_COLOR=31   # Dark cyan; used only in Git
+YAZPT_VCS_STATUS_UNKNOWN_CHAR="⌀"       # The repo's status can't be determined, due to an error or missing CLI
+YAZPT_VCS_STATUS_UNKNOWN_COLOR=9        # Bright red, probably (based on terminal color scheme); used in Git/Subversion/TFVC
 
 YAZPT_VCS_WRAPPER_CHARS=""              # Characters shown before and after the Git/Subversion/TFVC context & status;
                                         # Should be an empty string or 2 characters, e.g. "()"
 
-# Fixups for Konsole and XTerm
-if [[ $OSTYPE == "linux-gnu" ]]; then
-	if [[ -n $KONSOLE_VERSION ]]; then
-		YAZPT_VCS_STATUS_LINKED_BARE_CHAR="↪"
+# Tweaks and fixups for various environments
+if [[ -z $YAZPT_NO_TWEAKS ]]; then
+	if [[ $OSTYPE == "darwin"* ]]; then
+		# I think this chain-link character is more expressive than the default arrow,
+		# but it renders problematically almost everywhere except on macOS
+		YAZPT_VCS_STATUS_LINKED_BARE_CHAR="⚭"
 
-	elif [[ -n $XTERM_VERSION ]]; then
-		if (( ${XTERM_VERSION//[a-zA-Z()]/} < 348 )); then
-			YAZPT_EXECTIME_CHAR=""
-		fi
+	elif [[ $OS == "Windows"* || -n $WSL_DISTRO_NAME ]]; then
+		_yazpt_tweaks_file="tweaks-for-windows.zsh"
+	elif [[ $OSTYPE == "linux-gnu" ]]; then
+		_yazpt_tweaks_file="tweaks-for-linux.zsh"
+	elif [[ $OSTYPE == "freebsd"* ]]; then
+		_yazpt_tweaks_file="tweaks-for-freebsd.zsh"
+	else
+		unset _yazpt_tweaks_file
+	fi
 
-		YAZPT_VCS_STATUS_DIRTY_CHAR="*"
-		YAZPT_VCS_STATUS_LINKED_BARE_CHAR="↪"
-
-	elif [[ $(echo $YAZPT_EXECTIME_CHAR | wc -L) == 1 ]]; then
-		YAZPT_EXECTIME_CHAR="⌛"  # The emoji is rendered as monochrome, with ANSI color
+	if [[ -n $_yazpt_tweaks_file ]]; then
+		functions .yazpt_tweak_hourglass > /dev/null || source "$yazpt_base_dir/functions/$_yazpt_tweaks_file"
+		unset _yazpt_tweaks_file
+		.yazpt_tweak_hourglass
 	fi
 fi
 
-# Fixups for Windows
-if [[ $OS == "Windows"* ]]; then
-	if [[ $(uname -s) == "CYGWIN_NT-6.1" ]]; then
-		# Assume DejaVu Sans Mono font is used on Windows 7,
-		# but the Unicode hourglass & link characters still aren't rendered
-		YAZPT_EXECTIME_CHAR=""
-		YAZPT_VCS_STATUS_LINKED_BARE_CHAR="↪"
-	fi
-fi
+# Default any flags set by other presets.
+unset _yazpt_terminus_hacks
 
 # Set/restore default settings for input highlighting.
 if (( $+_yazpt_default_zle_highlight )); then
