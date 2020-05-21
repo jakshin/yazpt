@@ -5,7 +5,7 @@ source "$yazpt_default_preset_file"
 
 YAZPT_LAYOUT=$'\n[<exit><? ><cwd><? ><vcs>]\n<char> '
 YAZPT_CWD_COLOR=4
-YAZPT_EXECTIME_COLOR=123
+YAZPT_EXECTIME_COLOR=12  # 123 is another good choice
 
 YAZPT_EXIT_ERROR_CHAR="✘"
 YAZPT_EXIT_ERROR_COLOR=15
@@ -27,12 +27,14 @@ YAZPT_VCS_STATUS_NO_UPSTREAM_COLOR=8
 YAZPT_VCS_STATUS_UNKNOWN_CHAR=""
 YAZPT_VCS_STATUS_UNKNOWN_COLOR=15
 
-# Fixups for XTerm
-if [[ $OSTYPE == "linux-gnu" && -n $XTERM_VERSION ]]; then
-	YAZPT_EXIT_OK_CHAR="✓"
-fi
+# Tweaks and fixups for various environments
+if [[ -z $YAZPT_NO_TWEAKS ]]; then
+	if [[ $OS == "Windows"* || -n $WSL_DISTRO_NAME ]]; then
+		functions .yazpt_tweak_checkmark > /dev/null || source "$yazpt_base_dir/functions/tweaks-for-windows.zsh"
+		.yazpt_tweak_checkmark
 
-# Fixups for Windows
-if [[ $OS == "Windows"* ]]; then
-	YAZPT_EXIT_OK_CHAR="✓"
+	elif [[ $OSTYPE == "linux-gnu" ]]; then
+		functions .yazpt_tweak_checkmark > /dev/null || source "$yazpt_base_dir/functions/tweaks-for-linux.zsh"
+		.yazpt_tweak_checkmark
+	fi
 fi
