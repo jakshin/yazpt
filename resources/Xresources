@@ -1,15 +1,19 @@
 ! XTerm tends to suck with default settings; this file makes it better.
-! To use it, tweak to preference, then symlink or copy it to ~/.Xresources.
-! Run `xrdb -merge .Xresources` after making any changes to it.
+! To install it, tweak to preference, then symlink or copy it to ~/.Xresources.
+! Run `xrdb -merge ~/.Xresources` after installing, or making any changes to it.
+
+! Enable UTF-8 (or you can ensure luit is installed, and auto-detect locale
+! with `xterm*locale: true`; or just invoke `uxterm` instead of `xterm`)
+xterm*locale: UTF-8
 
 ! Choose a nicer font
 ! Use `fc-list :scalable=true:spacing=mono: family` to find out available fonts
 ! See http://futurile.net/2016/06/14/xterm-setup-and-truetype-font-configuration/ for details
 xterm*faceName: DejaVu Sans Mono
-xterm*faceSize: 10
+xterm*faceSize: 11
 
 ! Set the main window size, without affecting the popup menus (Ctrl + mouse buttons)
-xterm.vt100.geometry: 120x45
+xterm.vt100.geometry: 130x45
 
 ! Many colors are possible
 xterm*termName: xterm-256color
