@@ -31,17 +31,6 @@ fi
 	unset yazpt_zsh_ver
 }
 
-# Set up our defaults. Any other preset file can be sourced to customize the configuration,
-# or loaded with yazpt_load_preset (run yazpt_list_presets to see the list of presets),
-# or of course the YAZPT_* environment variables can be tweaked individually.
-# The YAZPT_* environment variables are listed and described in presets/default-preset.zsh.
-#
-[[ -n $yazpt_base_dir ]] || declare -rg yazpt_base_dir=${${(%):-%x}:A:h}
-[[ -n $yazpt_default_preset_file ]] || declare -rg yazpt_default_preset_file="$yazpt_base_dir/presets/default-preset.zsh"
-source "$yazpt_default_preset_file"
-setopt prompt_percent
-unset _yazpt_cmd_exec_start
-
 # Explains yazpt's Git status characters and their meanings.
 #
 function yazpt_explain_git() {
@@ -363,6 +352,14 @@ function yazpt_preexec() {
 	[[ $YAZPT_PREVIEW == true ]] || _yazpt_cmd_exec_start=$SECONDS
 }
 
+# Checks the parts of yazpt's rendering that are prone to weirdness/wackiness.
+# Tip: set YAZPT_NO_TWEAKS=true if you want to see what yazpt'd do without tweaks applied.
+#
+function .yazpt_check() {
+	# Source and execute the real version of this function
+	source "$yazpt_base_dir/functions/check.zsh" && .yazpt_check
+}
+
 # Checks whether the current directory is allowed by the given whitelist,
 # which is an array of path prefixes (pass the name of the array, without a '$').
 # An empty whitelist allows any value.
@@ -389,6 +386,84 @@ function .yazpt_compile() {
 	if [[ -s $file && (! -s $file.zwc || $file -nt $file.zwc) ]]; then
 		zcompile "$file"
 	fi
+}
+
+# Tries to figure out whether the Noto Emoji font is installed or not, on GNU/Linux and BSD.
+# I think this will give incorrect results if the font was installed/removed in this session,
+# before yazpt was loaded (because the font won't be loaded, or will still be loaded,
+# in the running terminal, which won't match fc-list's output).
+#
+function .yazpt_detect_noto_emoji_font() {
+	if [[ -z $yazpt_noto_emoji_font ]]; then
+		local loaded=false  # We'll keep this value if fc-list isn't installed or fails to run
+		fc-list -q "Noto Emoji" &> /dev/null && loaded=true
+
+		# Cache indefinitely. Not perfect, as it's hard to know for sure when a font change will show up in the terminal
+		# (e.g. Debian 10's GNOME Terminal re-renders with a font change immediately when the Files app is given focus,
+		# but only in its visible tab - how could we ever track something like that here?); since perfection isn't possible,
+		# let's just go with the most performant variant of kinda-correct.
+		declare -rg yazpt_noto_emoji_font=$loaded
+	fi
+
+	[[ $yazpt_noto_emoji_font == true ]]
+}
+
+# Tries to figure out which terminal emulator yazpt is running under.
+# Sets its result into the readonly global $yazpt_terminal variable.
+# Based on https://github.com/mintty/mintty/issues/776#issuecomment-475720406.
+#
+function .yazpt_detect_terminal() {
+	emulate -L zsh
+
+	[[ -n $yazpt_terminal && $yazpt_terminal != "unknown" ]] && return 0
+	[[ $+yazpt_terminal == 1 ]] && typeset +r -g yazpt_terminal
+	yazpt_terminal="unknown"  # Pessimism
+
+	if [[ $OSTYPE == "darwin"* && -n $TERM_PROGRAM ]]; then
+		# Terminal emulators on macOS tend to set $TERM_PROGRAM (e.g. Terminal.app, iTerm, Terminus)
+		yazpt_terminal=${TERM_PROGRAM:l}
+	else
+		if [[ -t 0 ]]; then
+			local tty_settings="$(stty -g)"  # Save TTY settings
+			stty -echo                       # Turn echo to TTY off
+		fi
+
+		local info
+		echo -n "\033[>c" > /dev/tty           # Request secondary device attributes
+		read -s -t 0.1 -d ">" info < /dev/tty  # Read and discard the prefix
+		read -s -t -d "c" info < /dev/tty      # Read the rest of the response
+
+		[[ -z $tty_settings ]] || stty "$tty_settings"  # Restore TTY settings
+		info=(${(s.;.)info})
+
+		if (( $#info == 3 )); then
+			if [[ $info[1] == 0 && $info[2] == 115 ]]; then
+				yazpt_terminal="konsole"
+			elif [[ $info[1] == 41 ]]; then
+				yazpt_terminal="xterm"
+			elif (( ($info[1] == 1 && $info[2] >= 2000) || $info[1] == 65 )); then
+				# Could be GNOME Terminal, MATE Terminal, or Xfce Terminal (and maybe others?)
+				local desktop=$XDG_CURRENT_DESKTOP
+				[[ -n $GNOME_TERMINAL_SCREEN || $desktop == *"GNOME"* || $desktop == "X-Cinnamon" || $desktop == "Unity" ]] && \
+					yazpt_terminal="gnome-terminal"
+				[[ $XDG_CURRENT_DESKTOP == "MATE" ]] && yazpt_terminal="mate-terminal"
+				[[ $XDG_CURRENT_DESKTOP == "XFCE" ]] && yazpt_terminal="xfce4-terminal"
+			elif [[ $info[1] == 67 && $TERM_PROGRAM == "Terminus" ]]; then
+				yazpt_terminal="terminus"  # Only seen on MSYS2
+			elif [[ $info[1] == 77 ]]; then
+				yazpt_terminal="mintty"
+			elif [[ $info == "0 136 0" && -n $ConEmuBuild ]]; then
+				yazpt_terminal="conemu"
+			elif [[ $info == "0 136 0" && $PATH == *"/MobaXterm/"* ]]; then
+				yazpt_terminal="mobaxterm"
+			fi
+		elif (( $#info == 0 )); then
+			[[ -n $TERM_PROGRAM ]] && yazpt_terminal=${TERM_PROGRAM:l}  # Including Terminus
+		fi
+	fi
+
+	typeset -rg yazpt_terminal
+	[[ $yazpt_terminal != "unknown" ]]
 }
 
 # Parses the given layout into the given variable, intended to be $PS1 or $RPS1.
@@ -525,6 +600,7 @@ function @yazpt_segment_cwd() {
 	fi
 
 	[[ -n $cwd ]] || cwd='%~'
+	[[ $_yazpt_terminus_hacks == true ]] && cwd=" $cwd "
 	yazpt_state[cwd]="%{%F{${YAZPT_CWD_COLOR:=default}}%}${cwd}%{%f%}"
 }
 
@@ -554,9 +630,13 @@ function @yazpt_segment_exectime() {
 		fmt+="${secs}s"
 	fi
 
-	# Include char if configured
-	local char=$YAZPT_EXECTIME_CHAR
-	[[ -n $char && $char != '⌛︎' ]] && char+=" "
+	# zsh 5.3 renders slightly wrong if the Unicode hourglass is used in either prompt,
+	# apparently because it doesn't realize it's two characters wide (at least on macOS);
+	# we can fix the problem by telling zsh an inverse untruth
+	local char="$YAZPT_EXECTIME_CHAR"
+	if [[ $char == *"$yazpt_hourglass"* && $OSTYPE == "darwin"* ]] && (( $ZSH_VERSION <= 5.3 )); then
+		char="  %{"$'\b\b'"${char}%}"  # (Only accounting for one hourglass)
+	fi
 
 	yazpt_state[exectime]="%{%F{${YAZPT_EXECTIME_COLOR:=default}}%}${char}${fmt}%{%f%}"
 }
@@ -573,21 +653,25 @@ function @yazpt_segment_exit() {
 
 	if [[ $exit_code == 0 ]]; then
 		if [[ -n $YAZPT_EXIT_OK_CHAR ]]; then
-			yazpt_state[exit]+="%{%F{${YAZPT_EXIT_OK_COLOR:=default}}%}$YAZPT_EXIT_OK_CHAR%{%f%}"
+			yazpt_state[exit]="%{%F{${YAZPT_EXIT_OK_COLOR:=default}}%}$YAZPT_EXIT_OK_CHAR%{%f%}"
+			[[ $_yazpt_terminus_hacks == true ]] && yazpt_state[exit]="$YAZPT_EXIT_OK_CHAR"$'\b '
 		fi
 
 		if [[ ${YAZPT_EXIT_OK_CODE_VISIBLE:l} == true ]]; then
 			if [[ -z $ZPREZTODIR ]] || zstyle -T ':prezto:module:prompt' show-return-val; then
+				[[ $_yazpt_terminus_hacks == true ]] && yazpt_state[exit]+=" " && YAZPT_EXIT_OK_COLOR=7
 				yazpt_state[exit]+="%{%F{${YAZPT_EXIT_OK_COLOR:=default}}%}$exit_code%{%f%}"
 			fi
 		fi
 	else
 		if [[ -n $YAZPT_EXIT_ERROR_CHAR ]]; then
-			yazpt_state[exit]+="%{%F{${YAZPT_EXIT_ERROR_COLOR:=default}}%}$YAZPT_EXIT_ERROR_CHAR%{%f%}"
+			yazpt_state[exit]="%{%F{${YAZPT_EXIT_ERROR_COLOR:=default}}%}$YAZPT_EXIT_ERROR_CHAR%{%f%}"
+			[[ $_yazpt_terminus_hacks == true ]] && yazpt_state[exit]="$YAZPT_EXIT_ERROR_CHAR"$'\b '
 		fi
 
 		if [[ ${YAZPT_EXIT_ERROR_CODE_VISIBLE:l} == true ]]; then
 			if [[ -z $ZPREZTODIR ]] || zstyle -T ':prezto:module:prompt' show-return-val; then
+				[[ $_yazpt_terminus_hacks == true ]] && yazpt_state[exit]+=" " && YAZPT_EXIT_ERROR_COLOR=7
 				yazpt_state[exit]+="%{%F{${YAZPT_EXIT_ERROR_COLOR:=default}}%}$exit_code%{%f%}"
 			fi
 		fi
@@ -761,11 +845,13 @@ function @yazpt_segment_git() {
 			fi
 		fi
 
-		local i git_status=""
+		local i extra="" git_status=""
+		[[ $_yazpt_terminus_hacks == true ]] && extra=" "
+
 		for (( i=1; i <= $#statuses; i++ )); do
 			local char_var="YAZPT_VCS_STATUS_${statuses[$i]}_CHAR"
 			local color_var="${char_var%_CHAR}_COLOR"
-			[[ -z ${(P)${char_var}} ]] || git_status+="%{%F{${(P)${color_var}:=default}}%}${(P)${char_var}}%{%f%}"
+			[[ -z ${(P)${char_var}} ]] || git_status+="%{%F{${(P)${color_var}:=default}}%}${(P)${char_var}}${extra}%{%f%}"
 		done
 	fi
 
@@ -778,7 +864,7 @@ function @yazpt_segment_git() {
 	if (( ${#YAZPT_VCS_WRAPPER_CHARS} >= 2 )); then
 		local before="%{%F{$color}%}$YAZPT_VCS_WRAPPER_CHARS[1]%{%f%}"
 		local after="%{%F{$color}%}$YAZPT_VCS_WRAPPER_CHARS[2]%{%f%}"
-		combined="${before}${combined}${after}"
+		combined="${before}${extra}${combined}${after}"
 	fi
 
 	yazpt_state[git]="$combined"
@@ -838,13 +924,30 @@ function @yazpt_segment_vcs() {
 	done
 }
 
+# Set some variables that'll be used in multiple presets, tweaks, etc.
+# These characters look the same in VS Code, but they aren't.
+(( $+yazpt_hourglass )) || declare -rg yazpt_hourglass="⌛︎"
+(( $+yazpt_hourglass_emoji )) || declare -rg yazpt_hourglass_emoji="⌛ "
+
+# Set up our defaults, by loading our default preset. Other presets can be loaded
+# with yazpt_load_preset (run yazpt_list_presets to see the list of presets),
+# or of course the YAZPT_* environment variables can be tweaked individually;
+# those environment variables are listed and described in presets/default-preset.zsh.
+[[ -n $yazpt_base_dir ]] || declare -rg yazpt_base_dir=${${(%):-%x}:A:h}
+[[ -n $yazpt_default_preset_file ]] || declare -rg yazpt_default_preset_file="$yazpt_base_dir/presets/default-preset.zsh"
+source "$yazpt_default_preset_file"
+[[ -e ~/.yazptrc ]] && source ~/.yazptrc
+
 # Begin using the yazpt prompt theme as soon as this file is sourced.
+unset _yazpt_cmd_exec_start
+setopt prompt_percent
+
 autoload -Uz add-zsh-hook
 add-zsh-hook precmd yazpt_precmd
 add-zsh-hook preexec yazpt_preexec
 
-# Compile this file and our default preset file, for faster loading next time,
-# and in the background (it doesn't affect this session anyway).
+# Compile this file and our default preset file in the background,
+# for faster loading NEXT time (it's too late to affect this load anyway).
 if [[ ${YAZPT_COMPILE:l} != false ]]; then
 	{
 		.yazpt_compile ${${(%):-%x}:A}  # This file

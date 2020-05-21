@@ -71,7 +71,7 @@ spearmint preset | tight preset | yolo preset
 
   Yazpt also has an explainer function for its Subversion statuses - just run `yazpt_explain_svn` for a list of all possible Subversion statuses and their meanings.
 
-  Note that yazpt's Subversion support is disabled by default, and needs to be <a href="#enabling-subversion-andor-team-foundation-version-control">enabled</a>.
+  Note that yazpt's Subversion support is disabled by default, and needs to be [enabled](#enabling-subversion-andor-team-foundation-version-control).
 
 * **It incorporates Team Foundation Version Control info.**
   While I'd probably be a bit happier if TFVC went the way of VSS, the world doesn't always work exactly how I'd like. 😉
@@ -81,11 +81,11 @@ spearmint preset | tight preset | yolo preset
   * Whether the workspace is dirty at all, i.e. has any pending additions/modifications/deletions, and
   * Whether I have any items locked.
 
-  Command-line tools for TFVC exist - a `TF.exe` ships with Visual Studio for Windows, and on other platforms there's a CLI tool called [TEE-CLC](https://github.com/microsoft/team-explorer-everywhere) - but they run far too slowly to be used while generating a prompt, so instead yazpt parses a couple of TFVC's data files itself (`properties.tf1` and `pendingchanges.tf1`).
+  Command-line tools for TFVC exist - a `TF.exe` ships with Visual Studio for Windows, and on other platforms there's a CLI tool called [TEE-CLC](https://github.com/microsoft/team-explorer-everywhere) - but they run far too slowly to be used while generating a prompt, so instead yazpt parses a couple of TFVC's binary data files itself (`properties.tf1` and `pendingchanges.tf1`).
 
   The `yazpt_explain_tfvc` explainer function shows the details.
 
-  Note that yazpt's TFVC support is disabled by default, and needs to be <a href="#enabling-subversion-andor-team-foundation-version-control">enabled</a>.
+  Note that yazpt's TFVC support is disabled by default, and needs to be [enabled](#enabling-subversion-andor-team-foundation-version-control).
   <p align="center">•</p>
 
 
@@ -93,37 +93,65 @@ spearmint preset | tight preset | yolo preset
 
 Yazpt's code logic should work just about anywhere zsh 5.1+ itself does, and with any semi-recent version of the Git and Subversion CLIs, but how well its Unicode VCS status characters get rendered can vary a bit across environments; a bit of tinkering usually fixes things up nicely, or you can load the [plain preset](./presets/plain-preset.zsh), which only uses ASCII characters.
 
-My primary environment is macOS, and yazpt works without fuss on recent versions, in Terminal.app and [iTerm](https://iterm2.com) v3.3, with the system zsh, and either the system or [Homebrew](https://brew.sh) versions of git and svn. Here's what I've tested:
+### macOS
+
+My primary environment is macOS, and yazpt works without fuss on recent versions, in Terminal.app and [iTerm](https://iterm2.com) v3.3+, with the system zsh, and either the system or [Homebrew](https://brew.sh) versions of git and svn. I use yazpt on these macOS versions regularly:
 
 * **macOS 10.15 Catalina**,
   using Andale Mono, Bitstream Vera Sans Mono, Courier, Menlo, Meslo, Monaco, and Source Code Pro fonts
+  (with Terminal.app's "Antialias text" setting turned on)
 * **macOS 10.14.6 Mojave**
 * **macOS 10.13.6 High Sierra**
 
-In the most recent version of each GNU/Linux distro I've tried, yazpt is rendered well either out of the box, or with minimal adjustments. A bit more tinkering is sometimes needed in older versions to make yazpt look nice; see the [tips for GNU/Linux](./tips-for-linux.md) for details.
+### Windows
 
-I've tested yazpt in the following distros, using both their standard terminal emulator (either GNOME Terminal or Konsole), and XTerm, with default settings for each:
-
-* **Linux Mint Cinnamon 19.3 (Tricia)**
-* **Linux Mint Cinnamon 18.3 (Sylvia)**;
-  You'll need to [install a font](./tips-for-linux.md#linux-mint-cinnamon-183-sylvia) for the yolo preset to render well
-* **openSUSE Tumbleweed**, running KDE Plasma
-* **Ubuntu 19.10 (Eoan)**;
-  You'll need to [tweak .Xresources](./tips-for-linux.md#ubuntu-1910-eoan-ermine) for the blues preset to render well in XTerm
-* **Ubuntu 18.04 (Bionic)**
-* **Ubuntu 16.04 (Xenial)**;
-  No color emoji, but monochrome emoji if you [install a font and tweak fonts.conf](./tips-for-linux.md#ubuntu-1604-xenial-xerus)
-
-In all recent versions of Ubuntu (even Eoan), you'll need to check GNOME Terminal's "Custom font" checkbox to get decent rendering of yazpt's Unicode characters.
-
-I don't always run zsh on Windows, but when I do, I prefer to use [Cygwin](https://cygwin.com). Here's a list of the Windows versions that I've used yazpt on, in Mintty 3.x (Cygwin's default terminal):
+I don't always run zsh on Windows, but when I do, I prefer to use [Cygwin](https://cygwin.com). Here's a list of the Windows versions on which I've used yazpt with Cygwin, in Mintty 3.x (Cygwin's default terminal):
 
 * **Windows 10 Pro (version 1909)**
 * **Windows 8.1 Pro**
 * **Windows 7**,
-  with the [DejaVu Sans Mono font installed](./tips-for-windows.md#windows-7-professional) so yazpt's Unicode characters will render right
+  with the [DejaVu Sans Mono font installed](./tips-for-windows.md#older-windows-versions) so yazpt's Unicode characters will render right
 
-Mintty doesn't show color emoji in any version of Windows, unless you [install emoji support](./tips-for-windows.md#color-emoji-in-cygwin-mintty).
+I've also tested yazpt on Windows 10 in various other scenarios, like with MSYS2 and Windows Subsystem for Linux (WSL), and in alternate terminals like ConEmu, Terminus, MobaXterm, etc. In almost all cases, a bit of tweaking is needed for best results - see the [tips for using yazpt on Windows](./tips-for-windows.md) for details.
+
+### Linux
+
+In most recent GNU/Linux versions, especially those targeted at general desktop/laptop use, yazpt is rendered pretty well out of the box, but often some minimal adjustments are needed for best effect; for instance, _in GNOME Terminal, you always need to check the "Custom font" checkbox to get decent rendering of yazpt's Unicode characters_. It's also not unusual to need to install a font or two, especially to get the yolo preset's emoji looking good. See the [tips for using yazpt on GNU/Linux](./tips-for-linux.md) for details.
+
+I've used or tested yazpt in the following distros, using both their standard terminal emulator (usually GNOME Terminal, but sometimes Konsole, MATE Terminal, or Xfce Terminal), with default settings; and XTerm, with my [.Xresources file](./resources/Xresources) loaded:
+
+* **CentOS 8.1**, installed as a "server with GUI";
+    [Install a font](./tips-for-linux.md#centos-81-installed-as-a-server-with-gui) for better rendering
+* **Debian 10.3**
+* **Fedora 32**
+* **Kubuntu 20.04**
+* **Linux Mint Cinnamon 19.3 (Tricia)**
+* **Linux Mint Cinnamon 18.3 (Sylvia)**;
+    No color emoji, but monochrome emoji if you [install a font](./tips-for-linux.md#linux-mint-cinnamon-183-sylvia)
+* **Manjaro 20.0 (Lysia)**, running XFCE**;
+    [Install a font or two](./tips-for-linux.md#manjaro-200-lysia-running-xfce) for better emoji rendering
+* **MX Linux 19.1 (patito feo)**;
+    [Install a font](./tips-for-linux.md#mx-linux-191-patito-feo) to upgrade from monochrome to color emoji
+* **openSUSE Tumbleweed**, running KDE Plasma 5
+* **Solus 4.1 (Fortitude)**, running Budgie
+* **Ubuntu 20.04 (Focal)**
+* **Ubuntu 19.10 (Eoan)**
+* **Ubuntu 18.04 (Bionic)**
+* **Ubuntu 16.04 (Xenial)**;
+    No color emoji, but monochrome emoji if you [install a font and tweak fonts.conf](./tips-for-linux.md#ubuntu-1604-xenial-xerus)
+* **Ubuntu MATE 20.04**
+* **Ubuntu MATE 19.10**
+
+### BSD
+
+I don't use BSDs much, but just for kicks I tried yazpt out on a couple.
+
+* **FuryBSD 12.1**, running XFCE;
+    Yazpt works rather poorly out of the box in Xfce Terminal; to fix it, add this to your `~/.zshenv` (or your shell's rough equivalent, if zsh isn't your login shell): `export LANG=en_US.UTF-8 LC_ALL=en_US.UTF-8 LC_CTYPE=en_US.UTF-8`
+* **GhostBSD 20.04.1**;
+    For better rendering of yazpt's Unicode characters in MATE Terminal, uncheck its "Use the system fixed width font" checkbox in your profile preferences
+
+In both of those BSDs, which are based on FreeBSD, MATE Terminal and Xfce Terminal mis-render emoji regardless of whether the Noto fonts are installed (`noto-basic-2.0` package), so the yolo preset tries to detect when it's running on FreeBSD or a derivative, and switches to emoticons instead.
 <p align="center">•</p>
 
 
@@ -162,6 +190,8 @@ git clone https://github.com/jakshin/yazpt $repo_path
 $sudo mkdir -p $fn_path
 $sudo ln -sv $repo_path/functions/prompt_yazpt_setup $fn_path/prompt_yazpt_setup
 ```
+
+_(Note that creating symbolic links with `ln -s` doesn't work correctly in MSYS2 - there, you can [use mklink](https://github.com/msys2/MSYS2-packages/issues/249) instead.)_
 
 To begin using yazpt:
 
@@ -261,7 +291,7 @@ YAZPT_VCS_TFVC_WHITELIST=("$user_profile_path/Source/Workspaces/")
 
 Note that while yazpt does know when the current directory is ignored by Git or Subversion, and uses a different color when displaying the VCS context, it doesn't know this for TFVC. The existence of ignored directories and/or files in the local workspace is correctly not shown as a dirty state, though.
 
-Also, when using TFVC on Windows, with the workspace open in Visual Studio, any changes in the workspace get noticed immediately, whether they're made through Visual Studio or otherwise, and TFVC updates its metadata in the `$tf` directory right away. The same is true when making changes via the `tf` CLI, whether VS is running or not. But otherwise, like while changing files using general terminal utilities, either on macOS or without Visual Studio running, TFVC won't notice changes until you kick it a little - by, say, running `tf info` or `tf status`. I hope to improve on this situation eventually.
+Also, when using TFVC on Windows, with the workspace open in Visual Studio, any changes in the workspace get noticed immediately, whether they're made through Visual Studio or otherwise, and TFVC updates its metadata in the `$tf` directory right away. The same is true when making changes via the `tf` CLI, whether VS is running or not. But otherwise, like while changing files using general terminal utilities without Visual Studio running, TFVC won't notice changes until you kick it a little - by, say, running `tf info` or `tf status`. I hope to improve on this situation eventually.
 <p align="center">•</p>
 
 
