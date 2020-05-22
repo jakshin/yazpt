@@ -126,7 +126,7 @@ function yazpt_load_preset() {
 
 	if [[ $valid == true ]]; then
 		source "$preset_file"
-		[[ -e ~/.yazptrc ]] && source ~/.yazptrc
+		[[ ${YAZPT_READ_RC_FILE:l} != false && -e ~/.yazptrc ]] && source ~/.yazptrc
 
 		if [[ $YAZPT_PREVIEW != true && $prompt_theme[1] == "yazpt" ]]; then
 			prompt_theme[2]=$preset  # So `prompt -h yazpt` will restore the right preset
@@ -213,6 +213,7 @@ function yazpt_make_preset() {
 		default_val="$defaults_map[$var]"
 		stash_map[$var]="$val"	# For lookup while iterating $defaults_map below
 
+		[[ $var == 'YAZPT_COMPILE' || $var == 'YAZPT_READ_RC_FILE' ]] && continue
 		if (( $opts[(Ie)-e] )); then
 			[[ $var == 'YAZPT_VCS_ORDER' || $var == *'_WHITELIST' || $var == *'_LOCKS' ]] && continue
 		fi
@@ -634,8 +635,10 @@ function @yazpt_segment_exectime() {
 	# apparently because it doesn't realize it's two characters wide (at least on macOS);
 	# we can fix the problem by telling zsh an inverse untruth
 	local char="$YAZPT_EXECTIME_CHAR"
-	if [[ $char == *"$yazpt_hourglass"* && $OSTYPE == "darwin"* ]] && (( $ZSH_VERSION <= 5.3 )); then
-		char="  %{"$'\b\b'"${char}%}"  # (Only accounting for one hourglass)
+	if [[ $char == *"$yazpt_hourglass"* && $OSTYPE == "darwin"* ]]; then
+		local zsh_ver_parts=(${(s:.:)ZSH_VERSION})
+		local zsh_ver="$zsh_ver_parts[1].$zsh_ver_parts[2]"
+		(( $zsh_ver <= 5.3 )) && char="  %{"$'\b\b'"${char}%}"  # (Only accounting for one hourglass)
 	fi
 
 	yazpt_state[exectime]="%{%F{${YAZPT_EXECTIME_COLOR:=default}}%}${char}${fmt}%{%f%}"
@@ -936,7 +939,7 @@ function @yazpt_segment_vcs() {
 [[ -n $yazpt_base_dir ]] || declare -rg yazpt_base_dir=${${(%):-%x}:A:h}
 [[ -n $yazpt_default_preset_file ]] || declare -rg yazpt_default_preset_file="$yazpt_base_dir/presets/default-preset.zsh"
 source "$yazpt_default_preset_file"
-[[ -e ~/.yazptrc ]] && source ~/.yazptrc
+[[ ${YAZPT_READ_RC_FILE:l} != false && -e ~/.yazptrc ]] && source ~/.yazptrc
 
 # Begin using the yazpt prompt theme as soon as this file is sourced.
 unset _yazpt_cmd_exec_start
