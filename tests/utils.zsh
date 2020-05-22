@@ -15,6 +15,7 @@ YAZPT_VCS_ORDER=()
 YAZPT_VCS_GIT_WHITELIST=()
 YAZPT_VCS_SVN_WHITELIST=()
 YAZPT_VCS_TFVC_WHITELIST=()
+YAZPT_READ_RC_FILE=false
 
 # Utility function which converts the string passed to it to a series of hex characters representing its raw bytes
 function convert_to_hex() {
