@@ -5,6 +5,7 @@
 # based on the detected distro and terminal emulator.
 #
 function .yazpt_tweak_checkmark() {
+	emulate -L zsh
 	.yazpt_detect_terminal
 
 	if [[ $yazpt_terminal == "konsole" ]]; then
@@ -21,6 +22,7 @@ function .yazpt_tweak_checkmark() {
 # based on the detected terminal emulator.
 #
 function .yazpt_tweak_emoji() {
+	emulate -L zsh
 	.yazpt_detect_terminal
 
 	if [[ $yazpt_terminal == "konsole" ]]; then
@@ -116,7 +118,6 @@ function .yazpt_tweak_hourglass_emoji() {
 # Sets its results into the global $yazpt_linux_distro_name & $yazpt_linux_distro_version variables.
 #
 function .yazpt_detect_linux_distro() {
-	emulate -L zsh
 	setopt extended_glob
 
 	if [[ -z $yazpt_linux_distro_name || $yazpt_linux_distro_name == "unknown" ||
