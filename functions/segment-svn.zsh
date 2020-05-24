@@ -5,9 +5,7 @@
 #
 function @yazpt_segment_svn() {
 	# Check the whitelist
-	if [[ ${(t)YAZPT_VCS_SVN_WHITELIST} == array ]] && ! .yazpt_check_whitelist YAZPT_VCS_SVN_WHITELIST; then
-		return
-	fi
+	[[ ${(t)YAZPT_VCS_SVN_WHITELIST} == array ]] && ! .yazpt_check_whitelist YAZPT_VCS_SVN_WHITELIST && return
 
 	# Find out which branch/tag we've got checked out, and where the working copy's root directory is
 	local xml svn_exit_code
@@ -77,19 +75,13 @@ function @yazpt_segment_svn() {
 		fi
 	fi
 
-	if [[ -o prompt_bang ]]; then
-		# Escape exclamation marks from prompt expansion, by doubling them
-		context=${context//'!'/'!!'}
-	fi
-
-	context="${context//\%/%%}"  # Escape percent signs from prompt expansion
+	[[ -o prompt_bang ]] && context=${context//'!'/'!!'}
+	[[ -o prompt_percent ]] && context="${context//\%/%%}"
 	context="%{%F{$color}%}${context}${extra}%{%f%}"
 
 	if [[ -o prompt_subst ]]; then
-		_yazpt_context="$context"
-		context='$_yazpt_context'
-	else
-		unset _yazpt_context
+		_yazpt_subst[context]="$context"
+		context='$_yazpt_subst[context]'
 	fi
 
 	# Find out the working copy's status (not the current working directory's)
@@ -110,25 +102,32 @@ function @yazpt_segment_svn() {
 			.yazpt_parse_svn_status
 		fi
 
-		local svn_status
+		local statuses=()
 		if [[ $_yazpt_svn_status[unknown] == true ]]; then
-			if [[ -n $YAZPT_VCS_STATUS_UNKNOWN_CHAR ]]; then
-				svn_status+="%{%F{${YAZPT_VCS_STATUS_UNKNOWN_COLOR:=default}}%}$YAZPT_VCS_STATUS_UNKNOWN_CHAR%{%f%}"
-			fi
+			[[ -n $YAZPT_VCS_STATUS_UNKNOWN_CHAR ]] && statuses+="UNKNOWN"
 		else
-			[[ $_yazpt_svn_status[locked] == true && -n $YAZPT_VCS_STATUS_LOCKED_CHAR ]] && \
-				svn_status+="%{%F{${YAZPT_VCS_STATUS_LOCKED_COLOR:=default}}%}$YAZPT_VCS_STATUS_LOCKED_CHAR%{%f%}"
-			[[ $_yazpt_svn_status[dirty] == true && -n $YAZPT_VCS_STATUS_DIRTY_CHAR ]] && \
-				svn_status+="%{%F{${YAZPT_VCS_STATUS_DIRTY_COLOR:=default}}%}$YAZPT_VCS_STATUS_DIRTY_CHAR%{%f%}"
-			[[ $_yazpt_svn_status[conflict] == true && -n $YAZPT_VCS_STATUS_CONFLICT_CHAR ]] && \
-				svn_status+="%{%F{${YAZPT_VCS_STATUS_CONFLICT_COLOR:=default}}%}$YAZPT_VCS_STATUS_CONFLICT_CHAR%{%f%}"
+			[[ $_yazpt_svn_status[locked] == true && -n $YAZPT_VCS_STATUS_LOCKED_CHAR ]] && statuses+="LOCKED"
+			[[ $_yazpt_svn_status[dirty] == true && -n $YAZPT_VCS_STATUS_DIRTY_CHAR ]] && statuses+="DIRTY"
+			[[ $_yazpt_svn_status[conflict] == true && -n $YAZPT_VCS_STATUS_CONFLICT_CHAR ]] && statuses+="CONFLICT"
 
-			if [[ $_yazpt_svn_status[locked] != true && $_yazpt_svn_status[dirty] != true && $_yazpt_svn_status[conflict] != true ]]; then
-				if [[ -z $svn_status && -n $YAZPT_VCS_STATUS_CLEAN_CHAR ]]; then
-					svn_status="%{%F{${YAZPT_VCS_STATUS_CLEAN_COLOR:=default}}%}$YAZPT_VCS_STATUS_CLEAN_CHAR%{%f%}"
-				fi
-			fi
+			[[ $_yazpt_svn_status[locked] != true && $_yazpt_svn_status[dirty] != true && $_yazpt_svn_status[conflict] != true ]] && \
+				[[ -n $YAZPT_VCS_STATUS_CLEAN_CHAR ]] && statuses+="CLEAN"
 		fi
+
+		local extra="" i=1 svn_status=""
+		[[ $_yazpt_terminus_hacks == true ]] && extra=" "
+
+		for (( i=1; i <= $#statuses; i++ )); do
+			local char_var="YAZPT_VCS_STATUS_${statuses[$i]}_CHAR"
+			local color_var="${char_var%_CHAR}_COLOR"
+
+			if [[ -n ${(P)${char_var}} ]]; then
+				local char=${(P)${char_var}}
+				[[ -o prompt_bang ]] && char=${char//'!'/'!!'}
+				[[ -o prompt_percent ]] && char="${char//\%/%%}"
+				svn_status+="%{%F{${(P)${color_var}:=default}}%}${char}${extra}%{%f%}"
+			fi
+		done
 	} always {
 		unset _yazpt_svn_status_lines _yazpt_svn_status
 	}
@@ -140,8 +139,16 @@ function @yazpt_segment_svn() {
 	fi
 
 	if (( ${#YAZPT_VCS_WRAPPER_CHARS} >= 2 )); then
-		local before="%{%F{$color}%}$YAZPT_VCS_WRAPPER_CHARS[1]%{%f%}"
-		local after="%{%F{$color}%}$YAZPT_VCS_WRAPPER_CHARS[2]%{%f%}"
+		local before=$YAZPT_VCS_WRAPPER_CHARS[1]
+		[[ -o prompt_bang ]] && before=${before//'!'/'!!'}
+		[[ -o prompt_percent ]] && before="${before//\%/%%}"
+
+		local after=$YAZPT_VCS_WRAPPER_CHARS[2]
+		[[ -o prompt_bang ]] && after=${after//'!'/'!!'}
+		[[ -o prompt_percent ]] && after="${after//\%/%%}"
+
+		before="%{%F{$color}%}${before}%{%f%}"
+		after="%{%F{$color}%}${after}%{%f%}"
 		combined="${before}${combined}${after}"
 	fi
 
