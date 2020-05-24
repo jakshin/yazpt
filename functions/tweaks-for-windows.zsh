@@ -5,6 +5,7 @@
 # based on the detected terminal emulator.
 #
 function .yazpt_tweak_checkmark() {
+	emulate -L zsh
 	.yazpt_detect_terminal
 
 	if [[ $yazpt_terminal == "mintty" ]]; then
@@ -18,6 +19,7 @@ function .yazpt_tweak_checkmark() {
 # based on the detected terminal emulator.
 #
 function .yazpt_tweak_emoji() {
+	emulate -L zsh
 	.yazpt_detect_terminal
 
 	if [[ $yazpt_terminal == "conemu" ]]; then
@@ -30,6 +32,7 @@ function .yazpt_tweak_emoji() {
 # based on the detected Windows version and/or terminal emulator.
 #
 function .yazpt_tweak_hourglass() {
+	emulate -L zsh
 	.yazpt_detect_terminal
 
 	if [[ $yazpt_terminal == "mintty" ]]; then
