@@ -60,7 +60,7 @@ YAZPT_EXIT_OK_COLOR="229"
 YAZPT_EXIT_OK_CODE_VISIBLE=false
 
 YAZPT_VCS_CONTEXT_COLOR=$(( _yazpt_yolo_base_color + 6 ))
-YAZPT_VCS_WRAPPER_CHARS="❨❩"
+YAZPT_VCS_WRAPPER_CHARS=('❨' '❩')
 
 # Tweaks and fixups for various environments
 if [[ -z $YAZPT_NO_TWEAKS ]]; then
