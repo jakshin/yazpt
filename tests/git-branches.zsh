@@ -8,6 +8,9 @@ source ./utils.zsh
 before_tests $script_name "git"
 YAZPT_VCS_ORDER=(git)
 
+[[ -e ~/.yazpt_allow_subst ]] && yazpt_allow_subst_existed=true
+touch ~/.yazpt_allow_subst
+
 # Test
 function run_tests() {
 	local git_dir=$(git rev-parse --git-dir)
@@ -29,7 +32,7 @@ function run_tests() {
 	setopt prompt_subst
 	git checkout '$(IFS=_;cmd=echo_arg;$cmd)'
 	test_init_done
-	contains '$_yazpt_context'
+	contains '$_yazpt_subst[context]'
 	PROMPT="$(eval noglob echo $PROMPT)"  # Like prompt_subst will do
 	contains_context '$(IFS=_;cmd=echo_arg;$cmd)'
 	contains_status "clean"
@@ -37,7 +40,7 @@ function run_tests() {
 	test_case "In the .git directory, on a branch with a scary name, with prompt_subst on"
 	cd $git_dir
 	test_init_done
-	contains '$_yazpt_context'
+	contains '$_yazpt_subst[context]'
 	PROMPT="$(eval noglob echo $PROMPT)"  # Like prompt_subst will do
 	contains_dim_context '$(IFS=_;cmd=echo_arg;$cmd)'
 	contains_status "clean"
@@ -134,3 +137,4 @@ run_tests
 
 # Clean up
 after_tests
+[[ $yazpt_allow_subst_existed == true ]] || rm -f ~/.yazpt_allow_subst
