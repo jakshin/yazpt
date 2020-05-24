@@ -125,22 +125,30 @@ function run_test_variant_5() {
 	has_one_preexec_function
 }
 
+function unload() {
+	# Unload yazpt completely, but preserve $YAZPT_COMPILE and $YAZPT_READ_RC_FILE
+	local saved_compile=$YAZPT_COMPILE saved_read_rc_file=$YAZPT_READ_RC_FILE
+	functions yazpt_plugin_unload > /dev/null && yazpt_plugin_unload
+	YAZPT_COMPILE=$saved_compile
+	YAZPT_READ_RC_FILE=$saved_read_rc_file
+}
+
 test_case "Integration with promptinit"
 for i in {1..5}; do
-	functions yazpt_plugin_unload > /dev/null && yazpt_plugin_unload
+	unload
 	run_test_variant_$i
 done
 
 test_case "Integration with promptinit (yazpt loaded beforehand)"
 for i in {1..5}; do
-	functions yazpt_plugin_unload > /dev/null && yazpt_plugin_unload
+	unload
 	source "$test_dir/../yazpt.zsh-theme"
 	run_test_variant_$i
 done
 
 test_case "Integration with promptinit (yazpt loaded beforehand, with preset)"
 for i in {1..5}; do
-	functions yazpt_plugin_unload > /dev/null && yazpt_plugin_unload
+	unload
 	source "$test_dir/../yazpt.zsh-theme"
 	yazpt_load_preset spearmint
 	run_test_variant_$i
