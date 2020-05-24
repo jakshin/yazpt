@@ -22,8 +22,11 @@ function mock_prezto() {
 	else
 		echo " ${failure_bullet} mock_prezto was called incorrectly [$1]"
 		(( failed++ ))
-	fi                
-} 
+	fi
+}
+
+touch .yazpt_allow_subst
+HOME=$(pwd -P)
 
 # Test
 test_case "Directory containing an exclamation mark"
@@ -94,7 +97,7 @@ excludes "pwned"
 mock_prezto true
 test_init_done "no-standard-tests"
 excludes "%~"
-contains '$_yazpt_cwd'
+contains '$_yazpt_subst[cwd]'
 excludes "pwned"
 mock_prezto false
 
@@ -120,7 +123,7 @@ excludes "pwned"
 mock_prezto true
 test_init_done "no-standard-tests"
 excludes "%~"
-contains '$_yazpt_cwd'
+contains '$_yazpt_subst[cwd]'
 excludes "pwned"
 mock_prezto false
 
