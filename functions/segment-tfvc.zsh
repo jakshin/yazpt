@@ -8,9 +8,7 @@
 #
 function @yazpt_segment_tfvc() {
 	# Check the whitelist
-	if [[ ${(t)YAZPT_VCS_TFVC_WHITELIST} == array ]] && ! .yazpt_check_whitelist YAZPT_VCS_TFVC_WHITELIST; then
-		return
-	fi
+	[[ ${(t)YAZPT_VCS_TFVC_WHITELIST} == array ]] && ! .yazpt_check_whitelist YAZPT_VCS_TFVC_WHITELIST && return
 
 	# Determine whether the current directory is in a TFVC local workspace,
 	# and if so, find out the workspace's root directory's server path
@@ -27,48 +25,51 @@ function @yazpt_segment_tfvc() {
 	.yazpt_parse_properties_tf1 "$_yazpt_tf_dir/properties.tf1"  # Sets $_yazpt_server_path
 	local context=$_yazpt_server_path
 
-	if [[ -o prompt_bang ]]; then
-		# Escape exclamation marks from prompt expansion, by doubling them
-		context=${context//'!'/'!!'}
-	fi
-
-	context="${context//\%/%%}"  # Escape percent signs from prompt expansion
+	[[ -o prompt_bang ]] && context=${context//'!'/'!!'}
+	[[ -o prompt_percent ]] && context="${context//\%/%%}"
 	context="%{%F{$color}%}${context}${extra}%{%f%}"
 
 	if [[ -o prompt_subst ]]; then
-		_yazpt_context="$context"
-		context='$_yazpt_context'
-	else
-		unset _yazpt_context
+		_yazpt_subst[context]="$context"
+		context='$_yazpt_subst[context]'
 	fi
 
 	# Find out whether the local workspace has pending changes or not
-	local stat=() tfvc_status=""
+	local stat=() statuses=()
 	zstat +size -A stat -- "$_yazpt_tf_dir/pendingchanges.tf1" &> /dev/null
 
 	if [[ -z $stat && -e "$_yazpt_tf_dir/pendingchanges.tf1" ]]; then
-		if [[ -n $YAZPT_VCS_STATUS_UNKNOWN_CHAR ]]; then
-			tfvc_status="%{%F{${YAZPT_VCS_STATUS_UNKNOWN_COLOR:=default}}%}$YAZPT_VCS_STATUS_UNKNOWN_CHAR%{%f%}"
-		fi
+		[[ -n $YAZPT_VCS_STATUS_UNKNOWN_CHAR ]] && statuses+="UNKNOWN"
 	elif [[ -n $stat ]] && (( $stat[1] > 23 )); then
 		if [[ ${YAZPT_VCS_TFVC_CHECK_LOCKS:l} == true ]]; then
 			.yazpt_parse_pendingchanges_tf1 "$_yazpt_tf_dir/pendingchanges.tf1" $stat[1]  # Sets $_yazpt_tfvc_status
 			[[ $_yazpt_tfvc_status[1] == y || $_yazpt_tfvc_status[2] == y ]] || _yazpt_tfvc_status[3]=y
 
-			[[ $_yazpt_tfvc_status[1] == y && -n $YAZPT_VCS_STATUS_LOCKED_CHAR ]] && \
-				tfvc_status+="%{%F{${YAZPT_VCS_STATUS_LOCKED_COLOR:=default}}%}$YAZPT_VCS_STATUS_LOCKED_CHAR%{%f%}"
-			[[ $_yazpt_tfvc_status[2] == y && -n $YAZPT_VCS_STATUS_DIRTY_CHAR ]] && \
-				tfvc_status+="%{%F{${YAZPT_VCS_STATUS_DIRTY_COLOR:=default}}%}$YAZPT_VCS_STATUS_DIRTY_CHAR%{%f%}"
-			[[ $_yazpt_tfvc_status[3] == y && -n $YAZPT_VCS_STATUS_UNKNOWN_CHAR ]] && \
-				tfvc_status+="%{%F{${YAZPT_VCS_STATUS_UNKNOWN_COLOR:=default}}%}$YAZPT_VCS_STATUS_UNKNOWN_CHAR%{%f%}"
-
+			[[ $_yazpt_tfvc_status[1] == y && -n $YAZPT_VCS_STATUS_LOCKED_CHAR ]] && statuses+="LOCKED"
+			[[ $_yazpt_tfvc_status[2] == y && -n $YAZPT_VCS_STATUS_DIRTY_CHAR ]] && statuses+="DIRTY"
+			[[ $_yazpt_tfvc_status[3] == y && -n $YAZPT_VCS_STATUS_UNKNOWN_CHAR ]] && statuses+="UNKNOWN"
 			unset _yazpt_tfvc_status
 		elif [[ -n $YAZPT_VCS_STATUS_DIRTY_CHAR ]]; then
-			tfvc_status="%{%F{${YAZPT_VCS_STATUS_DIRTY_COLOR:=default}}%}$YAZPT_VCS_STATUS_DIRTY_CHAR%{%f%}"
+			statuses+="DIRTY"
 		fi
 	elif [[ -n $YAZPT_VCS_STATUS_CLEAN_CHAR ]]; then
-		tfvc_status="%{%F{${YAZPT_VCS_STATUS_CLEAN_COLOR:=default}}%}$YAZPT_VCS_STATUS_CLEAN_CHAR%{%f%}"
+		statuses+="CLEAN"
 	fi
+
+	local extra="" i=1 tfvc_status=""
+	[[ $_yazpt_terminus_hacks == true ]] && extra=" "
+
+	for (( i=1; i <= $#statuses; i++ )); do
+		local char_var="YAZPT_VCS_STATUS_${statuses[$i]}_CHAR"
+		local color_var="${char_var%_CHAR}_COLOR"
+
+		if [[ -n ${(P)${char_var}} ]]; then
+			local char=${(P)${char_var}}
+			[[ -o prompt_bang ]] && char=${char//'!'/'!!'}
+			[[ -o prompt_percent ]] && char="${char//\%/%%}"
+			tfvc_status+="%{%F{${(P)${color_var}:=default}}%}${char}${extra}%{%f%}"
+		fi
+	done
 
 	# Combine context and status
 	local combined="$context"
@@ -77,8 +78,16 @@ function @yazpt_segment_tfvc() {
 	fi
 
 	if (( ${#YAZPT_VCS_WRAPPER_CHARS} >= 2 )); then
-		local before="%{%F{$color}%}$YAZPT_VCS_WRAPPER_CHARS[1]%{%f%}"
-		local after="%{%F{$color}%}$YAZPT_VCS_WRAPPER_CHARS[2]%{%f%}"
+		local before=$YAZPT_VCS_WRAPPER_CHARS[1]
+		[[ -o prompt_bang ]] && before=${before//'!'/'!!'}
+		[[ -o prompt_percent ]] && before="${before//\%/%%}"
+
+		local after=$YAZPT_VCS_WRAPPER_CHARS[2]
+		[[ -o prompt_bang ]] && after=${after//'!'/'!!'}
+		[[ -o prompt_percent ]] && after="${after//\%/%%}"
+
+		before="%{%F{$color}%}${before}%{%f%}"
+		after="%{%F{$color}%}${after}%{%f%}"
 		combined="${before}${combined}${after}"
 	fi
 
