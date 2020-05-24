@@ -6,6 +6,8 @@ Using the `YAZPT_LAYOUT` and `YAZPT_RLAYOUT` environment variables as templates,
 
 Yazpt's behavior as it interprets `YAZPT_LAYOUT` and `YAZPT_RLAYOUT` can be configured and customized in a variety of ways, some of them very easy, and others a bit more involved.
 
+_(Note that zsh's `prompt_subst` option is very powerful, but might also be considered a bit dangerous, depending on how much control you have of your environment variables, so yazpt keeps it turned off by default; if you want to turn `prompt_subst` on so you can use parameter/arithmetic expansion and/or command substitution in your prompt, you'll need to create a file at `~/.yazpt_allow_subst` to tell yazpt not to force it back off.)_
+
 
 ## Load a preset
 
