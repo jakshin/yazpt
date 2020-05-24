@@ -29,8 +29,12 @@ excludes "%F{$YAZPT_VCS_STATUS_CLEAN_COLOR}"
 test_case "Empty YAZPT_VCS_STATUS_DIRTY_CHAR (YAZPT_VCS_TFVC_CHECK_LOCKS=true)"
 reset_tfvc_status_chars
 YAZPT_VCS_TFVC_CHECK_LOCKS=true
-function zstat() { stat=(24) }
 function .yazpt_parse_pendingchanges_tf1() { _yazpt_tfvc_status=ny }
+function zstat() { stat=(24) }
+function .yazpt_parse_properties_tf1() {
+	# Mock this function to avoid errors caused by mocking zstat
+	_yazpt_server_path='$/yazpt-tfvc-test/Mock'
+}
 test_init_done
 contains "⚑"
 contains "%F{$YAZPT_VCS_STATUS_DIRTY_COLOR}"
@@ -79,8 +83,8 @@ excludes "%F{$YAZPT_VCS_STATUS_UNKNOWN_COLOR}"
 test_case "Empty YAZPT_VCS_STATUS_UNKNOWN_CHAR (zstat failure)"
 reset_tfvc_status_chars
 touch "$tf_dir_name/pendingchanges.tf1"
-function zstat() { return 1 }
 function .yazpt_parse_pendingchanges_tf1() { _yazpt_tfvc_status=yy }  # Shouldn't get called
+function zstat() { return 1 }
 test_init_done
 contains "⌀"
 contains "%F{$YAZPT_VCS_STATUS_UNKNOWN_COLOR}"
