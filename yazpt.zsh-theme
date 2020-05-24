@@ -213,7 +213,7 @@ function yazpt_make_preset() {
 		default_val="$defaults_map[$var]"
 		stash_map[$var]="$val"	# For lookup while iterating $defaults_map below
 
-		[[ $var == 'YAZPT_COMPILE' || $var == 'YAZPT_READ_RC_FILE' ]] && continue
+		[[ $var == 'YAZPT_COMPILE' || $var == 'YAZPT_NO_TWEAKS' || $var == 'YAZPT_READ_RC_FILE' ]] && continue
 		if (( $opts[(Ie)-e] )); then
 			[[ $var == 'YAZPT_VCS_ORDER' || $var == *'_WHITELIST' || $var == *'_LOCKS' ]] && continue
 		fi
@@ -319,6 +319,9 @@ function yazpt_plugin_unload() {
 	[[ -z $YAZPT_LAYOUT ]] || PS1='%n@%m %1~ %# '
 	[[ -z $YAZPT_RLAYOUT ]] || RPS1=''
 
+	# Reset any zle settings we changed
+	(( $+_yazpt_default_zle_highlight )) && zle_highlight=($_yazpt_default_zle_highlight)
+
 	# Remove our hooks, functions, and environment variables
 	add-zsh-hook -d precmd yazpt_precmd
 	add-zsh-hook -d preexec yazpt_preexec
@@ -331,17 +334,27 @@ function yazpt_plugin_unload() {
 # Sets $PS1 and maybe $RPS1, just before the shell uses it/them.
 #
 function yazpt_precmd() {
+	# We want to be able to turn prompt_subst off here without affecting other options,
+	# so we can't emulate zsh - meaning this function should work in sh/ksh/csh modes
+
 	local exit_code=$?
-
-	emulate -L zsh
 	declare -Ag yazpt_state=(exit_code $exit_code)  # State shared across segment functions
+	declare -Ag _yazpt_subst=()  # Holds values when prompt_subst is on, until the next command
 
-	: ${YAZPT_LAYOUT:=<cwd> <char> }
-	local layout=$YAZPT_LAYOUT
-	[[ $YAZPT_PREVIEW == true && $layout[1] == $'\n' ]] && layout=$layout[2,-1]
+	: "${YAZPT_LAYOUT:=<cwd> <char> }"
+	local layout="$YAZPT_LAYOUT"
+	[[ $+YAZPT_PREVIEW == 1 && "$YAZPT_PREVIEW" == true && "$layout[1]" == $'\n' ]] && layout="$layout[2,-1]"
 
-	.yazpt_parse_layout $layout PS1
-	[[ -z $YAZPT_RLAYOUT ]] || .yazpt_parse_layout $YAZPT_RLAYOUT RPS1
+	if [[ -o prompt_subst && ! -e ~/.yazpt_allow_subst ]]; then
+		setopt no_prompt_subst
+	fi
+
+	.yazpt_parse_layout "$layout" PS1
+	if [[ -n "$YAZPT_RLAYOUT" ]]; then
+		.yazpt_parse_layout "$YAZPT_RLAYOUT" RPS1
+	else
+		RPS1=""
+	fi
 
 	unset yazpt_state
 }
@@ -350,7 +363,8 @@ function yazpt_precmd() {
 # Sets a variable containing a timestamp, so we can later tell how long the command took to run.
 #
 function yazpt_preexec() {
-	[[ $YAZPT_PREVIEW == true ]] || _yazpt_cmd_exec_start=$SECONDS
+	unset _yazpt_subst
+	[[ $+YAZPT_PREVIEW == 1 && "$YAZPT_PREVIEW" == true ]] || _yazpt_cmd_exec_start=$SECONDS
 }
 
 # Checks the parts of yazpt's rendering that are prone to weirdness/wackiness.
@@ -390,9 +404,7 @@ function .yazpt_compile() {
 }
 
 # Tries to figure out whether the Noto Emoji font is installed or not, on GNU/Linux and BSD.
-# I think this will give incorrect results if the font was installed/removed in this session,
-# before yazpt was loaded (because the font won't be loaded, or will still be loaded,
-# in the running terminal, which won't match fc-list's output).
+# This can give incorrect results if the font was installed/removed in this session, depending on a lot of factors.
 #
 function .yazpt_detect_noto_emoji_font() {
 	if [[ -z $yazpt_noto_emoji_font ]]; then
@@ -474,6 +486,7 @@ function .yazpt_parse_layout() {
 	local layout=$1
 	local var=$2
 
+	emulate -L zsh
 	local output=""               # Stand-in for PS1 or RPS1; copied into $var at the end
 	local escaped=false           # Did the previous character escape this one?
 	local last_was_segment=false  # Was the last character appended to the output from a segment?
@@ -591,13 +604,9 @@ function @yazpt_segment_cwd() {
 		cwd="$(prompt-pwd)"
 
 		# Escape things as needed
-		[[ -o prompt_bang ]] && cwd=${cwd//'!'/'!!'}
-		[[ -o prompt_percent ]] && cwd="${cwd//\%/%%}"
-
-		if [[ -o prompt_subst ]]; then
-			_yazpt_cwd="$cwd"
-			cwd='$_yazpt_cwd'
-		fi
+		[[ -o prompt_bang ]] && cwd=${cwd//'!'/'!!'}    # Escape exclamation marks from prompt expansion
+		[[ -o prompt_percent ]] && cwd="${cwd//\%/%%}"  # Escape percent signs from prompt expansion
+		[[ -o prompt_subst ]] && _yazpt_subst[cwd]="$cwd" && cwd='$_yazpt_subst[cwd]'
 	fi
 
 	[[ -n $cwd ]] || cwd='%~'
@@ -631,14 +640,16 @@ function @yazpt_segment_exectime() {
 		fmt+="${secs}s"
 	fi
 
+	[[ -o prompt_bang ]] && local char=${YAZPT_EXECTIME_CHAR//'!'/'!!'} || local char=$YAZPT_EXECTIME_CHAR
+	[[ -o prompt_percent ]] && char=${char//\%/%%}
+
 	# zsh 5.3 renders slightly wrong if the Unicode hourglass is used in either prompt,
 	# apparently because it doesn't realize it's two characters wide (at least on macOS);
 	# we can fix the problem by telling zsh an inverse untruth
-	local char="$YAZPT_EXECTIME_CHAR"
 	if [[ $char == *"$yazpt_hourglass"* && $OSTYPE == "darwin"* ]]; then
 		local zsh_ver_parts=(${(s:.:)ZSH_VERSION})
 		local zsh_ver="$zsh_ver_parts[1].$zsh_ver_parts[2]"
-		(( $zsh_ver <= 5.3 )) && char="  %{"$'\b\b'"${char}%}"  # (Only accounting for one hourglass)
+		(( $zsh_ver <= 5.3 )) && char=$'  %{\b\b'"${char}%}"  # (Only accounting for one hourglass)
 	fi
 
 	yazpt_state[exectime]="%{%F{${YAZPT_EXECTIME_COLOR:=default}}%}${char}${fmt}%{%f%}"
@@ -656,8 +667,10 @@ function @yazpt_segment_exit() {
 
 	if [[ $exit_code == 0 ]]; then
 		if [[ -n $YAZPT_EXIT_OK_CHAR ]]; then
-			yazpt_state[exit]="%{%F{${YAZPT_EXIT_OK_COLOR:=default}}%}$YAZPT_EXIT_OK_CHAR%{%f%}"
-			[[ $_yazpt_terminus_hacks == true ]] && yazpt_state[exit]="$YAZPT_EXIT_OK_CHAR"$'\b '
+			[[ -o prompt_bang ]] && local char=${YAZPT_EXIT_OK_CHAR//'!'/'!!'} || local char=$YAZPT_EXIT_OK_CHAR
+			[[ -o prompt_percent ]] && char=${char//\%/%%}
+			yazpt_state[exit]="%{%F{${YAZPT_EXIT_OK_COLOR:=default}}%}$char%{%f%}"
+			[[ $_yazpt_terminus_hacks == true ]] && yazpt_state[exit]="$char"$'\b '
 		fi
 
 		if [[ ${YAZPT_EXIT_OK_CODE_VISIBLE:l} == true ]]; then
@@ -668,8 +681,10 @@ function @yazpt_segment_exit() {
 		fi
 	else
 		if [[ -n $YAZPT_EXIT_ERROR_CHAR ]]; then
-			yazpt_state[exit]="%{%F{${YAZPT_EXIT_ERROR_COLOR:=default}}%}$YAZPT_EXIT_ERROR_CHAR%{%f%}"
-			[[ $_yazpt_terminus_hacks == true ]] && yazpt_state[exit]="$YAZPT_EXIT_ERROR_CHAR"$'\b '
+			[[ -o prompt_bang ]] && local char=${YAZPT_EXIT_ERROR_CHAR//'!'/'!!'} || local char=$YAZPT_EXIT_ERROR_CHAR
+			[[ -o prompt_percent ]] && char=${char//\%/%%}
+			yazpt_state[exit]="%{%F{${YAZPT_EXIT_ERROR_COLOR:=default}}%}$char%{%f%}"
+			[[ $_yazpt_terminus_hacks == true ]] && yazpt_state[exit]="$char"$'\b '
 		fi
 
 		if [[ ${YAZPT_EXIT_ERROR_CODE_VISIBLE:l} == true ]]; then
@@ -686,9 +701,7 @@ function @yazpt_segment_exit() {
 #
 function @yazpt_segment_git() {
 	# Check the whitelist
-	if [[ ${(t)YAZPT_VCS_GIT_WHITELIST} == array ]] && ! .yazpt_check_whitelist YAZPT_VCS_GIT_WHITELIST; then
-		return
-	fi
+	[[ ${(t)YAZPT_VCS_GIT_WHITELIST} == array ]] && ! .yazpt_check_whitelist YAZPT_VCS_GIT_WHITELIST && return
 
 	# Ignore $GIT_DIR in this function, including subshells launched from it
 	local GIT_DIR; unset GIT_DIR
@@ -771,19 +784,13 @@ function @yazpt_segment_git() {
 		color="${YAZPT_VCS_CONTEXT_COLOR:=default}"
 	fi
 
-	if [[ -o prompt_bang ]]; then
-		# Escape exclamation marks from prompt expansion, by doubling them
-		context=${context//'!'/'!!'}
-	fi
-
-	context="${context//\%/%%}"  # Escape percent signs from prompt expansion
+	[[ -o prompt_bang ]] && context=${context//'!'/'!!'}
+	[[ -o prompt_percent ]] && context="${context//\%/%%}"
 	context="%{%F{$color}%}${context#refs/heads/}${activity}%{%f%}"
 
 	if [[ -o prompt_subst ]]; then
-		_yazpt_context="$context"
-		context='$_yazpt_context'
-	else
-		unset _yazpt_context
+		_yazpt_subst[context]="$context"
+		context='$_yazpt_subst[context]'
 	fi
 
 	# Calculate Git status
@@ -854,7 +861,13 @@ function @yazpt_segment_git() {
 		for (( i=1; i <= $#statuses; i++ )); do
 			local char_var="YAZPT_VCS_STATUS_${statuses[$i]}_CHAR"
 			local color_var="${char_var%_CHAR}_COLOR"
-			[[ -z ${(P)${char_var}} ]] || git_status+="%{%F{${(P)${color_var}:=default}}%}${(P)${char_var}}${extra}%{%f%}"
+
+			if [[ -n ${(P)${char_var}} ]]; then
+				local char=${(P)${char_var}}
+				[[ -o prompt_bang ]] && char=${char//'!'/'!!'}
+				[[ -o prompt_percent ]] && char="${char//\%/%%}"
+				git_status+="%{%F{${(P)${color_var}:=default}}%}${char}${extra}%{%f%}"
+			fi
 		done
 	fi
 
@@ -865,8 +878,16 @@ function @yazpt_segment_git() {
 	fi
 
 	if (( ${#YAZPT_VCS_WRAPPER_CHARS} >= 2 )); then
-		local before="%{%F{$color}%}$YAZPT_VCS_WRAPPER_CHARS[1]%{%f%}"
-		local after="%{%F{$color}%}$YAZPT_VCS_WRAPPER_CHARS[2]%{%f%}"
+		local before=$YAZPT_VCS_WRAPPER_CHARS[1]
+		[[ -o prompt_bang ]] && before=${before//'!'/'!!'}
+		[[ -o prompt_percent ]] && before="${before//\%/%%}"
+
+		local after=$YAZPT_VCS_WRAPPER_CHARS[2]
+		[[ -o prompt_bang ]] && after=${after//'!'/'!!'}
+		[[ -o prompt_percent ]] && after="${after//\%/%%}"
+
+		before="%{%F{$color}%}${before}%{%f%}"
+		after="%{%F{$color}%}${after}%{%f%}"
 		combined="${before}${extra}${combined}${after}"
 	fi
 
@@ -878,9 +899,7 @@ function @yazpt_segment_git() {
 #
 function @yazpt_segment_svn() {
 	# Check the whitelist
-	if [[ ${(t)YAZPT_VCS_SVN_WHITELIST} == array ]] && ! .yazpt_check_whitelist YAZPT_VCS_SVN_WHITELIST; then
-		return
-	fi
+	[[ ${(t)YAZPT_VCS_SVN_WHITELIST} == array ]] && ! .yazpt_check_whitelist YAZPT_VCS_SVN_WHITELIST && return
 
 	# Source and execute the real version of this function
 	local src="$yazpt_base_dir/functions/segment-svn.zsh"
@@ -898,9 +917,7 @@ function @yazpt_segment_svn() {
 #
 function @yazpt_segment_tfvc() {
 	# Check the whitelist
-	if [[ ${(t)YAZPT_VCS_TFVC_WHITELIST} == array ]] && ! .yazpt_check_whitelist YAZPT_VCS_TFVC_WHITELIST; then
-		return
-	fi
+	[[ ${(t)YAZPT_VCS_TFVC_WHITELIST} == array ]] && ! .yazpt_check_whitelist YAZPT_VCS_TFVC_WHITELIST && return
 
 	# Source and execute the real version of this function
 	local src="$yazpt_base_dir/functions/segment-tfvc.zsh"
@@ -928,7 +945,7 @@ function @yazpt_segment_vcs() {
 }
 
 # Set some variables that'll be used in multiple presets, tweaks, etc.
-# These characters look the same in VS Code, but they aren't.
+# These two hourglass characters look the same in VS Code, but they aren't.
 (( $+yazpt_hourglass )) || declare -rg yazpt_hourglass="⌛︎"
 (( $+yazpt_hourglass_emoji )) || declare -rg yazpt_hourglass_emoji="⌛ "
 
