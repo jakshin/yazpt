@@ -9,6 +9,8 @@ function .yazpt_detail_vcs_status() {
 	[[ -z $5 ]] || desc+=" $5"
 
 	if [[ -n $ch ]]; then
+		[[ -o prompt_bang ]] && ch=${ch//'!'/'!!'}
+		[[ -o prompt_percent ]] && ch="${ch//\%/%%}"
 		print -Pn "\n   %{%F{${color:-default}}%}${ch}%{%f%}\t"
 	else
 		print -Pn "\n  %{%F{240}%}n/a%{%f%}\t"
@@ -21,6 +23,16 @@ function .yazpt_detail_vcs_status() {
 	fi
 
 	.yazpt_print_wrapped $desc true
+}
+
+# Outputs given the character, escaped for prompt_subst and/or prompt_percent as needed,
+# so it can be passed to `print -P`.
+#
+function .yazpt_escape_char() {
+	local ch=$1
+	[[ -o prompt_bang ]] && ch=${ch//'!'/'!!'}
+	[[ -o prompt_percent ]] && ch="${ch//\%/%%}"
+	echo "$ch"
 }
 
 # Makes a command string which can be invoked to wrap text,
