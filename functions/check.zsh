@@ -1,10 +1,12 @@
 # Checks the parts of yazpt's rendering that are prone to weirdness/wackiness, or often need tweaking,
 # by displaying the relevant Unicode/emoji characters and environment-detection results.
-# Tip: set YAZPT_NO_TWEAKS=true if you want to see what yazpt'd do without tweaks applied.
+# Run `YAZPT_NO_TWEAKS=true .yazpt_check` if you want to see what yazpt'd do without tweaks applied.
+#
 # Copyright (c) 2020 Jason Jackson <jasonjackson@pobox.com>. Distributed under GPL v2.0, see LICENSE for details.
 #
 function .yazpt_check() {
 	{
+		emulate -L zsh
 		local bright='\e[38;5;151m'
 		local normal='\e[0m'
 
@@ -16,7 +18,7 @@ function .yazpt_check() {
 			yazpt_preexec
 			sleep 1
 			yazpt_precmd
-			print -P "$preset: $RPS1"
+			print -P "$preset: $RPS1"  # Should already be escaped
 		}
 
 		function .yazpt_check_variables() {
@@ -40,6 +42,10 @@ function .yazpt_check() {
 				[[ $var == *= ]] && continue
 
 				local var_name=${var%%=*}
+				if [[ $var_name == *"_CHARS" ]]; then
+					var=${var/\( /}; var=${var/ \)/}; var=${var// /}  # Prep the array for nice display
+				fi
+
 				local length=$lengths[$var_name]
 				echo "${(l:$max - $length:)} $var"
 			done
