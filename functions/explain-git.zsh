@@ -45,15 +45,22 @@ function yazpt_explain_git() {
 		"because an unexpected and unhandled error occurred while running 'git status'."
 
 	if [[ -n $YAZPT_VCS_STATUS_DIRTY_CHAR ]]; then
-		local dirty="%{%F{${YAZPT_VCS_STATUS_DIRTY_COLOR:-default}}%}$YAZPT_VCS_STATUS_DIRTY_CHAR%{%f%}"
+		local dirty=$(.yazpt_escape_char $YAZPT_VCS_STATUS_DIRTY_CHAR)
+		dirty="%{%F{${YAZPT_VCS_STATUS_DIRTY_COLOR:-default}}%}${dirty}%{%f%}"
 
-		local ss=()
-		[[ -z $YAZPT_VCS_STATUS_DIVERGED_CHAR ]] || \
-			ss+="%{%F{${YAZPT_VCS_STATUS_DIVERGED_COLOR:-default}}%}${YAZPT_VCS_STATUS_DIVERGED_CHAR}%{%f%}"
-		[[ -z $YAZPT_VCS_STATUS_NO_UPSTREAM_CHAR ]] || \
-			ss+="%{%F{${YAZPT_VCS_STATUS_NO_UPSTREAM_COLOR:-default}}%}${YAZPT_VCS_STATUS_NO_UPSTREAM_CHAR}%{%f%}"
-		[[ -z $YAZPT_VCS_STATUS_LINKED_BARE_CHAR ]] || \
-			ss+="%{%F{${YAZPT_VCS_STATUS_LINKED_BARE_COLOR:-default}}%}${YAZPT_VCS_STATUS_LINKED_BARE_CHAR}%{%f%}"
+		local char="" ss=()
+		if [[ -n $YAZPT_VCS_STATUS_DIVERGED_CHAR ]]; then
+			char=$(.yazpt_escape_char $YAZPT_VCS_STATUS_DIVERGED_CHAR)
+			ss+="%{%F{${YAZPT_VCS_STATUS_DIVERGED_COLOR:-default}}%}${char}%{%f%}"
+		fi
+		if [[ -n $YAZPT_VCS_STATUS_NO_UPSTREAM_CHAR ]]; then
+			char=$(.yazpt_escape_char $YAZPT_VCS_STATUS_NO_UPSTREAM_CHAR)
+			ss+="%{%F{${YAZPT_VCS_STATUS_NO_UPSTREAM_COLOR:-default}}%}${char}%{%f%}"
+		fi
+		if [[ -n $YAZPT_VCS_STATUS_LINKED_BARE_CHAR ]]; then
+			char=$(.yazpt_escape_char $YAZPT_VCS_STATUS_LINKED_BARE_CHAR)
+			ss+="%{%F{${YAZPT_VCS_STATUS_LINKED_BARE_COLOR:-default}}%}${char}%{%f%}"
+		fi
 
 		if [[ -n $ss ]]; then
 			local i sstr=""
@@ -71,7 +78,7 @@ function yazpt_explain_git() {
 			done
 
 			print -P "\nNote that $dirty can combine with ${sstr}"
-			print -P "Otherwise only one status character is shown at a time."
+			print "Otherwise only one status character is shown at a time."
 		fi
 	fi
 
@@ -98,7 +105,7 @@ function yazpt_explain_git() {
 		done
 	elif [[ -n $YAZPT_VCS_GIT_WHITELIST ]]; then
 		echo
-		.yazpt_print_wrapped "Git status will be checked in/under these directories (see \$YAZPT_VCS_GIT_WHITELIST):"
+		.yazpt_print_wrapped "Git status will be checked in these directories (see \$YAZPT_VCS_GIT_WHITELIST):"
 
 		local i=1
 		for (( i=1; i <= $#YAZPT_VCS_GIT_WHITELIST; i++ )); do
