@@ -40,13 +40,19 @@ function yazpt_explain_svn() {
 		'$YAZPT_VCS_STATUS_UNKNOWN_CHAR' "The working copy's status can't be determined," \
 		"because an unexpected and unhandled error occurred while running 'svn status'."
 
-	local ss=()
-	[[ -z $YAZPT_VCS_STATUS_LOCKED_CHAR ]] || \
-		ss+="%{%F{${YAZPT_VCS_STATUS_LOCKED_COLOR:-default}}%}${YAZPT_VCS_STATUS_LOCKED_CHAR}%{%f%}"
-	[[ -z $YAZPT_VCS_STATUS_DIRTY_CHAR ]] || \
-		ss+="%{%F{${YAZPT_VCS_STATUS_DIRTY_COLOR:-default}}%}${YAZPT_VCS_STATUS_DIRTY_CHAR}%{%f%}"
-	[[ -z $YAZPT_VCS_STATUS_CONFLICT_CHAR ]] || \
-		ss+="%{%F{${YAZPT_VCS_STATUS_CONFLICT_COLOR:-default}}%}${YAZPT_VCS_STATUS_CONFLICT_CHAR}%{%f%}"
+	local char="" ss=()
+	if [[ -n $YAZPT_VCS_STATUS_LOCKED_CHAR ]]; then
+		char=$(.yazpt_escape_char $YAZPT_VCS_STATUS_LOCKED_CHAR)
+		ss+="%{%F{${YAZPT_VCS_STATUS_LOCKED_COLOR:-default}}%}${char}%{%f%}"
+	fi
+	if [[ -n $YAZPT_VCS_STATUS_DIRTY_CHAR ]]; then
+		char=$(.yazpt_escape_char $YAZPT_VCS_STATUS_DIRTY_CHAR)
+		ss+="%{%F{${YAZPT_VCS_STATUS_DIRTY_COLOR:-default}}%}${char}%{%f%}"
+	fi
+	if [[ -n $YAZPT_VCS_STATUS_CONFLICT_CHAR ]]; then
+		char=$(.yazpt_escape_char $YAZPT_VCS_STATUS_CONFLICT_CHAR)
+		ss+="%{%F{${YAZPT_VCS_STATUS_CONFLICT_COLOR:-default}}%}${char}%{%f%}"
+	fi
 
 	if (( $#ss > 1 )); then
 		local i sstr=""
@@ -64,7 +70,7 @@ function yazpt_explain_svn() {
 		done
 
 		print -P "\nNote that ${sstr} can appear together."
-		print -P "Otherwise only one status character is shown at a time."
+		print "Otherwise only one status character is shown at a time."
 	fi
 
 	local svn_type warnings=()
@@ -90,7 +96,7 @@ function yazpt_explain_svn() {
 		done
 	elif [[ -n $YAZPT_VCS_SVN_WHITELIST ]]; then
 		echo
-		.yazpt_print_wrapped "Subversion status will be checked in/under these directories (see \$YAZPT_VCS_SVN_WHITELIST):"
+		.yazpt_print_wrapped "Subversion status will be checked in these directories (see \$YAZPT_VCS_SVN_WHITELIST):"
 
 		local i=1
 		for (( i=1; i <= $#YAZPT_VCS_SVN_WHITELIST; i++ )); do
