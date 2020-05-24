@@ -36,7 +36,7 @@ test_case "Save a new preset with various changes"
 source "$yazpt_default_preset_file"
 YAZPT_CWD_COLOR=75             # Change a value
 YAZPT_EXIT_ERROR_CHAR=''       # Change a value to empty string
-YAZPT_VCS_WRAPPER_CHARS=( )    # Change a value's type -> array
+YAZPT_EXIT_OK_CHAR=( )         # Change a value's type -> array
 YAZPT_VCS_GIT_WHITELIST=''     # Change an array value's type -> empty string
 unset YAZPT_EXIT_ERROR_COLOR   # Unset a value
 unset YAZPT_VCS_SVN_WHITELIST  # Unset an array value
@@ -49,7 +49,7 @@ yazpt_make_preset -f ./test.zsh
 cat test.zsh
 file_contains test.zsh "YAZPT_CWD_COLOR=75"$'\n'
 file_contains test.zsh "YAZPT_EXIT_ERROR_CHAR=''"$'\n'
-file_contains test.zsh "YAZPT_VCS_WRAPPER_CHARS=(  )"$'\n'
+file_contains test.zsh "YAZPT_EXIT_OK_CHAR=(  )"$'\n'
 file_contains test.zsh "YAZPT_VCS_GIT_WHITELIST=''"$'\n'
 file_contains test.zsh "unset YAZPT_EXIT_ERROR_COLOR"$'\n'
 file_contains test.zsh "unset YAZPT_VCS_SVN_WHITELIST"$'\n'
