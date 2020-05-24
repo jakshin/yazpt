@@ -1,23 +1,32 @@
 # Yazpt's default preset, automatically loaded with yazpt itself. Other presets here are defined relative to this baseline,
 # i.e. they're expected to `source` this to reset to defaults, then apply their specific overrides.
 
+# -----------------------------------------------------------------------------------------------------------------------------
 # All of the YAZPT_*_COLOR variables below accept the same range of values: anything valid in a zsh `%F{...}` expression.
 # See http://zsh.sourceforge.net/Doc/Release/Zsh-Line-Editor.html#Character-Highlighting's "fg=colour" section for details,
-# but to summarize, valid values include: default (the terminal's default foreground colour);
+# but to summarize, valid values include: default (meaning the terminal's default foreground colour, usually gray);
 # black, red, green, yellow, blue, magenta, cyan, white; numbers from 0-255 (where 0-7 are the named colors above,
 # 8-15 are the bold/bright variants of those colors, 16-231 are colors from a palette of 216, and 232-255 are shades of gray);
 # and on a terminal that supports true color, "#" followed by 3 or 6 hex digits specifying RGB.
 #
-# Giving an invalid value sometimes results in the terminal's default color being used,
-# and sometimes results in black being used (like you'd used the value `0`).
+# Giving an invalid value sometimes results in the terminal's default foreground color being used,
+# and sometimes results in black being used (like you'd used the value `0`), which in many color schemes makes it invisible.
 #
-# Unpredictable but generally unfortunate things tend to happen if you use #RGB colors
-# in a terminal that doesn't support true color, such as Terminal.app.
-# You can work around this limitation with zsh's "nearcolor" module:
-# [[ $COLORTERM = *(24bit|truecolor)* ]] || zmodload zsh/nearcolor
+# Unpredictable but generally unfortunate things tend to happen if you use #RGB colors in a terminal without true color,
+# such as Terminal.app. You can work around this limitation with zsh's "nearcolor" module:
+# [[ $COLORTERM == *(24bit|truecolor)* ]] || zmodload zsh/nearcolor
+#
+# Yazpt doesn't escape *COLOR variables as it uses them in creating $PS1 and $RPS1, so you can have a bit of pointless fun
+# by setting one to `%?` or `%j`, or `!` if you have prompt_bang turned on. More usefully, if you turn on prompt_subst
+# and create ~/.yazpt_allow_subst, you can set one to `$(foo)`, where `foo` is a function which returns a color value
+# based on some condition.
+# -----------------------------------------------------------------------------------------------------------------------------
 
 # Layout settings. These are like templates for $PS1 and $RPS1;
 # they can contain anything $PS1/$RPS1 can, plus yazpt-style prompt segments/separators.
+#
+# Note that yazpt keeps the prompt_subst option turned off for safety, unless you create the ~/.yazpt_allow_subst file,
+# so you'll need to do that if you want to use parameter/arithmetic expansion or command substitution in your prompt.
 
 YAZPT_LAYOUT=$'\n[<cwd><? ><exit><? ><vcs>]\n<char> '
 YAZPT_RLAYOUT='<exectime>'              # Works well with `setopt transient_rprompt`
@@ -96,8 +105,8 @@ YAZPT_VCS_STATUS_NO_UPSTREAM_COLOR=31   # Dark cyan; used only in Git
 YAZPT_VCS_STATUS_UNKNOWN_CHAR="⌀"       # The repo's status can't be determined, due to an error or missing CLI
 YAZPT_VCS_STATUS_UNKNOWN_COLOR=9        # Bright red, probably (based on terminal color scheme); used in Git/Subversion/TFVC
 
-YAZPT_VCS_WRAPPER_CHARS=""              # Characters shown before and after the Git/Subversion/TFVC context & status;
-                                        # Should be an empty string or 2 characters, e.g. "()"
+YAZPT_VCS_WRAPPER_CHARS=()              # Characters shown before and after the Git/Subversion/TFVC context & status;
+                                        # Should be an empty array or contain 2 characters, e.g. ('[' ']')
 
 # Tweaks and fixups for various environments
 if [[ -z $YAZPT_NO_TWEAKS ]]; then
