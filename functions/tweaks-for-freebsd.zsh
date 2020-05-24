@@ -5,6 +5,7 @@
 # unless we're in XTerm on GhostBSD with the Noto Emoji font installed.
 #
 function .yazpt_tweak_emoji() {
+	emulate -L zsh
 	.yazpt_detect_terminal
 
 	if [[ $yazpt_terminal == "xterm" ]] && .yazpt_detect_xterm_emoji_support; then
@@ -19,6 +20,8 @@ function .yazpt_tweak_emoji() {
 # Changes the hourglass character for better rendering.
 #
 function .yazpt_tweak_hourglass() {
+	emulate -L zsh
+
 	if .yazpt_detect_noto_emoji_font; then
 		YAZPT_EXECTIME_CHAR+=" "
 	elif ! .yazpt_detect_ghostbsd; then
