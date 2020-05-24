@@ -8,6 +8,9 @@ source ./utils.zsh
 before_tests $script_name "svn-root"
 YAZPT_VCS_ORDER=(svn)
 
+[[ -e ~/.yazpt_allow_subst ]] && yazpt_allow_subst_existed=true
+touch ~/.yazpt_allow_subst
+
 # Test
 test_case "In the root directory"
 test_init_done
@@ -111,10 +114,10 @@ cd .. && rmdir unversioned-dir
 test_case "On a tag with a scary name, with prompt_subst on"
 setopt prompt_subst
 cd 'tags/$(IFS=_;cmd=echo_arg;$cmd)'
-test_init_done
-contains '$_yazpt_context'
-PROMPT="$(eval noglob echo $PROMPT)"  # Like prompt_subst will do
-contains_context '$(IFS=_;cmd=echo_arg;$cmd)'
+test_init_done && saved_prompt="$(eval noglob echo $PROMPT)"  # Like prompt_subst will do
+contains '$_yazpt_subst[context]'
+echo "Evaluating \$PROMPT a la prompt_subst -> $saved_prompt"
+PROMPT=$saved_prompt contains_context '$(IFS=_;cmd=echo_arg;$cmd)'
 
 test_case "On a tag with a scary name, with prompt_subst off"
 setopt no_prompt_subst
@@ -154,10 +157,10 @@ contains_context 'thing1'
 test_case "In a scary directory off the root of the repo, with prompt_subst on"
 setopt prompt_subst
 cd '$(IFS=_;cmd=echo_arg;$cmd)'
-test_init_done
-contains '$_yazpt_context'
-PROMPT="$(eval noglob echo $PROMPT)"  # Like prompt_subst will do
-contains_context '$(IFS=_;cmd=echo_arg;$cmd)'
+test_init_done && saved_prompt="$(eval noglob echo $PROMPT)"  # Like prompt_subst will do
+contains '$_yazpt_subst[context]'
+echo "Evaluating \$PROMPT a la prompt_subst -> $saved_prompt"
+PROMPT=$saved_prompt contains_context '$(IFS=_;cmd=echo_arg;$cmd)'
 
 test_case "In a scary directory off the root of the repo, with prompt_subst off"
 setopt no_prompt_subst
@@ -189,3 +192,4 @@ contains_context 'spaces +%%20 %%2B%%2520'  # We double up percent signs, becaus
 
 # Clean up
 after_tests
+[[ $yazpt_allow_subst_existed == true ]] || rm -f ~/.yazpt_allow_subst
