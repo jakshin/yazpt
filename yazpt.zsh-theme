@@ -34,46 +34,25 @@ fi
 # Explains yazpt's Git status characters and their meanings.
 #
 function yazpt_explain_git() {
+	# Source and execute the real version of this function
 	emulate -L zsh
-	local src="$yazpt_base_dir/functions/explain-git.zsh"
-
-	if [[ -r $src ]]; then
-		source $src
-		yazpt_explain_git "$@"
-	else
-		echo "Error: Can't find explain-git.zsh"
-		return 1
-	fi
+	source "$yazpt_base_dir/functions/explain-git.zsh" && yazpt_explain_git
 }
 
 # Explains yazpt's Subversion status characters and their meanings.
 #
 function yazpt_explain_svn() {
+	# Source and execute the real version of this function
 	emulate -L zsh
-	local src="$yazpt_base_dir/functions/explain-svn.zsh"
-
-	if [[ -r $src ]]; then
-		source $src
-		yazpt_explain_svn "$@"
-	else
-		echo "Error: Can't find explain-svn.zsh"
-		return 1
-	fi
+	source "$yazpt_base_dir/functions/explain-svn.zsh" && yazpt_explain_svn
 }
 
 # Explains yazpt's Team Foundation Version Control status characters and their meanings.
 #
 function yazpt_explain_tfvc() {
+	# Source and execute the real version of this function
 	emulate -L zsh
-	local src="$yazpt_base_dir/functions/explain-tfvc.zsh"
-
-	if [[ -r $src ]]; then
-		source $src
-		yazpt_explain_tfvc "$@"
-	else
-		echo "Error: Can't find explain-tfvc.zsh"
-		return 1
-	fi
+	source "$yazpt_base_dir/functions/explain-tfvc.zsh" && yazpt_explain_tfvc
 }
 
 # Lists all yazpt presets which can be loaded by yazpt_load_preset.
@@ -146,144 +125,12 @@ function yazpt_load_preset() {
 # or pass a path containing a slash and ending in a filename to write an abitrary file
 # wherever you'd like (yazpt_load_preset will still load it, just not auto-complete it).
 #
+# Copyright (c) 2020 Jason Jackson <jasonjackson@pobox.com>. Distributed under GPL v2.0, see LICENSE for details.
+#
 function yazpt_make_preset() {
+	# Source and execute the real version of this function
 	emulate -L zsh
-
-	# Parse arguments
-	declare -a opts=()
-	zmodload -F zsh/zutil b:zparseopts
-	zparseopts -D -E -a opts e f h -help
-
-	if [[ $opts[(Ie)-h] != 0 || $opts[(Ie)--help] != 0 || $#@ != 1 || $@[1] == "-"* ]]; then
-		echo "Makes a new preset file containing the current settings."
-		echo "Only settings which differ from defaults are saved.\n"
-
-		echo "Writes a preset file in $yazpt_base_dir/presets,"
-		echo "or a file anywhere if you pass a path containing a slash and filename.\n"
-
-		echo "Usage: $0 [options] <preset-name-or-path>\n"
-		echo "Options:"
-		echo "  -e  Exclude VCS settings which control behavior, not appearance,"
-		echo '      i.e. $YAZPT_VCS_ORDER, $YAZPT*_WHITELIST, $YAZPT*_LOCKS'
-		echo "  -f  Overwrite an existing preset file without asking"
-		return
-	fi
-
-	local preset="$@[1]"	# A preset name, or path to the preset file to write
-
-	# Stash the current settings
-	local zle_stash=($zle_highlight)
-	local stash=(${(f)"$(typeset -m 'YAZPT_*')"})
-	stash=(${${(i)stash}#*:})	# Sort
-
-	# Load the default preset's settings
-	unset -m 'YAZPT_*'
-	source $yazpt_default_preset_file
-
-	local defaults i setting var val
-	declare -A defaults_map=()
-
-	defaults=(${(f)"$(typeset -m 'YAZPT_*')"})
-	defaults=(${${(i)defaults}#*:})	# Sort
-
-	for (( i=1; i <= $#defaults; i++ )); do
-		setting=$defaults[$i]
-		setting=(${(s:=:)setting})	# Split on "="
-
-		var="$setting[1]"
-		val="${(j:=:)setting[@]:1}"
-
-		defaults_map[$var]="$val"
-	done
-
-	# Restore the stashed settings
-	zle_highlight=($zle_stash)
-	eval "${(j:; :)stash}"
-
-	# Compare the stashed settings with the defaults, storing any which differ
-	local default_val differences="" layouts="" unset=""
-	declare -A stash_map=()
-
-	for (( i=1; i <= $#stash; i++ )); do
-		setting=$stash[$i]
-		setting=(${(s:=:)setting})	# Split on "="
-
-		var="$setting[1]"
-		val="${(j:=:)setting[@]:1}"
-		default_val="$defaults_map[$var]"
-		stash_map[$var]="$val"	# For lookup while iterating $defaults_map below
-
-		[[ $var == 'YAZPT_COMPILE' || $var == 'YAZPT_NO_TWEAKS' || $var == 'YAZPT_READ_RC_FILE' ]] && continue
-		if (( $opts[(Ie)-e] )); then
-			[[ $var == 'YAZPT_VCS_ORDER' || $var == *'_WHITELIST' || $var == *'_LOCKS' ]] && continue
-		fi
-
-		if [[ ${(t)val} != ${(t)default_val} || $val != $default_val ]]; then
-			[[ $val == "$'"* ]] && val=${val//$'\n'/\n}
-
-			if [[ $var == 'YAZPT_LAYOUT' ]]; then
-				layouts="$var=$val"$'\n'"$layouts"
-			elif [[ $var == 'YAZPT_RLAYOUT' ]]; then
-				layouts="$layouts$var=$val"$'\n'
-			else
-				differences="$differences$var=$val"$'\n'
-			fi
-		fi
-	done
-
-	if [[ -n $layouts ]]; then
-		differences="${layouts}${differences}"
-		unset layouts
-	fi
-
-	local unset=""	# Settings in $defaults_map but not the stash
-	for var in ${(k)defaults_map}; do
-		if (( $opts[(Ie)-e] )); then
-			[[ $var == 'YAZPT_VCS_ORDER' || $var == *'_WHITELIST' || $var == *'_LOCKS' ]] && continue
-		fi
-
-		(( $+stash_map[$var] )) || unset+="unset $var"$'\n'
-	done
-
-	# Return if there are no differences
-	if [[ -z $differences && -z $unset ]]; then
-		echo "You're using default settings, so there's nothing to save to the new preset file"
-		return 1
-	fi
-
-	# Figure out the output file's path/name
-	local preset_file preset_name
-
-	if [[ $preset == */* ]]; then
-		preset_file="$preset"
-		preset_name=""
-	else
-		preset_file="$yazpt_base_dir/presets/$preset-preset.zsh"
-		preset_name="\"$preset\" "
-	fi
-
-	# Prompt if the output file already exists
-	if (( ! $opts[(Ie)-f] )) && [[ -f $preset_file ]]; then
-		local desc="File"; [[ -L $preset_file ]] && desc="Symlink"
-		echo -n "${desc} \"$preset_file\" exists.\nReplace it [y|n]? "
-		read -rq
-		echo
-
-		[[ $REPLY == "y" ]] || return 0
-
-		if [[ -L $preset_file ]]; then
-			# If we just pipe to this symlink below, we'll actually overwrite its target,
-			# which seems deceptive, so explicitly remove it before continuing
-			rm -f "$preset_file" || return
-		fi
-	fi
-
-	# Make the new preset file
-	echo "# Custom ${preset_name}preset created $(date)" > $preset_file || return
-	echo 'source "$yazpt_default_preset_file"\n' >> $preset_file
-	[[ -z $differences ]] || echo -En "$differences" >> $preset_file
-	[[ -z $differences || -z $unset ]] || echo >> $preset_file
-	[[ -z $unset ]] || echo -En "$unset" >> $preset_file
+	source "$yazpt_base_dir/functions/make-preset.zsh" && yazpt_make_preset "$@"
 }
 
 # Performs tab completion for the yazpt_load_preset and yazpt_make_preset functions.
@@ -666,32 +513,26 @@ function @yazpt_segment_exit() {
 	fi
 
 	if [[ $exit_code == 0 ]]; then
-		if [[ -n $YAZPT_EXIT_OK_CHAR ]]; then
-			[[ -o prompt_bang ]] && local char=${YAZPT_EXIT_OK_CHAR//'!'/'!!'} || local char=$YAZPT_EXIT_OK_CHAR
-			[[ -o prompt_percent ]] && char=${char//\%/%%}
-			yazpt_state[exit]="%{%F{${YAZPT_EXIT_OK_COLOR:=default}}%}$char%{%f%}"
-			[[ $_yazpt_terminus_hacks == true ]] && yazpt_state[exit]="$char"$'\b '
-		fi
-
-		if [[ ${YAZPT_EXIT_OK_CODE_VISIBLE:l} == true ]]; then
-			if [[ -z $ZPREZTODIR ]] || zstyle -T ':prezto:module:prompt' show-return-val; then
-				[[ $_yazpt_terminus_hacks == true ]] && yazpt_state[exit]+=" " && YAZPT_EXIT_OK_COLOR=7
-				yazpt_state[exit]+="%{%F{${YAZPT_EXIT_OK_COLOR:=default}}%}$exit_code%{%f%}"
-			fi
-		fi
+		local char=$YAZPT_EXIT_OK_CHAR
+		local color=$YAZPT_EXIT_OK_COLOR
+		local code_visible=$YAZPT_EXIT_OK_CODE_VISIBLE
 	else
-		if [[ -n $YAZPT_EXIT_ERROR_CHAR ]]; then
-			[[ -o prompt_bang ]] && local char=${YAZPT_EXIT_ERROR_CHAR//'!'/'!!'} || local char=$YAZPT_EXIT_ERROR_CHAR
-			[[ -o prompt_percent ]] && char=${char//\%/%%}
-			yazpt_state[exit]="%{%F{${YAZPT_EXIT_ERROR_COLOR:=default}}%}$char%{%f%}"
-			[[ $_yazpt_terminus_hacks == true ]] && yazpt_state[exit]="$char"$'\b '
-		fi
+		local char=$YAZPT_EXIT_ERROR_CHAR
+		local color=$YAZPT_EXIT_ERROR_COLOR
+		local code_visible=$YAZPT_EXIT_ERROR_CODE_VISIBLE
+	fi
 
-		if [[ ${YAZPT_EXIT_ERROR_CODE_VISIBLE:l} == true ]]; then
-			if [[ -z $ZPREZTODIR ]] || zstyle -T ':prezto:module:prompt' show-return-val; then
-				[[ $_yazpt_terminus_hacks == true ]] && yazpt_state[exit]+=" " && YAZPT_EXIT_ERROR_COLOR=7
-				yazpt_state[exit]+="%{%F{${YAZPT_EXIT_ERROR_COLOR:=default}}%}$exit_code%{%f%}"
-			fi
+	if [[ -n $char ]]; then
+		[[ -o prompt_bang ]] && char=${char//'!'/'!!'}
+		[[ -o prompt_percent ]] && char=${char//\%/%%}
+		yazpt_state[exit]="%{%F{${color:-default}}%}${char}%{%f%}"
+		[[ $_yazpt_terminus_hacks == true ]] && yazpt_state[exit]="$char"$'\b '
+	fi
+
+	if [[ ${code_visible:l} == true ]]; then
+		if [[ -z $ZPREZTODIR ]] || zstyle -T ':prezto:module:prompt' show-return-val; then
+			[[ $_yazpt_terminus_hacks == true ]] && yazpt_state[exit]+=" " && color=7
+			yazpt_state[exit]+="%{%F{${color:-default}}%}${exit_code}%{%f%}"
 		fi
 	fi
 }
@@ -902,12 +743,7 @@ function @yazpt_segment_svn() {
 	[[ ${(t)YAZPT_VCS_SVN_WHITELIST} == array ]] && ! .yazpt_check_whitelist YAZPT_VCS_SVN_WHITELIST && return
 
 	# Source and execute the real version of this function
-	local src="$yazpt_base_dir/functions/segment-svn.zsh"
-
-	if [[ -r $src ]]; then
-		source $src
-		@yazpt_segment_svn
-	fi
+	source "$yazpt_base_dir/functions/segment-svn.zsh" && @yazpt_segment_svn
 }
 
 # Stub/loader for the real @yazpt_segment_tfvc function in segment-tfvc.zsh,
@@ -920,12 +756,7 @@ function @yazpt_segment_tfvc() {
 	[[ ${(t)YAZPT_VCS_TFVC_WHITELIST} == array ]] && ! .yazpt_check_whitelist YAZPT_VCS_TFVC_WHITELIST && return
 
 	# Source and execute the real version of this function
-	local src="$yazpt_base_dir/functions/segment-tfvc.zsh"
-
-	if [[ -r $src ]]; then
-		source $src
-		@yazpt_segment_tfvc
-	fi
+	source "$yazpt_base_dir/functions/segment-tfvc.zsh" && @yazpt_segment_tfvc
 }
 
 # Implements the "vcs" prompt segment, which shows one or none of the "git", "svn" or "tfvc" prompt segments,
