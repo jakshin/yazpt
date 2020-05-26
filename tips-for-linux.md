@@ -43,14 +43,14 @@ Everything works well out of the box, except the yolo preset's emoji, which are 
 
 ## Manjaro 20.0 (Lysia), running XFCE
 
-In Xfce Terminal, most of the yolo preset's emoji aren't rendered; to fix things up, install `noto-fonts-emoji` in Manjaro's "Add/Remove Software" application. The "Dark Pastels" terminal color scheme is much nicer than the default, by the way, especially when using yazpt's blues preset.
+In Xfce Terminal, most of the yolo preset's emoji aren't rendered; to fix things up, install `noto-fonts-emoji` in Manjaro's "Add/Remove Software" application. The "Dark Pastels" terminal color scheme is much nicer than the default, by the way, especially when using yazpt's sapphire preset.
 
 In XTerm, you can get decent monochrome rendering of yolo's emoji by installing the [Noto Emoji font](https://github.com/googlefonts/noto-emoji/blob/master/fonts/NotoEmoji-Regular.ttf). It's not listed in "Add/Remove Software", so you'll need install it manually, by downloading it and copying it into ~/.local/share/fonts.
 
 
 ## MX Linux 19.1 (patito feo)
 
-In Xfce Terminal, the yolo preset's emoji are rendered as monochrome line drawings by default; if you'd prefer the full-color experience, install `fonts-noto-color-emoji` in "MX Package Installer". The "Dark Pastels" terminal color scheme is much nicer than the default, by the way, especially when using yazpt's blues preset.
+In Xfce Terminal, the yolo preset's emoji are rendered as monochrome line drawings by default; if you'd prefer the full-color experience, install `fonts-noto-color-emoji` in "MX Package Installer". The "Dark Pastels" terminal color scheme is much nicer than the default, by the way, especially when using yazpt's sapphire preset.
 
 
 ## openSUSE Tumbleweed, running KDE Plasma 5
