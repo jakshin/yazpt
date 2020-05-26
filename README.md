@@ -146,9 +146,9 @@ I've used or tested yazpt in the following distros, using both their standard te
 
 I don't use BSDs much, but just for kicks I tried yazpt out on a couple.
 
-* **FuryBSD 12.1**, running XFCE;   
+* **FuryBSD 12.1**, running XFCE   
     Yazpt works rather poorly out of the box in Xfce Terminal; to fix it, add this to your `~/.zshenv` (or your shell's rough equivalent, if zsh isn't your login shell): `export LANG=en_US.UTF-8 LC_ALL=en_US.UTF-8 LC_CTYPE=en_US.UTF-8`
-* **GhostBSD 20.04.1**;   
+* **GhostBSD 20.04.1**   
     For better rendering of yazpt's Unicode characters in MATE Terminal, uncheck its "Use the system fixed width font" checkbox in your profile preferences
 
 In both of those BSDs, which are based on FreeBSD, MATE Terminal and Xfce Terminal mis-render emoji regardless of whether the Noto fonts are installed (`noto-basic-2.0` package), so the yolo preset tries to detect when it's running on FreeBSD or a derivative, and switches to emoticons instead.
