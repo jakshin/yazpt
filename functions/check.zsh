@@ -126,8 +126,8 @@ function .yazpt_check() {
 		yazpt_load_preset default
 		.yazpt_check_variables 'YAZPT_*_CHAR'
 
-		echo "\n${bright}Special characters used by the blues preset:${normal}"
-		yazpt_load_preset blues
+		echo "\n${bright}Special characters used by the sapphire preset:${normal}"
+		yazpt_load_preset sapphire
 		.yazpt_check_variables 'YAZPT_EXIT_*_CHAR'
 
 		echo "\n${bright}Special characters used by the yolo preset:${normal}"
