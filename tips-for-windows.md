@@ -26,7 +26,7 @@ And [configure Mintty](#configuring-mintty).
 
 ### Windows Subsystem for Linux (WSL)
 
-When [WSL](https://docs.microsoft.com/en-us/windows/wsl/) is [installed](https://www.howtogeek.com/249966/how-to-install-and-use-the-linux-bash-shell-on-windows-10/), it uses Windows Console by default, which unfortunately mangles yazpt's Unicode characters and emoji, and so only really supports yazpt's "plain" preset. The good news is that it's quick and easy to use Mintty instead, by [installing WSLtty](https://github.com/mintty/wsltty) and then [configuring it](#configuring-mintty).
+When [WSL](https://docs.microsoft.com/en-us/windows/wsl/) is [installed](https://www.howtogeek.com/249966/how-to-install-and-use-the-linux-bash-shell-on-windows-10/), it uses Windows Console by default, which unfortunately mangles yazpt's Unicode characters and emoji, and so only really supports yazpt's "elementary" preset. The good news is that it's quick and easy to use Mintty instead, by [installing WSLtty](https://github.com/mintty/wsltty) and then [configuring it](#configuring-mintty).
 
 You can change your default shell the normal UNIX way, by running `chsh -s /usr/bin/zsh` at a bash or zsh prompt.
 
