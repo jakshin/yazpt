@@ -161,7 +161,7 @@ Yazpt can be installed in a variety of ways, with popular zsh frameworks or comp
 
 ### Without a framework
 
-Yazpt doesn't require a framework - to start using it, you can just `source` its main file, yazpt.zsh-theme, on demand or in your .zshrc file. To install, clone the git repo to a location of your choice:
+Yazpt doesn't require a framework - to start using it, you can just `source yazpt.zsh-theme`, on demand or in your `.zshrc` file. To install, clone the git repo to a location of your choice:
 
 ```sh
 git clone https://github.com/jakshin/yazpt ~/.yazpt
