@@ -17,13 +17,13 @@ Git | Subversion | TFVC
 
 Yazpt's appearance can be easily changed by loading one of its presets:
 
-blues preset | jakshin preset | plain preset
--------------| -------------- | ------------
-<img src="Screenshots/blues-preset.png"> | <img src="Screenshots/jakshin-preset.png"> | <img src="Screenshots/plain-preset.png">
+dense preset | elementary preset | jakshin preset
+-------------| ----------------- | --------------
+<img src="Screenshots/dense-preset.png"> | <img src="Screenshots/elementary-preset.png"> | <img src="Screenshots/jakshin-preset.png">
 
-spearmint preset | tight preset | yolo preset
------------------| ------------ | -----------
-<img src="Screenshots/spearmint-preset.png"> | <img src="Screenshots/tight-preset.png"> | <img src="Screenshots/yolo-preset.png">
+sapphire preset | spearmint preset | yolo preset
+----------------| ---------------- | -----------
+<img src="Screenshots/sapphire-preset.png"> | <img src="Screenshots/spearmint-preset.png"> | <img src="Screenshots/yolo-preset.png">
 
 
 ## Features
@@ -91,7 +91,7 @@ spearmint preset | tight preset | yolo preset
 
 ## Supported/Tested Environments
 
-Yazpt's code logic should work just about anywhere zsh 5.1+ itself does, and with any semi-recent version of the Git and Subversion CLIs, but how well its Unicode VCS status characters get rendered can vary a bit across environments; a bit of tinkering usually fixes things up nicely, or you can load the [plain preset](./presets/plain-preset.zsh), which only uses ASCII characters.
+Yazpt's code logic should work just about anywhere zsh 5.1+ itself does, and with any semi-recent version of the Git and Subversion CLIs, but how well its Unicode VCS status characters get rendered can vary a bit across environments; a bit of tinkering usually fixes things up nicely, or you can load the [elementary preset](./presets/elementary-preset.zsh), which only uses ASCII characters.
 
 ### macOS
 
@@ -173,7 +173,7 @@ Then source the theme file (in your `.zshrc` to apply it in all terminal session
 source ~/.yazpt/yazpt.zsh-theme
 
 # Optionally, and for example
-yazpt_load_preset tight  # Run yazpt_list_presets to see available choices
+yazpt_load_preset dense  # Run yazpt_list_presets to see available choices
 YAZPT_CWD_COLOR=70       # Type 'YAZPT_' and press tab to see all settings
 ```
 
@@ -236,18 +236,18 @@ target_path="${ZDOTDIR:-$HOME}/.zprezto/modules/prompt/functions"
 ln -s ~/.yazpt/functions/prompt_yazpt_setup $target_path/prompt_yazpt_setup
 ```
 
-To use yazpt on demand, run `prompt yazpt`, optionally with a preset, e.g. `prompt yazpt blues`. To make it your default prompt, put this in the "Prompt" section of your `~/.zpreztorc`:
+To use yazpt on demand, run `prompt yazpt`, optionally with a preset, e.g. `prompt yazpt sapphire`. To make it your default prompt, put this in the "Prompt" section of your `~/.zpreztorc`:
 
 ```sh
 zstyle ':prezto:module:prompt' theme 'yazpt'
-# Or with a preset: zstyle ':prezto:module:prompt' theme 'yazpt' 'blues'
+# Or with a preset: zstyle ':prezto:module:prompt' theme 'yazpt' 'sapphire'
 ```
 
 To tweak yazpt's settings further, add to the bottom of your `.zshrc`, below the "Customize to your needs" line:
 
 ```sh
 # Optionally, and for example
-yazpt_load_preset blues
+yazpt_load_preset sapphire
 YAZPT_GIT_HIDE_IN_BARE_REPO=true
 ```
 
