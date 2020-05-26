@@ -1,7 +1,7 @@
 Presets configure yazpt by setting its YAZPT_* environment variables.
 You can manually source any of these files to load the preset it contains,
 or you can use the `yazpt_list_presets` function to list available presets,
-and `yazpt_load_preset` to load one, e.g. `yazpt_load_preset tight`.
+and `yazpt_load_preset` to load one, e.g. `yazpt_load_preset dense`.
 
 You can also load a preset from anywhere, by passing its path to `yazpt_load_preset`.
 Note that the path must have a slash in it for `yazpt_load_preset` to realize it _is_ a path,
