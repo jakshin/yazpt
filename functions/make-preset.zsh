@@ -1,4 +1,5 @@
-# Makes a new preset file containing the current settings which differ from the defaults.
+# Makes a new preset file containing the current settings;
+# Only settings which differ from the defaults are stored.
 #
 # Pass a preset name to write a preset file alongside the presets shipped with yazpt,
 # and which will show up in yazpt_list_presets' output and be auto-completed for yazpt_load_preset,
