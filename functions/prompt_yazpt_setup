@@ -41,7 +41,7 @@ function prompt_yazpt_help() {
 
 # Called by the prompt theme system to preview the yazpt theme. 
 # Run `prompt -p` to preview all themes, or `prompt -p yazpt` to just preview yazpt;
-# you can optionally pass a preset, e.g. `prompt -p "yazpt blues"`,
+# you can optionally pass a preset, e.g. `prompt -p "yazpt sapphire"`,
 # or preview all of yazpt's presets with `prompt -p "yazpt all"`.
 #
 function prompt_yazpt_preview() {
