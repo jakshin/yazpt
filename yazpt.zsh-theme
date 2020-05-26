@@ -15,20 +15,30 @@
 # see http://www.gnu.org/licenses/gpl-2.0.html or write to the Free Software Foundation,
 # 59 Temple Place, Suite 330, Boston, MA 02111.
 
-# Try to ensure we're running in a compatible environment.
-if [[ -z $ZSH_VERSION ]]; then
-	echo "Sorry, the yazpt prompt theme only works on zsh."
-	return 1
-fi
+# First try to ensure we're running in a compatible environment.
+# A friendly explanation is shown when this script is sourced on ash, bash, dash, mksh, posh, sh, or tcsh/csh;
+# fish and ksh try to parse the whole script before running any of it, so they abort with syntax errors.
+
+[ "$?shell" = 1 ] && echo "Sorry, the yazpt prompt theme only works on zsh." && exit  # For tcsh/csh
+[ -z "$ZSH_VERSION" ] && echo "Sorry, the yazpt prompt theme only works on zsh." && return  # For Bourne-like shells
+[[ -o restricted ]] && echo "Sorry, the yazpt prompt theme doesn't work on restricted zsh." && return
 
 {
 	yazpt_zsh_ver=(${(s:.:)ZSH_VERSION})
-	if (( $yazpt_zsh_ver[1] < 5 || ($yazpt_zsh_ver[1] == 5 && $yazpt_zsh_ver[2] < 1) )); then
+	if [[ -o ksh_arrays ]]; then
+		yazpt_zsh_major_ver="${yazpt_zsh_ver[0]}"
+		yazpt_zsh_minor_ver="${yazpt_zsh_ver[1]}"
+	else
+		yazpt_zsh_major_ver="${yazpt_zsh_ver[1]}"
+		yazpt_zsh_minor_ver="${yazpt_zsh_ver[2]}"
+	fi
+
+	if (( yazpt_zsh_major_ver < 5 || (yazpt_zsh_major_ver == 5 && yazpt_zsh_minor_ver < 1) )); then
 		echo "Sorry, the yazpt prompt theme only works on zsh version 5.1 or later."
 		return 1
 	fi
 } always {
-	unset yazpt_zsh_ver
+	unset yazpt_zsh_ver yazpt_zsh_major_ver yazpt_zsh_minor_ver
 }
 
 # Explains yazpt's Git status characters and their meanings.
@@ -182,7 +192,7 @@ function yazpt_plugin_unload() {
 #
 function yazpt_precmd() {
 	# We want to be able to turn prompt_subst off here without affecting other options,
-	# so we can't emulate zsh - meaning this function should work in sh/ksh/csh modes
+	# so we can't emulate zsh - meaning this function should work under sh/ksh/csh emulation
 
 	local exit_code=$?
 	declare -Ag yazpt_state=(exit_code $exit_code)  # State shared across segment functions
@@ -775,6 +785,9 @@ function @yazpt_segment_vcs() {
 	done
 }
 
+# Tell zsh not to complain about variables that aren't set, temporarily.
+[[ -o no_unset ]] && _yazpt_restore_no_unset=true && setopt unset
+
 # Set some variables that'll be used in multiple presets, tweaks, etc.
 # These two hourglass characters look the same in VS Code, but they aren't.
 (( $+yazpt_hourglass )) || declare -rg yazpt_hourglass="⌛︎"
@@ -804,4 +817,10 @@ if [[ ${YAZPT_COMPILE:l} != false ]]; then
 		.yazpt_compile ${${(%):-%x}:A}  # This file
 		.yazpt_compile $yazpt_default_preset_file
 	} &> /dev/null &!
+fi
+
+# It's okay for zsh to complain about unset variables again now.
+if [[ $_yazpt_restore_no_unset == true ]]; then
+	unset _yazpt_restore_no_unset
+	setopt no_unset
 fi
