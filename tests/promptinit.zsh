@@ -33,7 +33,7 @@ function run_test_variant_1() {
 	has_one_precmd_function
 	has_one_preexec_function
 
-	prompt -p "yazpt blues" > /dev/null
+	prompt -p "yazpt sapphire" > /dev/null
 	test_init_done "no-standard-tests"
 	is $jakshin_yazpt_ps1
 	has_one_precmd_function
@@ -53,7 +53,7 @@ function run_test_variant_2() {
 	has_one_precmd_function
 	has_one_preexec_function
 
-	prompt -p "yazpt blues" > /dev/null
+	prompt -p "yazpt sapphire" > /dev/null
 	test_init_done "no-standard-tests"
 	is $jakshin_yazpt_ps1
 	has_one_precmd_function
@@ -78,7 +78,7 @@ function run_test_variant_3() {
 	has_one_precmd_function
 	has_one_preexec_function
 
-	prompt -p "yazpt blues" > /dev/null
+	prompt -p "yazpt sapphire" > /dev/null
 	test_init_done "no-standard-tests"
 	is $jakshin_yazpt_ps1
 	has_one_precmd_function
@@ -106,7 +106,7 @@ function run_test_variant_4() {
 }
 
 function run_test_variant_5() {
-	prompt -p "yazpt blues" > /dev/null
+	prompt -p "yazpt sapphire" > /dev/null
 	is $default_ps1
 	has_no_precmd_function
 	has_no_preexec_function
