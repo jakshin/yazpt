@@ -1,4 +1,4 @@
-# A preset which uses only plain ascii characters, so it should render anywhere.
+# A preset which uses only ASCII characters, so it should render anywhere.
 # Otherwise just like the default.
 
 source "$yazpt_default_preset_file"
