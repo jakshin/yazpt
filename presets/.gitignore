@@ -2,14 +2,13 @@
 *
 !.gitignore
 !README.md
-!blues-preset.zsh
 !default-preset.zsh
+!dense-preset.zsh
+!elementary-preset.zsh
 !elite-preset.zsh
 !jakshin-preset.zsh
-!kilroy-preset.zsh
-!plain-preset.zsh
 !purity-preset.zsh
+!sapphire-preset.zsh
 !spearmint-preset.zsh
 !technocrat-preset.zsh
-!tight-preset.zsh
 !yolo-preset.zsh
