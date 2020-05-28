@@ -13,7 +13,7 @@ _(Note that zsh's `prompt_subst` option is very powerful, but might also be cons
 
 The easiest way to configure yazpt's appearance is to load one of its presets. You can see a list of them using the `yazpt_list_presets` function, or by browsing the [presets](./presets) directory (a comment at the top of each preset describes it).
 
-If you've installed yazpt's [integration with zsh's prompt theme system](./functions/prompt_yazpt_setup), you can preview a preset by running like `prompt -p "yazpt sapphire"` (note the quotes), or preview all of them by running `prompt -p "yazpt all"`. Your current directory should be in a Git repo or Subversion working copy if you want to preview the VCS parts of the prompt.
+If you've [installed](./resources/install-resources.zsh) yazpt's [integration with zsh's prompt theme system](./resources/prompt_yazpt_setup), you can preview a preset by running like `prompt -p "yazpt sapphire"` (note the quotes), or preview all of them by running `prompt -p "yazpt all"`. Your current directory should be in a Git repo or Subversion working copy if you want to preview the VCS parts of the prompt.
 
 Once you've decided on a preset, use the `yazpt_load_preset` function to load it. It's usually handiest to put this in your `.zshrc`.
 
