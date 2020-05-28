@@ -1,8 +1,8 @@
 # Tips for using yazpt on GNU/Linux
 
-Yazpt mostly just works on recently-released Linux distros, but sometimes a little tweaking is needed to get its Unicode characters and/or emoji rendering well. Here are a few tips based on my experiences using yazpt on various distros.
+Yazpt mostly just works on recently-released Linux distros, but sometimes a little tweaking is needed to get its Unicode characters and/or emoji rendering well. Here are a few tips based on my experiences using yazpt on various distros, primarily in their default terminal emulators (GNOME Terminal, Konsole, MATE Terminal, or Xfce Terminal).
 
-Regardless of distro, using XTerm is kind of miserable unless you put a little time into configuring it - so much so, in fact, that I only ever run XTerm, or test yazpt in XTerm, with a reasonable [.Xresources file](./resources/Xresources) installed. Using yazpt in XTerm without first loading my `.Xresources` isn't recommended (if you try it, you'll see why 😉). Even with my `.Xresources` loaded, in many environments XTerm doesn't render emoji well, so yazpt's yolo preset tries to detect those cases, and substitute emoticons for emoji.
+I also tested yazpt in XTerm when I could. Regardless of distro, using XTerm is kind of miserable unless you put a little time into configuring it - so much so, in fact, that I only ever run XTerm, or test yazpt in XTerm, with a reasonable [.Xresources file](./resources/Xresources) installed. Using yazpt in XTerm without first [installing](./resources/install-resources.zsh) my `.Xresources` isn't recommended (if you try it, you'll see why 😉). Even when well-configured, in many environments XTerm doesn't render emoji well, so yazpt's yolo preset tries to detect those cases, and substitute emoticons for emoji.
 
 
 ## CentOS 8.1, installed as a "server with GUI"
@@ -14,9 +14,7 @@ CentOS doesn't automatically load `~/.Xresources`, which I suppose has something
 
 ## Debian 10.3, installed with default settings
 
-In GNOME Terminal, yazpt's default hourglass as rendered as a colored emoji, rather than in monochrome and the same color as the execution time text next to it. If this bothers you, you can fix it by installing the [Noto Emoji font](https://github.com/googlefonts/noto-emoji/blob/master/fonts/NotoEmoji-Regular.ttf).
-
-In XTerm, you can get decent monochrome rendering of yolo's emoji by downloading and manually installing the [Noto Emoji font](https://github.com/googlefonts/noto-emoji/blob/master/fonts/NotoEmoji-Regular.ttf).
+In GNOME Terminal, yazpt's default hourglass as rendered as a colored emoji, rather than in monochrome and the same color as the execution time text next to it. If this bothers you, you can fix it by installing the [Noto Emoji font](https://github.com/googlefonts/noto-emoji/blob/master/fonts/NotoEmoji-Regular.ttf). This will also give you decent monochrome rendering of yolo's emoji in XTerm.
 
 On a default installation of Debian, `~/.Xresources` isn't automatically loaded, I guess because Wayland. One way to fix it is to use `~/.Xdefaults-HOSTNAME` instead, e.g. `ln -sv ~/.yazpt/resource/Xresources ~/.Xdefaults-$(hostname)`.
 
