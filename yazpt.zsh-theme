@@ -1,3 +1,14 @@
+#
+#                                                d8P
+#                                             d888888P
+#      ?88   d8P  d888b8b   d88888P ?88,.d88b,  ?88'
+#      d88   88  d8P' ?88      d8P' `?88'  ?88  88P
+#      ?8(  d88  88b  ,88b   d8P'     88b  d8P  88b
+#      `?88P'?8b `?88P'`88b d88888P'  888888P'  `?8b
+#             )88                     88P'
+#            ,d8P                    d88
+#         `?888P'                    ?8P
+#
 # Yet another zsh prompt theme, with Git/Subversion/TFVC awareness
 # https://github.com/jakshin/yazpt
 #
@@ -20,8 +31,11 @@
 # fish and ksh try to parse the whole script before running any of it, so they abort with syntax errors.
 
 [ "$?shell" = 1 ] && echo "Sorry, the yazpt prompt theme only works on zsh." && exit  # For tcsh/csh
-[ -z "$ZSH_VERSION" ] && echo "Sorry, the yazpt prompt theme only works on zsh." && return  # For Bourne-like shells
-[[ -o restricted ]] && echo "Sorry, the yazpt prompt theme doesn't work on restricted zsh." && return
+if [ -z "$ZSH_VERSION" ]; then  # For Bourne-like shells
+	echo "Sorry, the yazpt prompt theme only works on zsh."
+	return 2> /dev/null
+	exit
+fi
 
 {
 	yazpt_zsh_ver=(${(s:.:)ZSH_VERSION})
@@ -40,6 +54,16 @@
 } always {
 	unset yazpt_zsh_ver yazpt_zsh_major_ver yazpt_zsh_minor_ver
 }
+
+if [[ -o restricted ]]; then
+	echo "Sorry, the yazpt prompt theme doesn't work on restricted zsh."
+	return
+elif [[ ! $ZSH_EVAL_CONTEXT =~ :file$ && ! $ZSH_EVAL_CONTEXT =~ :filecode$ ]]; then
+	echo "Please source this script instead of running it."
+	return
+fi
+
+# -------------------- Public Functions --------------------
 
 # Explains yazpt's Git status characters and their meanings.
 #
@@ -223,6 +247,8 @@ function yazpt_preexec() {
 	unset _yazpt_subst
 	[[ $+YAZPT_PREVIEW == 1 && "$YAZPT_PREVIEW" == true ]] || _yazpt_cmd_exec_start=$SECONDS
 }
+
+# -------------------- Private Functions --------------------
 
 # Checks the parts of yazpt's rendering that are prone to weirdness/wackiness.
 # Tip: set YAZPT_NO_TWEAKS=true if you want to see what yazpt'd do without tweaks applied.
@@ -430,6 +456,8 @@ function .yazpt_read_line() {
 	local into_var="$2"
 	[[ -r "$from_path" ]] && IFS=$'\r\n' read "$into_var" < "$from_path"
 }
+
+# -------------------- Segment Implementations --------------------
 
 # Implements the "char" prompt segment,
 # which shows either a '#' (root/Administrator) or '%' (for all other users).
@@ -784,6 +812,8 @@ function @yazpt_segment_vcs() {
 		fi
 	done
 }
+
+# -------------------- Initialization --------------------
 
 # Tell zsh not to complain about variables that aren't set, temporarily.
 [[ -o no_unset ]] && _yazpt_restore_no_unset=true && setopt unset
