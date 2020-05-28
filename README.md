@@ -1,6 +1,6 @@
 # yazpt = yet another zsh prompt theme
 
-Yazpt is a clean, fast, good-looking [zsh](http://zsh.sourceforge.net) prompt theme that thoughtfully incorporates Git/Subversion/TFVC status info, integrates with popular plugin managers like [Oh My Zsh](https://ohmyz.sh), and is straightforward to customize and extend.
+Yazpt is a clean, fast, good-looking [zsh](http://zsh.sourceforge.net) prompt theme that thoughtfully incorporates Git/Subversion/TFVC status info, integrates with popular plugin managers like [Oh My Zsh](#with-oh-my-zsh), and is straightforward to customize and extend.
 
 <p align="center">[
   <a href="#features">Features</a>
@@ -179,19 +179,12 @@ YAZPT_CWD_COLOR=70       # Type 'YAZPT_' and press tab to see all settings
 
 ### With zsh's prompt theme system
 
-Yazpt integrates with zsh's native "promptinit" [prompt theme system](http://zsh.sourceforge.net/Doc/Release/User-Contributions.html#Prompt-Themes). To install, clone the git repo to a location of your choice, and symlink `prompt_yazpt_setup` into a directory in your `$fpath`:
+Yazpt integrates with zsh's native "promptinit" [prompt theme system](http://zsh.sourceforge.net/Doc/Release/User-Contributions.html#Prompt-Themes). To install, clone the git repo to a location of your choice, and symlink `prompt_yazpt_setup` into a directory in your `$fpath`; running `install-resources.zsh` is the easiest way:
 
 ```sh
-repo_path=~/.yazpt                             # Wherever you'd like
-fn_path="/usr/local/share/zsh/site-functions"  # This path should be valid on any OS
-
-git clone https://github.com/jakshin/yazpt $repo_path
-[[ $OS == "Windows"* ]] || sudo="sudo"
-$sudo mkdir -p $fn_path
-$sudo ln -sv $repo_path/functions/prompt_yazpt_setup $fn_path/prompt_yazpt_setup
+git clone https://github.com/jakshin/yazpt ~/.yazpt  # Or wherever you'd like
+~/.yazpt/resources/install-resources.zsh
 ```
-
-_(Note that creating symbolic links with `ln -s` doesn't work correctly in MSYS2 - there, you can [use mklink](https://github.com/msys2/MSYS2-packages/issues/249) instead.)_
 
 To begin using yazpt:
 
@@ -205,8 +198,8 @@ prompt yazpt  # You can pass a preset's name if you want, e.g. `prompt yazpt spe
 To install, clone the git repo, and create a symlink for [Oh My Zsh](https://ohmyz.sh) to find:
 
 ```sh
-git clone https://github.com/jakshin/yazpt.git $ZSH_CUSTOM/themes/yazpt
-ln -s $ZSH_CUSTOM/themes/yazpt/yazpt.zsh-theme $ZSH_CUSTOM/themes/yazpt.zsh-theme
+git clone https://github.com/jakshin/yazpt $ZSH_CUSTOM/themes/yazpt
+ln -sv $ZSH_CUSTOM/themes/yazpt/yazpt.zsh-theme $ZSH_CUSTOM/themes/yazpt.zsh-theme
 ```
 
 Then, in your `.zshrc`, _before_ the `source $ZSH/oh-my-zsh.sh` line:
@@ -230,10 +223,10 @@ If you've already installed yazpt for zsh's [prompt theme system](#with-zshs-pro
 Otherwise, to install yazpt into Prezto, clone the git repo to a location of your choice, and symlink `prompt_yazpt_setup` into your `.zprezto/modules/prompt/functions` directory:
 
 ```sh
-git clone https://github.com/jakshin/yazpt ~/.yazpt
+git clone https://github.com/jakshin/yazpt ~/.yazpt  # Or wherever you'd like
 
 target_path="${ZDOTDIR:-$HOME}/.zprezto/modules/prompt/functions"
-ln -s ~/.yazpt/functions/prompt_yazpt_setup $target_path/prompt_yazpt_setup
+ln -sv ~/.yazpt/functions/prompt_yazpt_setup $target_path/prompt_yazpt_setup
 ```
 
 To use yazpt on demand, run `prompt yazpt`, optionally with a preset, e.g. `prompt yazpt sapphire`. To make it your default prompt, put this in the "Prompt" section of your `~/.zpreztorc`:
