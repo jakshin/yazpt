@@ -1,4 +1,4 @@
-# Utility functions. These are only meant to be called by yazpt's other functions.
+# Utility functions. These are only meant to be called by yazpt's other functions and scripts.
 # Copyright (c) 2020 Jason Jackson <jasonjackson@pobox.com>. Distributed under GPL v2.0, see LICENSE for details.
 
 # Details one Git/Subversion status; shows its character, in its configured color, and a description.
@@ -53,11 +53,11 @@ function .yazpt_make_wrap_cmd() {
 }
 
 # Prints some text, after wrapping it (so it might be printed on multiple lines).
-# You can choose whether or not to indent the 2nd+ lines with a tab.
+# You can choose whether or not to indent the 2nd+ lines with one or more tabs.
 #
 function .yazpt_print_wrapped() {
 	local text=$1
-	local tab_indent=$2  # Boolean
+	local tab_indent=$2  # Boolean or integer
 
 	if (( $+_yazpt_wrap_cmd == 0 )); then
 		.yazpt_make_wrap_cmd
@@ -69,10 +69,15 @@ function .yazpt_print_wrapped() {
 		local wrapped=("$text")
 	fi
 
-	local i
+	local i=1 tabs=""
+	[[ $tab_indent == true ]] && tab_indent=1
+	for (( i=1; i <= tab_indent; i++ )); do
+		tabs+="\t"
+	done
+
 	for (( i=1; i <= $#wrapped; i++ )); do
 		local line=$wrapped[$i]
-		[[ $i == 1 || $tab_indent != true ]] || echo -n "\t"
+		[[ $i == 1 ]] || echo -n "$tabs"
 		echo $line
 	done
 }
