@@ -179,7 +179,7 @@ then
 
 	if [[ $installed == true ]]; then
 		msg="Installed. If ~/.Xresources doesn't have any effect when you start a new XTerm, "
-		msg+="you might try renaming it to ~/.Xdefaults-$(hostname)."
+		msg+="it might help if you rename it to ~/.Xdefaults-$(hostname)."
 		.yazpt_print_wrapped "$msg"
 	fi
 fi
