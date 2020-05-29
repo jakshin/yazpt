@@ -277,13 +277,15 @@ function .yazpt_check_whitelist() {
 	fi
 }
 
-# Compiles a yazpt file with zcompile, if needed.
+# Compiles one or more of yazpt's files with zcompile, if needed.
 #
 function .yazpt_compile() {
-	local file=$1
-	if [[ -s $file && (! -s $file.zwc || $file -nt $file.zwc) ]]; then
-		zcompile "$file"
-	fi
+	local file
+	for file in "$@"; do
+		if [[ -s $file && (! -s $file.zwc || $file -nt $file.zwc) ]]; then
+			zcompile "$file"
+		fi
+	done
 }
 
 # Tries to figure out whether the Noto Emoji font is installed or not, on GNU/Linux and BSD.
@@ -840,12 +842,12 @@ autoload -Uz add-zsh-hook
 add-zsh-hook precmd yazpt_precmd
 add-zsh-hook preexec yazpt_preexec
 
-# Compile this file and our default preset file in the background,
+# Compile this file, functions in external files, and presets - in the background,
 # for faster loading NEXT time (it's too late to affect this load anyway).
 if [[ ${YAZPT_COMPILE:l} != false ]]; then
 	{
 		.yazpt_compile ${${(%):-%x}:A}  # This file
-		.yazpt_compile $yazpt_default_preset_file
+		.yazpt_compile $yazpt_base_dir/functions/*.zsh $yazpt_base_dir/presets/*.zsh
 	} &> /dev/null &!
 fi
 
