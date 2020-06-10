@@ -26,7 +26,7 @@ The next step in customization is to set yazpt's environment variables directly.
 
 All of the environment variables are documented in [yazpt's default preset](./presets/default-preset.zsh), which is automatically loaded with yazpt, so the values in that file serve as defaults. You can override those values to anything you'd like, changing the characters and colors yazpt uses, hiding certain VCS statuses, etc.
 
-You also need to use environment variables to customize yazpt's _behavior_ (as opposed to appearance). If you want to disable VCSs or change their priority, change `YAZPT_VCS_ORDER`. If you know that your Git repos and/or Subversion working directories will always be in certain root directories, like say `~/Code`, you can configure `YAZPT_VCS_GIT_WHITELIST` and/or `YAZPT_VCS_SVN_WHITELIST` for better prompt performance when you're working in directories that'll never contain repos or working copies.
+You also need to use environment variables to customize yazpt's _behavior_ (as opposed to appearance). If you want to disable VCSs or change their priority, change `YAZPT_VCS_ORDER`. If you know that your Git repos, Subversion working copies and/or TFVC local workspaces will always be in subdirectories of certain root directories, like say `~/Code`, you can configure `YAZPT_GIT_PATHS`, `YAZPT_SVN_PATHS` and/or `YAZPT_TFVC_PATHS` for better prompt performance when you're working in other directories, i.e. that'll never contain repos, working copies, or local workspaces.
 
 
 ## Set the YAZPT_LAYOUT and YAZPT_RLAYOUT environment variables
