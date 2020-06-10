@@ -26,7 +26,7 @@ function yazpt_make_preset() {
 		echo "Usage: $0 [options] <preset-name-or-path>\n"
 		echo "Options:"
 		echo "  -e  Exclude VCS settings which control behavior, not appearance,"
-		echo '      i.e. $YAZPT_VCS_ORDER, $YAZPT*_WHITELIST, $YAZPT*_LOCKS'
+		echo '      i.e. $YAZPT_VCS_ORDER, $YAZPT*_PATHS, $YAZPT*_LOCKS'
 		echo "  -f  Overwrite an existing preset file without asking"
 		return
 	fi
@@ -77,7 +77,7 @@ function yazpt_make_preset() {
 
 		[[ $var == 'YAZPT_COMPILE' || $var == 'YAZPT_NO_TWEAKS' || $var == 'YAZPT_READ_RC_FILE' ]] && continue
 		if (( $opts[(Ie)-e] )); then
-			[[ $var == 'YAZPT_VCS_ORDER' || $var == *'_WHITELIST' || $var == *'_LOCKS' ]] && continue
+			[[ $var == 'YAZPT_VCS_ORDER' || $var == *'_PATHS' || $var == *'_LOCKS' ]] && continue
 		fi
 
 		if [[ ${(t)val} != ${(t)default_val} || $val != $default_val ]]; then
@@ -101,7 +101,7 @@ function yazpt_make_preset() {
 	local unset=""	# Settings in $defaults_map but not the stash
 	for var in ${(k)defaults_map}; do
 		if (( $opts[(Ie)-e] )); then
-			[[ $var == 'YAZPT_VCS_ORDER' || $var == *'_WHITELIST' || $var == *'_LOCKS' ]] && continue
+			[[ $var == 'YAZPT_VCS_ORDER' || $var == *'_PATHS' || $var == *'_LOCKS' ]] && continue
 		fi
 
 		(( $+stash_map[$var] )) || unset+="unset $var"$'\n'
