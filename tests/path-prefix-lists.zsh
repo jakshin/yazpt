@@ -1,5 +1,5 @@
 #!/bin/zsh
-# Tests for yazpt's path prefix whitelists.
+# Tests for yazpt's path prefix lists.
 
 # Initialize
 script_name="$(basename -- "$0")"
@@ -7,9 +7,9 @@ cd -- "$(dirname -- "$0")"
 source ./utils.zsh
 before_tests $script_name
 
-function test_whitelist() {
+function test_path_prefix_list() {
 	array_name=$1
-	if .yazpt_check_whitelist $array_name; then
+	if .yazpt_check_path $array_name; then
 		echo "allowed"
 	else
 		echo "rejected"
@@ -17,32 +17,32 @@ function test_whitelist() {
 }
 
 # Test
-test_case "Empty whitelist allows any path"
+test_case "Empty path prefix list allows any path"
 empty_array=()
-result=$(test_whitelist empty_array)
-equals "Whitelist result" $result "allowed"
+result=$(test_path_prefix_list empty_array)
+equals "Result" $result "allowed"
 
-test_case "Whitelist with short prefix of current path allows it"
-whitelist=(dummy ${TMPDIR:-/tmp/})
-result=$(test_whitelist whitelist)
-equals "Whitelist result" $result "allowed"
+test_case "Path prefix list with short prefix of current path allows it"
+list=(dummy ${TMPDIR:-/tmp/})
+result=$(test_path_prefix_list list)
+equals "Result" $result "allowed"
 
-test_case "Whitelist with different prefix rejects the current directory"
-whitelist=(/foo ~/Documents)
-result=$(test_whitelist whitelist)
-equals "Whitelist result" $result "rejected"
+test_case "Path prefix list with different prefix rejects the current directory"
+list=(/foo ~/Documents)
+result=$(test_path_prefix_list list)
+equals "Result" $result "rejected"
 
-test_case "Whitelist matching current directory allows it"
+test_case "Path prefix list matching current directory allows it"
 cwd="$(pwd)"
-whitelist=($cwd)
-result=$(test_whitelist whitelist)
-equals "Whitelist result" $result "allowed"
+list=($cwd)
+result=$(test_path_prefix_list list)
+equals "Result" $result "allowed"
 
-test_case "Whitelist matching current directory, but with trailing slash, rejects it"
+test_case "Path prefix list matching current directory, but with trailing slash, rejects it"
 cwd="$(pwd)/"
-whitelist=($cwd)
-result=$(test_whitelist whitelist)
-equals "Whitelist result" $result "rejected"
+list=($cwd)
+result=$(test_path_prefix_list list)
+equals "Result" $result "rejected"
 
 # Clean up
 after_tests
