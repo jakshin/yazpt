@@ -4,8 +4,8 @@
 # Copyright (c) 2020 Jason Jackson <jasonjackson@pobox.com>. Distributed under GPL v2.0, see LICENSE for details.
 #
 function @yazpt_segment_svn() {
-	# Check the whitelist
-	[[ ${(t)YAZPT_VCS_SVN_WHITELIST} == array ]] && ! .yazpt_check_whitelist YAZPT_VCS_SVN_WHITELIST && return
+	# Check the path prefix list
+	[[ ${(t)YAZPT_SVN_PATHS} == array ]] && ! .yazpt_check_path YAZPT_SVN_PATHS && return
 
 	# Find out which branch/tag we've got checked out, and where the working copy's root directory is
 	local xml svn_exit_code
