@@ -103,13 +103,13 @@ function yazpt_explain_git() {
 		for (( i=1; i <= $#warnings; i++ )); do
 			.yazpt_print_wrapped "• $warnings[$i]"
 		done
-	elif [[ -n $YAZPT_VCS_GIT_WHITELIST ]]; then
+	elif [[ -n $YAZPT_GIT_PATHS ]]; then
 		echo
-		.yazpt_print_wrapped "Git status will be checked in these directories (see \$YAZPT_VCS_GIT_WHITELIST):"
+		.yazpt_print_wrapped "Git status will be checked under these root directories (see \$YAZPT_GIT_PATHS):"
 
 		local i=1
-		for (( i=1; i <= $#YAZPT_VCS_GIT_WHITELIST; i++ )); do
-			.yazpt_print_wrapped "• $YAZPT_VCS_GIT_WHITELIST[$i]"
+		for (( i=1; i <= $#YAZPT_GIT_PATHS; i++ )); do
+			.yazpt_print_wrapped "• $YAZPT_GIT_PATHS[$i]"
 		done
 	fi
 
