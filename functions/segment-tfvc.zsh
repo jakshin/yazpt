@@ -7,8 +7,8 @@
 # Copyright (c) 2020 Jason Jackson <jasonjackson@pobox.com>. Distributed under GPL v2.0, see LICENSE for details.
 #
 function @yazpt_segment_tfvc() {
-	# Check the whitelist
-	[[ ${(t)YAZPT_VCS_TFVC_WHITELIST} == array ]] && ! .yazpt_check_whitelist YAZPT_VCS_TFVC_WHITELIST && return
+	# Check the path prefix list
+	[[ ${(t)YAZPT_TFVC_PATHS} == array ]] && ! .yazpt_check_path YAZPT_TFVC_PATHS && return
 
 	# Determine whether the current directory is in a TFVC local workspace,
 	# and if so, find out the workspace's root directory's server path
@@ -41,7 +41,7 @@ function @yazpt_segment_tfvc() {
 	if [[ -z $stat && -e "$_yazpt_tf_dir/pendingchanges.tf1" ]]; then
 		[[ -n $YAZPT_VCS_STATUS_UNKNOWN_CHAR ]] && statuses+="UNKNOWN"
 	elif [[ -n $stat ]] && (( $stat[1] > 23 )); then
-		if [[ ${YAZPT_VCS_TFVC_CHECK_LOCKS:l} == true ]]; then
+		if [[ ${YAZPT_CHECK_TFVC_LOCKS:l} == true ]]; then
 			.yazpt_parse_pendingchanges_tf1 "$_yazpt_tf_dir/pendingchanges.tf1" $stat[1]  # Sets $_yazpt_tfvc_status
 			[[ $_yazpt_tfvc_status[1] == y || $_yazpt_tfvc_status[2] == y ]] || _yazpt_tfvc_status[3]=y
 
@@ -126,7 +126,7 @@ function .yazpt_find_tf_dir() {
 }
 
 # Utility function for @yazpt_segment_tfvc. Parses change types out of pendingchanges.tf1,
-# and sets $_yazpt_tfvc_status. Only called if YAZPT_VCS_TFVC_CHECK_LOCKS is `true`.
+# and sets $_yazpt_tfvc_status. Only called if YAZPT_CHECK_TFVC_LOCKS is `true`.
 #
 # Reference for pendingchanges.tf1 file format:
 # https://github.com/microsoft/team-explorer-everywhere -> LocalPendingChangesTable.java
