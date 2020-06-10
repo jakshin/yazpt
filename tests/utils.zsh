@@ -10,11 +10,11 @@ failure='\e[38;5;160m'
 success_bullet="${success}✔ ${normal}"
 failure_bullet="${failure}✖ ${normal}"
 
-# Default VCS settings (overridden in many test suites)
+# Default VCS behavior settings (overridden in many test suites)
 YAZPT_VCS_ORDER=()
-YAZPT_VCS_GIT_WHITELIST=()
-YAZPT_VCS_SVN_WHITELIST=()
-YAZPT_VCS_TFVC_WHITELIST=()
+YAZPT_GIT_PATHS=()
+YAZPT_SVN_PATHS=()
+YAZPT_TFVC_PATHS=()
 
 # Avoid unwanted side effects
 YAZPT_COMPILE=false
