@@ -26,10 +26,10 @@ function yazpt_explain_tfvc() {
 		"The workspace is clean. No files or directories have been added, modified or deleted," \
 		"and no new un-added files or directories have been detected. None of the statuses below applies."
 
-	[[ ${YAZPT_VCS_TFVC_CHECK_LOCKS:l} == true ]] && local check_locks="is" || local check_locks="ISN'T"
+	[[ ${YAZPT_CHECK_TFVC_LOCKS:l} == true ]] && local check_locks="is" || local check_locks="ISN'T"
 	.yazpt_detail_vcs_status "$YAZPT_VCS_STATUS_LOCKED_COLOR" "$YAZPT_VCS_STATUS_LOCKED_CHAR" '$YAZPT_VCS_STATUS_LOCKED_CHAR' \
 		"An item is locked for exclusive commit somewhere in the workspace. Locked items are only tracked if" \
-		"\$YAZPT_VCS_TFVC_CHECK_LOCKS is set to true (it currently $check_locks); see default-preset.zsh for details."
+		"\$YAZPT_CHECK_TFVC_LOCKS is set to true (it currently $check_locks); see default-preset.zsh for details."
 
 	.yazpt_detail_vcs_status "$YAZPT_VCS_STATUS_DIRTY_COLOR" "$YAZPT_VCS_STATUS_DIRTY_CHAR" '$YAZPT_VCS_STATUS_DIRTY_CHAR' \
 		"The workspace is dirty, i.e. there are pending changes/ Files or directories have been added, modified or deleted," \
@@ -39,7 +39,7 @@ function yazpt_explain_tfvc() {
 		'$YAZPT_VCS_STATUS_UNKNOWN_CHAR' "The workspace's status can't be determined," \
 		"because an unexpected error occurred while checking or parsing pendingchanges.tf1."
 
-	if [[ ${YAZPT_VCS_TFVC_CHECK_LOCKS:l} == true ]]; then
+	if [[ ${YAZPT_CHECK_TFVC_LOCKS:l} == true ]]; then
 		local char="" ss=()
 		if [[ -n $YAZPT_VCS_STATUS_LOCKED_CHAR ]]; then
 			char=$(.yazpt_escape_char $YAZPT_VCS_STATUS_LOCKED_CHAR)
@@ -84,13 +84,13 @@ function yazpt_explain_tfvc() {
 		for (( i=1; i <= $#warnings; i++ )); do
 			.yazpt_print_wrapped "• $warnings[$i]"
 		done
-	elif [[ -n $YAZPT_VCS_TFVC_WHITELIST ]]; then
+	elif [[ -n $YAZPT_TFVC_PATHS ]]; then
 		echo
-		.yazpt_print_wrapped "TFVC status will be checked in these directories (see \$YAZPT_VCS_TFVC_WHITELIST):"
+		.yazpt_print_wrapped "TFVC status will be checked under these root directories (see \$YAZPT_TFVC_PATHS):"
 
 		local i=1
-		for (( i=1; i <= $#YAZPT_VCS_TFVC_WHITELIST; i++ )); do
-			.yazpt_print_wrapped "• $YAZPT_VCS_TFVC_WHITELIST[$i]"
+		for (( i=1; i <= $#YAZPT_TFVC_PATHS; i++ )); do
+			.yazpt_print_wrapped "• $YAZPT_TFVC_PATHS[$i]"
 		done
 	fi
 
