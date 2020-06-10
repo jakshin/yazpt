@@ -13,7 +13,7 @@ function test_under_emulation() {
 	local emulate=$1
 	local preset=$2  # Optional
 
-	yazpt_plugin_unload
+	unload
 	emulate -L $emulate
 	# echo "Emulating $(emulate)"
 
