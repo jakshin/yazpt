@@ -94,13 +94,13 @@ function yazpt_explain_svn() {
 		for (( i=1; i <= $#warnings; i++ )); do
 			.yazpt_print_wrapped "• $warnings[$i]"
 		done
-	elif [[ -n $YAZPT_VCS_SVN_WHITELIST ]]; then
+	elif [[ -n $YAZPT_SVN_PATHS ]]; then
 		echo
-		.yazpt_print_wrapped "Subversion status will be checked in these directories (see \$YAZPT_VCS_SVN_WHITELIST):"
+		.yazpt_print_wrapped "Subversion status will be checked under these root directories (see \$YAZPT_SVN_PATHS):"
 
 		local i=1
-		for (( i=1; i <= $#YAZPT_VCS_SVN_WHITELIST; i++ )); do
-			.yazpt_print_wrapped "• $YAZPT_VCS_SVN_WHITELIST[$i]"
+		for (( i=1; i <= $#YAZPT_SVN_PATHS; i++ )); do
+			.yazpt_print_wrapped "• $YAZPT_SVN_PATHS[$i]"
 		done
 	fi
 
