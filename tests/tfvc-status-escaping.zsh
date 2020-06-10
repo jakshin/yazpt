@@ -9,7 +9,7 @@ cd -- "$(dirname -- "$0")"
 source ./utils.zsh
 before_tests $script_name "tfvc"
 YAZPT_VCS_ORDER=(tfvc)
-YAZPT_VCS_TFVC_CHECK_LOCKS=true
+YAZPT_CHECK_TFVC_LOCKS=true
 
 function reset_tfvc_status_chars() {
 	YAZPT_VCS_STATUS_CLEAN_CHAR="●"
