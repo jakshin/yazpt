@@ -37,9 +37,9 @@ source "$yazpt_default_preset_file"
 YAZPT_CWD_COLOR=75             # Change a value
 YAZPT_EXIT_ERROR_CHAR=''       # Change a value to empty string
 YAZPT_EXIT_OK_CHAR=( )         # Change a value's type -> array
-YAZPT_VCS_GIT_WHITELIST=''     # Change an array value's type -> empty string
+YAZPT_GIT_PATHS=''             # Change an array value's type -> empty string
 unset YAZPT_EXIT_ERROR_COLOR   # Unset a value
-unset YAZPT_VCS_SVN_WHITELIST  # Unset an array value
+unset YAZPT_SVN_PATHS          # Unset an array value
 YAZPT_EXTRA_STRING=foobar      # Add an extra value
 YAZPT_EXTRA_ARRAY=( foo bar )  # Add an extra array
 YAZPT_EXTRA_EMPTY_STRING=''    # Add an extra empty string
@@ -50,9 +50,9 @@ cat test.zsh
 file_contains test.zsh "YAZPT_CWD_COLOR=75"$'\n'
 file_contains test.zsh "YAZPT_EXIT_ERROR_CHAR=''"$'\n'
 file_contains test.zsh "YAZPT_EXIT_OK_CHAR=(  )"$'\n'
-file_contains test.zsh "YAZPT_VCS_GIT_WHITELIST=''"$'\n'
+file_contains test.zsh "YAZPT_GIT_PATHS=''"$'\n'
 file_contains test.zsh "unset YAZPT_EXIT_ERROR_COLOR"$'\n'
-file_contains test.zsh "unset YAZPT_VCS_SVN_WHITELIST"$'\n'
+file_contains test.zsh "unset YAZPT_SVN_PATHS"$'\n'
 file_contains test.zsh "YAZPT_EXTRA_STRING=foobar"$'\n'
 file_contains test.zsh "YAZPT_EXTRA_ARRAY=( foo bar )"$'\n'
 file_contains test.zsh "YAZPT_EXTRA_EMPTY_STRING=''"$'\n'
