@@ -31,7 +31,7 @@ sapphire preset | spearmint preset | yolo preset
 * **It's pretty fast, without async.**
   It's faster than any prompt theme which relies on [vcs_info](https://github.com/zsh-users/zsh/tree/master/Functions/VCS_Info), and faster than nearly all prompt themes which don't use async approaches for obtaining and displaying VCS status. Prompt themes which populate the VCS parts of the prompt asynchronously can be faster, but I actually tend not to love them, as I personally find it a bit distracting when part of the prompt pops into existence a bit later than the rest.
 
-  Yazpt also allows you to whitelist sets of path prefixes in which you expect to find Git repos, Subversion working copies, and/or Team Foundation Version Control local workspaces - if you've done so, then while working in any path which isn't whitelisted, it skips checking for Git/Subversion/TFVC status, improving performance even further. If you don't happen to use one or more of the supported VCSs, you can also entirely disable yazpt's use of any of them.
+  Yazpt also allows you to configure lists of path prefixes in which you expect to find Git repos, Subversion working copies, and/or Team Foundation Version Control local workspaces - if you've done so, then while working in any path which isn't in one or more of those lists, it skips checking for Git/Subversion/TFVC status, improving performance even further. If you don't happen to use one or more of the supported VCSs, you can also entirely disable yazpt's use of any of them.
 
 * **It's as configurable as you want it to be.**
   Yazpt uses about three dozen environment variables to tweak its appearance and behavior. If that sounds like too much to bother with, it also comes with a handful of "presets", i.e. preconfigured settings for the environment variables, in a variety of styles. Or if, on the other hand, you really want to dig in and customize it, it's straightforward to add new prompt segments, or override the default implementations of existing prompt segments, using zsh functions. Either way, the details are [documented](customizing.md).
@@ -273,13 +273,13 @@ By default, yazpt disables its support for Subversion and Team Foundation Versio
 YAZPT_VCS_ORDER=(git svn tfvc)
 ```
 
-In order to prevent performance from dropping with the additional VCSs enabled, you'll probably also want to configure yazpt's path whitelists for each VCS, so it only spends time trying to gather VCS status when it needs to. For example, on Windows with Cygwin, something like this might work well:
+In order to prevent performance from dropping with the additional VCSs enabled, you'll probably also want to configure yazpt's path prefix list for each VCS, so it only spends time trying to gather VCS status when it needs to. For example, on Windows with Cygwin, something like this might work well:
 
 ```sh
 user_profile_path="$(cygpath "$USERPROFILE")"
-YAZPT_VCS_GIT_WHITELIST=("$user_profile_path/Documents/Visual Studio 2019/Projects/" ~/.yazpt)
-YAZPT_VCS_SVN_WHITELIST=("$user_profile_path/Documents/Code/")
-YAZPT_VCS_TFVC_WHITELIST=("$user_profile_path/Source/Workspaces/")
+YAZPT_GIT_PATHS=("$user_profile_path/Documents/Visual Studio 2019/Projects/" ~/.yazpt)
+YAZPT_SVN_PATHS=("$user_profile_path/Documents/Code/")
+YAZPT_TFVC_PATHS=("$user_profile_path/Source/Workspaces/")
 ```
 
 Note that while yazpt does know when the current directory is ignored by Git or Subversion, and uses a different color when displaying the VCS context, it doesn't know this for TFVC. The existence of ignored directories and/or files in the local workspace is correctly not shown as a dirty state, though.

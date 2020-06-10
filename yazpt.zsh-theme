@@ -258,18 +258,18 @@ function .yazpt_check() {
 	source "$yazpt_base_dir/functions/check.zsh" && .yazpt_check
 }
 
-# Checks whether the current directory is allowed by the given whitelist,
+# Checks whether the current directory is allowed by the given path prefix list,
 # which is an array of path prefixes (pass the name of the array, without a '$').
-# An empty whitelist allows any value.
+# An empty path prefix list allows any value.
 #
-function .yazpt_check_whitelist() {
-	local whitelist_name=$1
-	local whitelist=(${(P)${whitelist_name}})
+function .yazpt_check_path() {
+	local list_name=$1
+	local list=(${(P)${list_name}})
 
-	if [[ -n $whitelist ]]; then
+	if [[ -n $list ]]; then
 		local i
-		for (( i=1; i <= $#whitelist; i++ )); do
-			local prefix=$whitelist[$i]
+		for (( i=1; i <= $#list; i++ )); do
+			local prefix=$list[$i]
 			[[ $PWD == "$prefix"* ]] && return 0
 		done
 
@@ -581,8 +581,8 @@ function @yazpt_segment_exit() {
 # such as rebasing or merging, and 1-2 characters indicating the current status of the working tree.
 #
 function @yazpt_segment_git() {
-	# Check the whitelist
-	[[ ${(t)YAZPT_VCS_GIT_WHITELIST} == array ]] && ! .yazpt_check_whitelist YAZPT_VCS_GIT_WHITELIST && return
+	# Check the path prefix list
+	[[ ${(t)YAZPT_GIT_PATHS} == array ]] && ! .yazpt_check_path YAZPT_GIT_PATHS && return
 
 	# Ignore $GIT_DIR in this function, including subshells launched from it
 	local GIT_DIR; unset GIT_DIR
@@ -779,8 +779,8 @@ function @yazpt_segment_git() {
 # which implements the "svn" prompt segment.
 #
 function @yazpt_segment_svn() {
-	# Check the whitelist
-	[[ ${(t)YAZPT_VCS_SVN_WHITELIST} == array ]] && ! .yazpt_check_whitelist YAZPT_VCS_SVN_WHITELIST && return
+	# Check the path prefix list
+	[[ ${(t)YAZPT_SVN_PATHS} == array ]] && ! .yazpt_check_path YAZPT_SVN_PATHS && return
 
 	# Source and execute the real version of this function
 	source "$yazpt_base_dir/functions/segment-svn.zsh" && @yazpt_segment_svn
@@ -792,15 +792,15 @@ function @yazpt_segment_svn() {
 # Note that the segment works only in local TFVC workspaces, not server workspaces.
 #
 function @yazpt_segment_tfvc() {
-	# Check the whitelist
-	[[ ${(t)YAZPT_VCS_TFVC_WHITELIST} == array ]] && ! .yazpt_check_whitelist YAZPT_VCS_TFVC_WHITELIST && return
+	# Check the path prefix list
+	[[ ${(t)YAZPT_TFVC_PATHS} == array ]] && ! .yazpt_check_path YAZPT_TFVC_PATHS && return
 
 	# Source and execute the real version of this function
 	source "$yazpt_base_dir/functions/segment-tfvc.zsh" && @yazpt_segment_tfvc
 }
 
 # Implements the "vcs" prompt segment, which shows one or none of the "git", "svn" or "tfvc" prompt segments,
-# as dictated by $YAZPT_VCS_ORDER and VCS-specific whitelists.
+# as dictated by $YAZPT_VCS_ORDER and VCS-specific path prefix lists.
 #
 function @yazpt_segment_vcs() {
 	local i
