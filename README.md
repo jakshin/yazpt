@@ -116,14 +116,19 @@ I've also tested yazpt on Windows 10 in various other scenarios, like with MSYS2
 
 ### Linux
 
-In most recent GNU/Linux versions, especially those targeted at general desktop/laptop use, yazpt is rendered pretty well out of the box, but often some minimal adjustments are needed for best effect; for instance, _in GNOME Terminal, you always need to check the "Custom font" checkbox to get decent rendering of yazpt's Unicode characters_. It's also not unusual to need to install a font or two, especially to get the yolo preset's emoji looking good. See the [tips for using yazpt on GNU/Linux](./tips-for-linux.md) for details.
+In many recent GNU/Linux versions, especially those targeted at general desktop/laptop use, yazpt is rendered pretty well out of the box, but usually some minimal adjustments are needed for best effect; for instance, _in GNOME Terminal, you always need to check the "Custom font" checkbox to get decent rendering of yazpt's Unicode characters_. It's also common for changing the terminal font to improve rendering of yazpt's Unicode characters, and not unusual to need to install a font or two, especially to get the yolo preset's emoji looking good. See the [tips for using yazpt on GNU/Linux](./tips-for-linux.md) for details.
 
 I've used or tested yazpt in the following distros, using both their standard terminal emulator (usually GNOME Terminal, but sometimes Konsole, MATE Terminal, or Xfce Terminal), with default settings; and XTerm, with my [.Xresources file](./resources/Xresources) loaded:
 
+* **Bodhi Linux 5.1**, running Enlightenment;
+    [Install a font](./tips-for-linux.md#bodhi-linux-51-enlightenment) to upgrade from emoticons to color emoji
 * **CentOS 8.1**, installed as a "server with GUI";
     [Install a font](./tips-for-linux.md#centos-81-installed-as-a-server-with-gui) for better rendering
 * **Debian 10.3**
-* **Fedora 32**
+* **elementary OS 5.1 (Hera)**
+* **Fedora Workstation 32**
+* **Kali Linux 2020.2**;
+    [Install a font](./tips-for-linux.md#kali-linux-20202) to upgrade from emoticons to color emoji
 * **Kubuntu 20.04**
 * **Linux Mint Cinnamon 19.3 (Tricia)**
 * **Linux Mint Cinnamon 18.3 (Sylvia)**;
@@ -133,6 +138,7 @@ I've used or tested yazpt in the following distros, using both their standard te
 * **MX Linux 19.1 (patito feo)**;
     [Install a font](./tips-for-linux.md#mx-linux-191-patito-feo) to upgrade from monochrome to color emoji
 * **openSUSE Tumbleweed**, running KDE Plasma 5
+* **Pop!_OS 20.04**
 * **Solus 4.1 (Fortitude)**, running Budgie
 * **Ubuntu 20.04 (Focal)**
 * **Ubuntu 19.10 (Eoan)**

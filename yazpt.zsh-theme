@@ -288,22 +288,27 @@ function .yazpt_compile() {
 	done
 }
 
-# Tries to figure out whether the Noto Emoji font is installed or not, on GNU/Linux and BSD.
-# This can give incorrect results if the font was installed/removed in this session, depending on a lot of factors.
+# Tries to figure out whether the given font is installed or not, on GNU/Linux and BSD.
+# This can give incorrect results if the font was installed/removed in this terminal session,
+# depending on a lot of factors.
 #
-function .yazpt_detect_noto_emoji_font() {
-	if [[ -z $yazpt_noto_emoji_font ]]; then
+function .yazpt_detect_font() {
+	local font=$1  # e.g. "Noto Emoji"
+
+	if [[ $+yazpt_fonts == 0 || -z $yazpt_fonts[$font] ]]; then
 		local loaded=false  # We'll keep this value if fc-list isn't installed or fails to run
-		fc-list -q "Noto Emoji" &> /dev/null && loaded=true
+		fc-list -q "$font" &> /dev/null && loaded=true
 
 		# Cache indefinitely. Not perfect, as it's hard to know for sure when a font change will show up in the terminal
 		# (e.g. Debian 10's GNOME Terminal re-renders with a font change immediately when the Files app is given focus,
 		# but only in its visible tab - how could we ever track something like that here?); since perfection isn't possible,
 		# let's just go with the most performant variant of kinda-correct.
-		declare -rg yazpt_noto_emoji_font=$loaded
+		typeset +r -gA yazpt_fonts
+		yazpt_fonts[$font]=$loaded
+		typeset -rgA yazpt_fonts
 	fi
 
-	[[ $yazpt_noto_emoji_font == true ]]
+	[[ $yazpt_fonts[$font] == true ]]
 }
 
 # Tries to figure out which terminal emulator yazpt is running under.
@@ -315,11 +320,13 @@ function .yazpt_detect_terminal() {
 
 	[[ -n $yazpt_terminal && $yazpt_terminal != "unknown" ]] && return 0
 	[[ $+yazpt_terminal == 1 ]] && typeset +r -g yazpt_terminal
+	[[ $+yazpt_terminal_info == 1 ]] && typeset +r -g yazpt_terminal_info=""
 	yazpt_terminal="unknown"  # Pessimism
 
 	if [[ $OSTYPE == "darwin"* && -n $TERM_PROGRAM ]]; then
 		# Terminal emulators on macOS tend to set $TERM_PROGRAM (e.g. Terminal.app, iTerm, Terminus)
 		yazpt_terminal=${TERM_PROGRAM:l}
+		yazpt_terminal_info="n/a"
 	else
 		if [[ -t 0 ]]; then
 			local tty_settings="$(stty -g)"  # Save TTY settings
@@ -332,24 +339,37 @@ function .yazpt_detect_terminal() {
 		read -s -t -d "c" info < /dev/tty      # Read the rest of the response
 
 		[[ -z $tty_settings ]] || stty "$tty_settings"  # Restore TTY settings
+
+		yazpt_terminal_info="$info"
 		info=(${(s.;.)info})
 
 		if (( $#info == 3 )); then
-			if [[ $info[1] == 0 && $info[2] == 115 ]]; then
-				yazpt_terminal="konsole"
-			elif [[ $info[1] == 41 ]]; then
-				yazpt_terminal="xterm"
-			elif (( ($info[1] == 1 && $info[2] >= 2000) || $info[1] == 65 )); then
-				# Could be GNOME Terminal, MATE Terminal, or Xfce Terminal (and maybe others?)
+			if (( ($info[1] == 1 && $info[2] >= 2000) || $info[1] == 65 )); then
+				# Could be GNOME Terminal, LXTerminal, MATE Terminal, Pantheon Terminal, or Xfce Terminal (and maybe others?)
 				local desktop=$XDG_CURRENT_DESKTOP
-				[[ -n $GNOME_TERMINAL_SCREEN || $desktop == *"GNOME"* || $desktop == "X-Cinnamon" || $desktop == "Unity" ]] && \
+				if [[ -n $GNOME_TERMINAL_SCREEN || $desktop == *"GNOME"* || $desktop == "X-Cinnamon" || $desktop == "Unity" ]]; then
 					yazpt_terminal="gnome-terminal"
-				[[ $XDG_CURRENT_DESKTOP == "MATE" ]] && yazpt_terminal="mate-terminal"
-				[[ $XDG_CURRENT_DESKTOP == "XFCE" ]] && yazpt_terminal="xfce4-terminal"
-			elif [[ $info[1] == 67 && $TERM_PROGRAM == "Terminus" ]]; then
+				elif [[ $desktop == "LXDE" ]]; then
+					yazpt_terminal="lxterminal"
+				elif [[ $desktop == "MATE" ]]; then
+					yazpt_terminal="mate-terminal"
+				elif [[ $desktop == "Pantheon" ]]; then
+					yazpt_terminal="pantheon-terminal"  # elementary OS, io.elementary.terminal
+				elif [[ $desktop == "XFCE" ]]; then
+					yazpt_terminal="xfce4-terminal"
+				fi
+
+			elif (( $info[1] == 0 && $info[2] == 115 )); then
+				yazpt_terminal="konsole"  # Or QTerminal
+			elif (( $info[1] == 41 )); then
+				yazpt_terminal="xterm"
+			elif (( $info[1] == 61 && $info[2] == 337 )); then
+				yazpt_terminal="terminology"  # Enlightenment's terminal, "61;337;0"
+			elif (( $info[1] == 67 )) && [[ $TERM_PROGRAM == "Terminus" ]]; then
 				yazpt_terminal="terminus"  # Only seen on MSYS2
-			elif [[ $info[1] == 77 ]]; then
+			elif (( $info[1] == 77 )); then
 				yazpt_terminal="mintty"
+
 			elif [[ $info == "0 136 0" && -n $ConEmuBuild ]]; then
 				yazpt_terminal="conemu"
 			elif [[ $info == "0 136 0" && $PATH == *"/MobaXterm/"* ]]; then
@@ -360,7 +380,7 @@ function .yazpt_detect_terminal() {
 		fi
 	fi
 
-	typeset -rg yazpt_terminal
+	typeset -rg yazpt_terminal yazpt_terminal_info
 	[[ $yazpt_terminal != "unknown" ]]
 }
 
