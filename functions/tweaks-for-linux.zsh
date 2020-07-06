@@ -26,18 +26,44 @@ function .yazpt_tweak_emoji() {
 	.yazpt_detect_terminal
 
 	if [[ $yazpt_terminal == "konsole" ]]; then
-		if [[ $VENDOR == "suse" ]] && ! .yazpt_detect_noto_emoji_font; then
-			YAZPT_EXIT_ERROR_CHAR="😬"  # Only one full-color face emoji renders in openSUSE Tumbleweed 20200511
+		.yazpt_detect_linux_distro
+
+		if [[ $yazpt_linux_distro_name == "kali" ]]; then
+			# Emoji are awful in Kali's QTerminal (detected as Konsole), not worth displaying at all,
+			# unless the Noto Color Emoji font is installed; they're only monochrome if Noto Emoji is also installed
+			if .yazpt_detect_font "Noto Emoji"; then
+				.yazpt_use_safe_emoji
+			elif .yazpt_detect_font "Noto Color Emoji"; then
+				YAZPT_EXIT_ERROR_CHAR="😬"
+			else
+				.yazpt_use_emoticons
+			fi
+
+		elif [[ $VENDOR == "suse" ]]; then
+			# In openSUSE Tumbleweed's Konsole, we have decent color emoji (except only one "sad" face renders properly),
+			# UNLESS Noto Emoji is installed, in which case emoji are monochrome, and only a couple are worth displaying
+			if .yazpt_detect_font "Noto Emoji"; then
+				.yazpt_use_safe_emoji
+			else
+				YAZPT_EXIT_ERROR_CHAR="😬"  # Only one full-color face emoji renders in openSUSE Tumbleweed 20200511
+			fi
 		fi
 
-	elif [[ $yazpt_terminal == "xterm" ]]; then
-		if .yazpt_detect_xterm_emoji_support; then
-			YAZPT_EXIT_ERROR_CHAR="😬"
-			YAZPT_EXIT_OK_CHAR="👊"
-		else
-			YAZPT_EXIT_ERROR_CHAR=":("
-			YAZPT_EXIT_OK_CHAR=":)"
+	elif [[ $yazpt_terminal == "lxterminal" ]]; then
+		.yazpt_detect_linux_distro
+
+		# On Kali Linux 2020.2, emoji are fine if the the Noto Color Emoji font is installed,
+		# otherwise we have passable special-case monochrome emoji iff the Noto Emoji font is installed
+		if [[ $yazpt_linux_distro_name == "kali" ]] && ! .yazpt_detect_font "Noto Color Emoji"; then
+			.yazpt_detect_font "Noto Emoji" && .yazpt_use_safe_emoji || .yazpt_use_emoticons
 		fi
+
+	elif [[ $yazpt_terminal == "terminology" ]]; then
+		# Only one full-color face emoji renders in Bodhi Linux 5.1
+		.yazpt_detect_font "Noto Color Emoji" && YAZPT_EXIT_ERROR_CHAR="😬" || .yazpt_use_emoticons
+
+	elif [[ $yazpt_terminal == "xterm" ]]; then
+		.yazpt_detect_xterm_emoji_support && .yazpt_use_safe_emoji || .yazpt_use_emoticons
 	fi
 }
 
@@ -60,13 +86,18 @@ function .yazpt_tweak_hourglass() {
 	else
 		.yazpt_detect_terminal
 
-		if [[ $yazpt_terminal == "xterm" ]]; then
+		if [[ $yazpt_terminal == "terminology" ]]; then
+			# On Bodhi 5.1, the hourglass is rendered okay if Noto Color Emoji isn't installed, but poorly if it is,
+			# and there's no space after the "%" prompt character, regardless of Noto fonts
+			YAZPT_EXECTIME_CHAR=""
+
+		elif [[ $yazpt_terminal == "xterm" ]]; then
 			if (( ${XTERM_VERSION//[a-zA-Z()]/} < 330 )); then
 				YAZPT_EXECTIME_CHAR=""
 
 			elif [[ $yazpt_linux_distro_name == "opensuse-tumbleweed" ]]; then
 				# With the Noto Emoji font installed, the Unicode hourglass is rendered wrong, but the emoji hourglass looks fine
-				.yazpt_detect_noto_emoji_font && YAZPT_EXECTIME_CHAR="$yazpt_hourglass_emoji"
+				.yazpt_detect_font "Noto Emoji" && YAZPT_EXECTIME_CHAR="$yazpt_hourglass_emoji"
 
 			elif [[ $yazpt_linux_distro_name == "manjarolinux" ]]; then
 				# Manjaro XFCE's XTerm is a weird special case
@@ -89,7 +120,20 @@ function .yazpt_tweak_hourglass_emoji() {
 
 	if [[ $yazpt_terminal == "konsole" ]]; then
 		# We get better spacing with the Unicode hourglass (both hourglasses are rendered the same anyway)
+		# (We also take this code path in QTerminal, e.g. on Kali Linux)
 		YAZPT_EXECTIME_CHAR="$yazpt_hourglass"
+
+	elif [[ $yazpt_terminal == "lxterminal" ]]; then
+		# On Kali Linux 2020.2, without either the Noto Emoji or Noto Color Emoji font(s) installed,
+		# we get better spacing with the Unicode hourglass (both hourglasses are rendered the same anyway)
+		if ! .yazpt_detect_font "Noto Emoji" && ! .yazpt_detect_font "Noto Color Emoji"; then
+			YAZPT_EXECTIME_CHAR="$yazpt_hourglass"
+		fi
+
+	elif [[ $yazpt_terminal == "terminology" ]]; then
+		# On Bodhi 5.1, the hourglass is okay (with or without Noto Color Emoji installed),
+		# but there's no space after the "%" prompt character either way
+		YAZPT_EXECTIME_CHAR=""
 
 	elif [[ $yazpt_terminal == "xterm" ]]; then
 		if (( ${XTERM_VERSION//[a-zA-Z()]/} < 330 )); then
@@ -97,7 +141,7 @@ function .yazpt_tweak_hourglass_emoji() {
 
 		elif [[ $VENDOR == "suse" ]]; then
 			# Use the Unicode hourglass, unless the Noto Emoji font is installed
-			.yazpt_detect_noto_emoji_font || YAZPT_EXECTIME_CHAR="$yazpt_hourglass"
+			.yazpt_detect_font "Noto Emoji" || YAZPT_EXECTIME_CHAR="$yazpt_hourglass"
 
 		else
 			# In all other distros I've tested except Debian 10, both hourglasses look identical,
@@ -162,9 +206,23 @@ function .yazpt_detect_xterm_emoji_support() {
 				( [[ $distro == "ubuntu" && $XDG_CURRENT_DESKTOP != "KDE" ]] && (( $version >= 19.10 )) )
 		then
 			# We can use some emoji if the Noto Emoji font is installed
-			.yazpt_detect_noto_emoji_font && return 0
+			.yazpt_detect_font "Noto Emoji" && return 0
 		fi
 	fi
 
 	return 1
+}
+
+# Tweaks the yolo preset's settings to replace emoji hand/face with emoticons.
+#
+function .yazpt_use_emoticons() {
+	YAZPT_EXIT_ERROR_CHAR=":("
+	YAZPT_EXIT_OK_CHAR=":)"
+}
+
+# Tweaks the yolo preset's settings to use only hand/face emoji which are widely supported.
+#
+function .yazpt_use_safe_emoji() {
+	YAZPT_EXIT_ERROR_CHAR="😬"
+	YAZPT_EXIT_OK_CHAR="👊"
 }
