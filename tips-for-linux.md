@@ -1,27 +1,44 @@
 # Tips for using yazpt on GNU/Linux
 
-Yazpt mostly just works on recently-released Linux distros, but sometimes a little tweaking is needed to get its Unicode characters and/or emoji rendering well. Here are a few tips based on my experiences using yazpt on various distros, primarily in their default terminal emulators (GNOME Terminal, Konsole, MATE Terminal, or Xfce Terminal).
+Yazpt mostly just works on recently-released Linux distros, but sometimes a little tweaking is needed to get its Unicode characters and/or emoji rendering well. Here are a few tips based on my experiences using yazpt on various distros, primarily in their default terminal emulators (usually GNOME Terminal or a related project, or Konsole).
 
 I also tested yazpt in XTerm when I could. Regardless of distro, using XTerm is kind of miserable unless you put a little time into configuring it - so much so, in fact, that I only ever run XTerm, or test yazpt in XTerm, with a reasonable [.Xresources file](./resources/Xresources) installed. Using yazpt in XTerm without first [installing](./resources/install-resources.zsh) my `.Xresources` isn't recommended (if you try it, you'll see why 😉). Even when well-configured, in many environments XTerm doesn't render emoji well, so yazpt's yolo preset tries to detect those cases, and substitute emoticons for emoji.
+
+
+## Bodhi Linux 5.1 (Enlightenment)
+
+In Terminology, yazpt's Unicode characters are rendered a bit poorly with the default font; you can fix it by changing the font to, say, DejaVu Sans Mono (right click anywhere in a Terminology window > Settings > Font).
+
+The yolo preset's emoji are also rendered as awful little monochrome line drawings by default, so yazpt automatically switches to emoticons instead. To get emoji in the prompt, just install the [Noto Color Emoji font](https://github.com/googlefonts/noto-emoji/blob/master/fonts/NotoColorEmoji.ttf), by copying it to the `~/.local/share/fonts` directory and then running `fc-cache -f` -- next time you load yazpt, it'll automatically use emoji.
 
 
 ## CentOS 8.1, installed as a "server with GUI"
 
 By default, all of yazpt's emoji and the `<exectime>` segment's Unicode hourglass get rendered as ugly "missing glyph" boxes in GNOME Terminal. You can fix both issues by installing the [Noto Color Emoji](https://github.com/googlefonts/noto-emoji/blob/master/fonts/NotoColorEmoji.ttf) and [Noto Emoji](https://github.com/googlefonts/noto-emoji/blob/master/fonts/NotoEmoji-Regular.ttf) fonts.
 
-CentOS doesn't automatically load `~/.Xresources`, which I suppose has something to do with the transition to Wayland. One way to address the problem is to use `~/.Xdefaults-HOSTNAME` instead, e.g. `ln -sv ~/.yazpt/resource/Xresources ~/.Xdefaults-$(hostname)`.
+CentOS doesn't automatically load `~/.Xresources`, which I suppose has something to do with the transition to Wayland. This leaves XTerm's unfortunate default configuration active. One way to address the problem is to use `~/.Xdefaults-HOSTNAME` instead, e.g. `ln -sv ~/.yazpt/resource/Xresources ~/.Xdefaults-$(hostname)`.
 
 
 ## Debian 10.3, installed with default settings
 
 In GNOME Terminal, yazpt's default hourglass as rendered as a colored emoji, rather than in monochrome and the same color as the execution time text next to it. If this bothers you, you can fix it by installing the [Noto Emoji font](https://github.com/googlefonts/noto-emoji/blob/master/fonts/NotoEmoji-Regular.ttf). This will also give you decent monochrome rendering of yolo's emoji in XTerm.
 
-On a default installation of Debian, `~/.Xresources` isn't automatically loaded, I guess because Wayland. One way to fix it is to use `~/.Xdefaults-HOSTNAME` instead, e.g. `ln -sv ~/.yazpt/resource/Xresources ~/.Xdefaults-$(hostname)`.
+On a default installation of Debian, `~/.Xresources` isn't automatically loaded, I guess because Wayland. This leaves XTerm's unfortunate default configuration active. One way to fix it is to use `~/.Xdefaults-HOSTNAME` instead, e.g. `ln -sv ~/.yazpt/resource/Xresources ~/.Xdefaults-$(hostname)`.
 
 
-## Fedora 32
+## elementary OS 5.1 (Hera)
+
+In elementary OS's default terminal emulator, Pantheon Terminal, everything _almost_ just works (including color emoji), but yazpt's Unicode characters are rendered a bit awkwardly. That can be fixed by [changing the terminal's font](https://elementaryos.stackexchange.com/questions/1149/how-can-i-change-the-default-terminal-font) to DejaVu Sans Mono, which is among the pre-installed fonts.
+
+
+## Fedora Workstation 32
 
 GNOME Terminal doesn't render yazpt's Unicode characters very well by default; to fix things up, click `Terminal` in the menu bar > `Preferences` > `Unnamed` (or whatever your profile is named) > `Text` tab > check `Custom font`. Otherwise everything just works.
+
+
+## Kali Linux 2020.2
+
+In both LXTerminal and QTerminal, everything works out of the box -- except emoji, so yazpt's yolo theme automatically downgrades to emoticons. To get emoji in the prompt, just install the [Noto Color Emoji font](https://github.com/googlefonts/noto-emoji/blob/master/fonts/NotoColorEmoji.ttf), by copying it to the `~/.local/share/fonts` directory and then running `fc-cache -f` -- next time you load yazpt, it'll automatically use emoji.
 
 
 ## Kubuntu 20.04
@@ -56,6 +73,11 @@ In Xfce Terminal, the yolo preset's emoji are rendered as monochrome line drawin
 Everything just works out of the box.
 
 In XTerm, you can get decent monochrome rendering of yolo's emoji by downloading the [Noto Emoji font](https://github.com/googlefonts/noto-emoji/blob/master/fonts/NotoEmoji-Regular.ttf), and manually installing it with Font Viewer - BUT note that doing so will cause Konsole to switch from full-color emoji to awkward monochrome emoji. Lame. 😞
+
+
+## Pop!_OS 20.04
+
+Everything just works out of the box.
 
 
 ## Solus 4.1 (Fortitude), running Budgie
