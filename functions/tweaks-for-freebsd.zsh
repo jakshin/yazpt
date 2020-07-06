@@ -22,7 +22,7 @@ function .yazpt_tweak_emoji() {
 function .yazpt_tweak_hourglass() {
 	emulate -L zsh
 
-	if .yazpt_detect_noto_emoji_font; then
+	if .yazpt_detect_font "Noto Emoji"; then
 		YAZPT_EXECTIME_CHAR+=" "
 	elif ! .yazpt_detect_ghostbsd; then
 		YAZPT_EXECTIME_CHAR=""
@@ -55,5 +55,5 @@ function .yazpt_detect_ghostbsd() {
 # just monochrome but nice enough to display; everywhere else, we'll fall back to emoticons.
 #
 function .yazpt_detect_xterm_emoji_support() {
-	.yazpt_detect_noto_emoji_font
+	.yazpt_detect_font "Noto Emoji"
 }
