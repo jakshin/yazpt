@@ -10,6 +10,18 @@ function .yazpt_check() {
 		local bright='\e[38;5;151m'
 		local normal='\e[0m'
 
+		function .yazpt_check_font() {
+			local font=$1
+			setopt local_options extended_glob
+
+			if .yazpt_detect_font "${font//# #/}"; then
+				echo -n " $font: "
+				fc-list "$font"
+			else
+				echo " $font: Not installed"
+			fi
+		}
+
 		function .yazpt_check_rprompt() {
 			local preset=$1
 
@@ -81,20 +93,20 @@ function .yazpt_check() {
 		fi
 
 		echo "${bright}Zsh shell version: ${normal}${ZSH_VERSION}"
+
 		echo -n "${bright}Terminal emulator: ${normal}"
+		typeset +r -g yazpt_terminal="" yazpt_terminal_info=""
 		.yazpt_detect_terminal
-		echo "$yazpt_terminal"
+		echo "$yazpt_terminal ($yazpt_terminal_info)"
 
 		if [[ $linux_or_bsd == true ]]; then
-			echo "\n${bright}Checking the Noto Emoji font...${normal}"
+			echo "\n${bright}Checking the Noto emoji fonts...${normal}"
 
 			if ! which fc-list > /dev/null; then
 				echo " [Check failed: the fc-list program wasn't found]"
-			elif .yazpt_detect_noto_emoji_font; then
-				echo -n " Installed: "
-				fc-list "Noto Emoji"
 			else
-				echo " Not installed"
+				.yazpt_check_font "      Noto Emoji"
+				.yazpt_check_font "Noto Color Emoji"
 			fi
 		fi
 
@@ -156,7 +168,7 @@ function .yazpt_check() {
 		.yazpt_check_rprompt "    yolo"
 
 	} always {
-		unfunction .yazpt_check_rprompt .yazpt_check_variables
+		unfunction .yazpt_check_font .yazpt_check_rprompt .yazpt_check_variables
 		eval "$state_stash"  # Restore saved settings
 	}
 }
