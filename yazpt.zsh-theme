@@ -290,16 +290,17 @@ function .yazpt_compile() {
 
 # Tries to figure out whether the terminal is using dark text on a light background;
 # if so, yazpt's presets will try to adjust their colors accordingly.
+# Sets the readonly global $yazpt_bg variable to "dark", "light", or "hued".
 # Based loosely on https://github.com/rocky/shell-term-background (GPL v2+).
 #
-.yazpt_detect_light_background() {
-	if [[ -n $yazpt_light_background ]]; then
+.yazpt_detect_bg() {
+	if [[ -n $yazpt_bg ]]; then
 		return
 	elif [[ $COLORFGBG == "0;"* ]]; then
-		yazpt_light_background=true
+		yazpt_bg="light"  # FIXME what about hued?
 		return
 	elif [[ $COLORFGBG == *";0" ]]; then
-		yazpt_light_background=false
+		yazpt_bg="dark"
 		return
 	fi
 
@@ -338,14 +339,15 @@ function .yazpt_compile() {
 
 	if (( fg < bg )); then
 		# FIXME declare -rg
-		yazpt_light_background=true
+		# FIXME what about hued?
+		yazpt_bg="light"
 	else
-		yazpt_light_background=false
+		yazpt_bg="dark"
 	fi
 
 	if [[ -n $debug ]]; then
 		echo "fg: $fg, bg: $bg"
-		echo "light background: $yazpt_light_background"
+		echo "background: $yazpt_bg"
 	fi
 }
 
