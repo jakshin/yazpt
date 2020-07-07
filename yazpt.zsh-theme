@@ -261,6 +261,7 @@ function .yazpt_check() {
 # Checks whether the current directory is allowed by the given path prefix list,
 # which is an array of path prefixes (pass the name of the array, without a '$').
 # An empty path prefix list allows any value.
+# FIXME rename to .yazpt_allow_path
 #
 function .yazpt_check_path() {
 	local list_name=$1
@@ -306,7 +307,7 @@ function .yazpt_compile() {
 
 	local fg bg debug='yep' # FIXME remove $debug, add to .yazpt_check
 	if [[ $TERM_PROGRAM == 'Apple_Terminal' ]] && (( $TERM_PROGRAM_VERSION < 430 )); then
-		# Terminal.app before Catalina
+		# Terminal.app before Catalina doesn't answer xterm-style queries about foreground/background color
 		local arr=("${(s:, :)"$(osascript -e "tell application \"Terminal\"
 			set myTab to the selected tab of the front window
 			set mySettings to myTab's current settings
