@@ -98,8 +98,7 @@ Yazpt's code logic should work just about anywhere zsh 5.1+ itself does, and wit
 My primary environment is macOS, and yazpt works without fuss on recent versions, in Terminal.app and [iTerm](https://iterm2.com) v3.3+, with the system zsh, and either the system or [Homebrew](https://brew.sh) versions of git and svn. I use yazpt on these macOS versions regularly:
 
 * **macOS 10.15 Catalina**,
-  using Andale Mono, Bitstream Vera Sans Mono, Courier, Menlo, Meslo, Monaco, and Source Code Pro fonts
-  (with Terminal.app's "Antialias text" setting turned on)
+  using Andale Mono, Courier, Menlo, Monaco, [Bitstream Vera Sans Mono](https://www.gnome.org/fonts), [Fira Code](https://github.com/tonsky/FiraCode), [Meslo](https://www.nerdfonts.com), and [Source Code Pro](https://github.com/adobe-fonts/source-code-pro) fonts (all with Terminal.app's "Antialias text" setting turned on)
 * **macOS 10.14.6 Mojave**
 * **macOS 10.13.6 High Sierra**
 
