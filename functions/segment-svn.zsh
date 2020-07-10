@@ -138,6 +138,7 @@ function @yazpt_segment_svn() {
 		combined+=" $svn_status"
 	fi
 
+	# FIXME call .yazpt_add_vcs_wrapper_chars
 	if (( ${#YAZPT_VCS_WRAPPER_CHARS} >= 2 )); then
 		local before=$YAZPT_VCS_WRAPPER_CHARS[1]
 		[[ -o prompt_bang ]] && before=${before//'!'/'!!'}

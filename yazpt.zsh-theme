@@ -250,6 +250,27 @@ function yazpt_preexec() {
 
 # -------------------- Private Functions --------------------
 
+# FIXME
+function .yazpt_add_vcs_wrapper_chars() {
+	local segment=$1
+	local color=$2
+	local extra=$3
+
+	if (( ${#YAZPT_VCS_WRAPPER_CHARS} >= 2 )); then
+		local before=$YAZPT_VCS_WRAPPER_CHARS[1]
+		[[ -o prompt_bang ]] && before=${before//'!'/'!!'}
+		[[ -o prompt_percent ]] && before="${before//\%/%%}"
+
+		local after=$YAZPT_VCS_WRAPPER_CHARS[2]
+		[[ -o prompt_bang ]] && after=${after//'!'/'!!'}
+		[[ -o prompt_percent ]] && after="${after//\%/%%}"
+
+		before="%{%F{$color}%}${before}%{%f%}"
+		after="%{%F{$color}%}${after}%{%f%}"
+		yazpt_state[$segment]="${before}${extra}${yazpt_state[$segment]}${after}"
+	fi
+}
+
 # Checks the parts of yazpt's rendering that are prone to weirdness/wackiness.
 # Tip: set YAZPT_NO_TWEAKS=true if you want to see what yazpt'd do without tweaks applied.
 #
@@ -297,12 +318,12 @@ function .yazpt_compile() {
 .yazpt_detect_bg() {
 	if [[ -n $yazpt_bg ]]; then
 		return
-	elif [[ $COLORFGBG == "0;"* ]]; then
-		yazpt_bg="light"  # FIXME what about hued?
-		return
-	elif [[ $COLORFGBG == *";0" ]]; then
-		yazpt_bg="dark"
-		return
+#	elif [[ $COLORFGBG == "0;"* ]]; then
+#		yazpt_bg="light"  # FIXME what about hued?
+#		return
+#	elif [[ $COLORFGBG == *";0" ]]; then
+#		yazpt_bg="dark"
+#		return
 	fi
 
 	local fg bg debug='yep' # FIXME remove $debug, add to .yazpt_check
@@ -842,6 +863,7 @@ function @yazpt_segment_git() {
 		combined+=" $git_status"
 	fi
 
+	# FIXME call .yazpt_add_vcs_wrapper_chars
 	if (( ${#YAZPT_VCS_WRAPPER_CHARS} >= 2 )); then
 		local before=$YAZPT_VCS_WRAPPER_CHARS[1]
 		[[ -o prompt_bang ]] && before=${before//'!'/'!!'}
