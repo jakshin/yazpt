@@ -138,22 +138,8 @@ function @yazpt_segment_svn() {
 		combined+=" $svn_status"
 	fi
 
-	# FIXME call .yazpt_add_vcs_wrapper_chars
-	if (( ${#YAZPT_VCS_WRAPPER_CHARS} >= 2 )); then
-		local before=$YAZPT_VCS_WRAPPER_CHARS[1]
-		[[ -o prompt_bang ]] && before=${before//'!'/'!!'}
-		[[ -o prompt_percent ]] && before="${before//\%/%%}"
-
-		local after=$YAZPT_VCS_WRAPPER_CHARS[2]
-		[[ -o prompt_bang ]] && after=${after//'!'/'!!'}
-		[[ -o prompt_percent ]] && after="${after//\%/%%}"
-
-		before="%{%F{$color}%}${before}%{%f%}"
-		after="%{%F{$color}%}${after}%{%f%}"
-		combined="${before}${combined}${after}"
-	fi
-
 	yazpt_state[svn]="$combined"
+	.yazpt_add_vcs_wrapper_chars "svn" "$color" "$extra"
 }
 
 # Utility function for @yazpt_segment_svn. Tries to find a working copy's root directory,

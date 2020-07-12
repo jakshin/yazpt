@@ -250,11 +250,13 @@ function yazpt_preexec() {
 
 # -------------------- Private Functions --------------------
 
-# FIXME
+# Adds any configured "wrapper" characters around the VCS portion of the prompt,
+# in the same color used for VCS status. This is called from VCS segment functions.
+#
 function .yazpt_add_vcs_wrapper_chars() {
-	local segment=$1
-	local color=$2
-	local extra=$3
+	local segment=$1  # e.g. "git"
+	local color=$2    # The color used for the VCS context, this time
+	local extra="$3"  # An extra space for Terminus (or not)
 
 	if (( ${#YAZPT_VCS_WRAPPER_CHARS} >= 2 )); then
 		local before=$YAZPT_VCS_WRAPPER_CHARS[1]
@@ -271,18 +273,9 @@ function .yazpt_add_vcs_wrapper_chars() {
 	fi
 }
 
-# Checks the parts of yazpt's rendering that are prone to weirdness/wackiness.
-# Tip: set YAZPT_NO_TWEAKS=true if you want to see what yazpt'd do without tweaks applied.
-#
-function .yazpt_check() {
-	# Source and execute the real version of this function
-	source "$yazpt_base_dir/functions/check.zsh" && .yazpt_check
-}
-
 # Checks whether the current directory is allowed by the given path prefix list,
 # which is an array of path prefixes (pass the name of the array, without a '$').
 # An empty path prefix list allows any value.
-# FIXME rename to .yazpt_allow_path
 #
 function .yazpt_check_path() {
 	local list_name=$1
@@ -308,69 +301,6 @@ function .yazpt_compile() {
 			zcompile "$file"
 		fi
 	done
-}
-
-# Tries to figure out whether the terminal is using dark text on a light background;
-# if so, yazpt's presets will try to adjust their colors accordingly.
-# Sets the readonly global $yazpt_bg variable to "dark", "light", or "hued".
-# Based loosely on https://github.com/rocky/shell-term-background (GPL v2+).
-#
-.yazpt_detect_bg() {
-	if [[ -n $yazpt_bg ]]; then
-		return
-#	elif [[ $COLORFGBG == "0;"* ]]; then
-#		yazpt_bg="light"  # FIXME what about hued?
-#		return
-#	elif [[ $COLORFGBG == *";0" ]]; then
-#		yazpt_bg="dark"
-#		return
-	fi
-
-	local fg bg debug='yep' # FIXME remove $debug, add to .yazpt_check
-	if [[ $TERM_PROGRAM == 'Apple_Terminal' ]] && (( $TERM_PROGRAM_VERSION < 430 )); then
-		# Terminal.app before Catalina doesn't answer xterm-style queries about foreground/background color
-		local arr=("${(s:, :)"$(osascript -e "tell application \"Terminal\"
-			set myTab to the selected tab of the front window
-			set mySettings to myTab's current settings
-			copy mySettings's normal text color & mySettings's background color & mySettings's name to stdout
-			end tell"
-			)"}")
-
-		[[ -n $debug ]] && echo "arr = $arr"
-		fg=$(( arr[1] + arr[2] + arr[3] ))
-		bg=$(( arr[4] + arr[5] + arr[6] ))
-	else
-		local delim=$'\a' fg_arr bg_arr i
-		[[ $OSTYPE == "cygwin" ]] && delim='\'  # FIXME maybe this is actually Mintty-specific?
-
-		if [[ -t 0 ]]; then
-			local tty_settings="$(stty -g)"  # Save TTY settings
-			stty -echo                       # Turn echo to TTY off
-		fi
-
-		echo -en '\e]10;?\a'; IFS=:/ read -t 0.1 -d $delim -A fg_arr  # Get foreground color
-		echo -en '\e]11;?\a'; IFS=:/ read -t 0.1 -d $delim -A bg_arr  # Get background color
-		[[ -n $debug ]] && echo "fg_arr = ${fg_arr[2,4]//$'\e'/}, bg_arr = ${bg_arr[2,4]//$'\e'/}"
-		[[ -z $tty_settings ]] || stty "$tty_settings"  # Restore TTY settings
-
-		for (( i=2; i <= 4; i++ )); do
-			(( fg+=16#${fg_arr[$i]//[^a-zA-Z0-9]/} ))
-			(( bg+=16#${bg_arr[$i]//[^a-zA-Z0-9]/} ))
-		done
-	fi
-
-	if (( fg < bg )); then
-		# FIXME declare -rg
-		# FIXME what about hued?
-		yazpt_bg="light"
-	else
-		yazpt_bg="dark"
-	fi
-
-	if [[ -n $debug ]]; then
-		echo "fg: $fg, bg: $bg"
-		echo "background: $yazpt_bg"
-	fi
 }
 
 # Tries to figure out whether the given font is installed or not, on GNU/Linux and BSD.
@@ -863,22 +793,8 @@ function @yazpt_segment_git() {
 		combined+=" $git_status"
 	fi
 
-	# FIXME call .yazpt_add_vcs_wrapper_chars
-	if (( ${#YAZPT_VCS_WRAPPER_CHARS} >= 2 )); then
-		local before=$YAZPT_VCS_WRAPPER_CHARS[1]
-		[[ -o prompt_bang ]] && before=${before//'!'/'!!'}
-		[[ -o prompt_percent ]] && before="${before//\%/%%}"
-
-		local after=$YAZPT_VCS_WRAPPER_CHARS[2]
-		[[ -o prompt_bang ]] && after=${after//'!'/'!!'}
-		[[ -o prompt_percent ]] && after="${after//\%/%%}"
-
-		before="%{%F{$color}%}${before}%{%f%}"
-		after="%{%F{$color}%}${after}%{%f%}"
-		combined="${before}${extra}${combined}${after}"
-	fi
-
 	yazpt_state[git]="$combined"
+	.yazpt_add_vcs_wrapper_chars "git" "$color" "$extra"
 }
 
 # Stub/loader for the real @yazpt_segment_svn function in segment-svn.zsh,

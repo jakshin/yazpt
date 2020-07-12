@@ -70,9 +70,9 @@ YAZPT_EXIT_OK_COLOR=29                   # Dark green/cyan
 # checking continues with the next VCS in the list.
 
 YAZPT_VCS_CONTEXT_COLOR=255              # Bright white; default color for VCS context (branch/tag/SHA, activity or extra info)
-YAZPT_VCS_CONTEXT_META_COLOR=245         # Dark gray; the cwd is in a .git, .svn, $tf or .tf directory (or a bare Git repo)
-YAZPT_VCS_CONTEXT_IGNORED_COLOR=245      # Dark gray; the cwd is in a directory ignored by Git (not Subversion/TFVC)
-YAZPT_VCS_CONTEXT_UNVERSIONED_COLOR=245  # Dark gray; the cwd is in an unversioned, and maybe ignored, directory
+YAZPT_VCS_CONTEXT_META_COLOR=242         # Dark gray; the cwd is in a .git, .svn, $tf or .tf directory (or a bare Git repo)
+YAZPT_VCS_CONTEXT_IGNORED_COLOR=242      # Dark gray; the cwd is in a directory ignored by Git (not Subversion/TFVC)
+YAZPT_VCS_CONTEXT_UNVERSIONED_COLOR=242  # Dark gray; the cwd is in an unversioned, and maybe ignored, directory
                                          # in a Subversion working copy; not used in Git repos or TFVC workspaces
 
 YAZPT_VCS_STATUS_CLEAN_CHAR="●"          # The repo, working copy, or workspace has no changes or differing commits
