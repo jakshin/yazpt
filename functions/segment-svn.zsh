@@ -5,7 +5,7 @@
 #
 function @yazpt_segment_svn() {
 	# Check the path prefix list
-	[[ ${(t)YAZPT_SVN_PATHS} == array ]] && ! .yazpt_check_path YAZPT_SVN_PATHS && return
+	[[ ${(t)YAZPT_SVN_PATHS} == array ]] && ! .yazpt_allow_path YAZPT_SVN_PATHS && return
 
 	# Find out which branch/tag we've got checked out, and where the working copy's root directory is
 	local xml svn_exit_code

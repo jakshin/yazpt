@@ -1,7 +1,7 @@
 #!/usr/bin/env zsh
 # Checks parts of yazpt's rendering that are prone to weirdness/wackiness, or often need tweaking,
-# by displaying the relevant Unicode/emoji characters and environment-detection results.
-# Run like `YAZPT_NO_TWEAKS=true check-rendering.zsh` if you want to see what yazpt'd do without tweaks applied.
+# by displaying the relevant Unicode/emoji characters and various environment-detection results.
+# Run like `YAZPT_NO_TWEAKS=true check-rendering.zsh` to see what yazpt'd do without tweaks applied.
 
 emulate -L zsh
 

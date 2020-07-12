@@ -8,7 +8,7 @@
 #
 function @yazpt_segment_tfvc() {
 	# Check the path prefix list
-	[[ ${(t)YAZPT_TFVC_PATHS} == array ]] && ! .yazpt_check_path YAZPT_TFVC_PATHS && return
+	[[ ${(t)YAZPT_TFVC_PATHS} == array ]] && ! .yazpt_allow_path YAZPT_TFVC_PATHS && return
 
 	# Determine whether the current directory is in a TFVC local workspace,
 	# and if so, find out the workspace's root directory's server path

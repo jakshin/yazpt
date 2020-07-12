@@ -273,11 +273,11 @@ function .yazpt_add_vcs_wrapper_chars() {
 	fi
 }
 
-# Checks whether the current directory is allowed by the given path prefix list,
+# Determines whether the current directory is allowed by the given path prefix list,
 # which is an array of path prefixes (pass the name of the array, without a '$').
 # An empty path prefix list allows any value.
 #
-function .yazpt_check_path() {
+function .yazpt_allow_path() {
 	local list_name=$1
 	local list=(${(P)${list_name}})
 
@@ -617,7 +617,7 @@ function @yazpt_segment_exit() {
 #
 function @yazpt_segment_git() {
 	# Check the path prefix list
-	[[ ${(t)YAZPT_GIT_PATHS} == array ]] && ! .yazpt_check_path YAZPT_GIT_PATHS && return
+	[[ ${(t)YAZPT_GIT_PATHS} == array ]] && ! .yazpt_allow_path YAZPT_GIT_PATHS && return
 
 	# Ignore $GIT_DIR in this function, including subshells launched from it
 	local GIT_DIR; unset GIT_DIR
@@ -802,7 +802,7 @@ function @yazpt_segment_git() {
 #
 function @yazpt_segment_svn() {
 	# Check the path prefix list
-	[[ ${(t)YAZPT_SVN_PATHS} == array ]] && ! .yazpt_check_path YAZPT_SVN_PATHS && return
+	[[ ${(t)YAZPT_SVN_PATHS} == array ]] && ! .yazpt_allow_path YAZPT_SVN_PATHS && return
 
 	# Source and execute the real version of this function
 	source "$yazpt_base_dir/functions/segment-svn.zsh" && @yazpt_segment_svn
@@ -815,7 +815,7 @@ function @yazpt_segment_svn() {
 #
 function @yazpt_segment_tfvc() {
 	# Check the path prefix list
-	[[ ${(t)YAZPT_TFVC_PATHS} == array ]] && ! .yazpt_check_path YAZPT_TFVC_PATHS && return
+	[[ ${(t)YAZPT_TFVC_PATHS} == array ]] && ! .yazpt_allow_path YAZPT_TFVC_PATHS && return
 
 	# Source and execute the real version of this function
 	source "$yazpt_base_dir/functions/segment-tfvc.zsh" && @yazpt_segment_tfvc

@@ -9,7 +9,7 @@ before_tests $script_name
 
 function test_path_prefix_list() {
 	array_name=$1
-	if .yazpt_check_path $array_name; then
+	if .yazpt_allow_path $array_name; then
 		echo "allowed"
 	else
 		echo "rejected"
