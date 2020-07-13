@@ -22,7 +22,8 @@ if [[ -n $YAZPT_RLAYOUT ]]; then
 	YAZPT_RLAYOUT=""
 fi
 
-declare -a _yazpt_yolo_color_ranges=('22-39' '58-75' '94-111' '130-147')  # FIXME grep
+color_ranges="$(grep "declare .* _yazpt_yolo_color_ranges" "$script_dir/../presets/yolo-preset.zsh")"
+eval "$color_ranges"
 
 for range in $_yazpt_yolo_color_ranges; do
 	echo $range | IFS=- read -A range
