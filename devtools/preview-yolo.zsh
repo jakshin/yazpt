@@ -1,0 +1,51 @@
+#!/usr/bin/env zsh
+# Previews yazpt's yolo preset, showing each possible randomized color set,
+# to make it easier to see how they look in any given terminal theme.
+# FIXME special consideration for yolo's random colors, monochrome emoji colors
+
+emulate -L zsh
+setopt no_prompt_subst
+
+script_dir="${${(%):-%x}:A:h}"
+source "$script_dir/../yazpt.zsh-theme"
+source "$script_dir/dev-utils.zsh"
+.yazpt_mock_git_segment
+
+big_space="${(l.8.. .)}"
+small_space="${(l.4.. .)}"
+
+yazpt_load_preset "yolo"
+YAZPT_LAYOUT=${YAZPT_LAYOUT//$'\n'/}
+YAZPT_LAYOUT=${YAZPT_LAYOUT//<char>/}
+
+if [[ -n $YAZPT_RLAYOUT ]]; then
+	YAZPT_LAYOUT+="${small_space}${YAZPT_RLAYOUT}"
+	YAZPT_RLAYOUT=""
+fi
+
+declare -a _yazpt_yolo_color_ranges=('22-39' '58-75' '94-111' '130-147')  # FIXME grep
+
+for range in $_yazpt_yolo_color_ranges; do
+	echo $range | IFS=- read -A range
+
+	for (( color=range[1]; color <= range[2]; color++ )); do
+		YAZPT_CWD_COLOR=$color
+		YAZPT_VCS_CONTEXT_COLOR=$(( color + 6 ))
+		YAZPT_EXECTIME_COLOR=$(( color + 12 ))
+
+		_yazpt_preview_in_meta_dir=false
+		_yazpt_cmd_exec_start=$(( SECONDS - 7242 ))
+		[[ -z $newline ]] || false
+		yazpt_precmd
+		PS1=${PS1//\%~/"~/Documents"}
+		print -Pn "${big_space}${PS1}${newline}"
+		[[ -z $newline ]] && newline="\n" || newline=""
+	done
+done
+
+
+# _yazpt_preview_in_meta_dir=true
+# (exit 123)
+# yazpt_precmd
+# PS1=${PS1//\%~/"~/Documents/Foo"}
+# print -P "\t$PS1"
