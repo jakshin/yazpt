@@ -1,4 +1,4 @@
-# A preset with randomized but complementary colors, and emoji (emoticons under XTerm).
+# A preset with randomized but complementary colors, and emoji (or emoticons).
 # The current directory and VCS context colors change each time the preset is loaded,
 # then stay constant within that terminal session.
 

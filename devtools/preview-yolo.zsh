@@ -1,7 +1,6 @@
 #!/usr/bin/env zsh
 # Previews yazpt's yolo preset, showing each possible randomized color set,
 # to make it easier to see how they look in any given terminal theme.
-# FIXME special consideration for yolo's random colors, monochrome emoji colors
 
 emulate -L zsh
 setopt no_prompt_subst
@@ -43,9 +42,19 @@ for range in $_yazpt_yolo_color_ranges; do
 	done
 done
 
+# Preview emoticons (the same colors are used with monochrome emoji)
+YAZPT_CWD_COLOR=7
+YAZPT_EXECTIME_CHAR="$yazpt_hourglass"
+YAZPT_EXECTIME_COLOR=7
+YAZPT_EXIT_ERROR_CHAR=":("
+YAZPT_EXIT_OK_CHAR=":)"
+YAZPT_VCS_CONTEXT_COLOR=7
 
-# _yazpt_preview_in_meta_dir=true
-# (exit 123)
-# yazpt_precmd
-# PS1=${PS1//\%~/"~/Documents/Foo"}
-# print -P "\t$PS1"
+_yazpt_cmd_exec_start=$(( SECONDS - 7242 )) yazpt_precmd
+PS1=${PS1//\%~/"~/Documents"}
+print -Pn "${big_space}${PS1}"
+
+false
+_yazpt_cmd_exec_start=$(( SECONDS - 7242 )) yazpt_precmd
+PS1=${PS1//\%~/"~/Documents"}
+print -P " ${big_space}${PS1}"
