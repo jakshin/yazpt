@@ -1,6 +1,7 @@
 #!/usr/bin/env zsh
 # Previews yazpt's yolo preset, showing each possible randomized color set,
 # to make it easier to see how they look in any given terminal theme.
+# FIXME ability to run without color adjustments?
 
 emulate -L zsh
 setopt no_prompt_subst
