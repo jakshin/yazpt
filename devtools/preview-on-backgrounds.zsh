@@ -55,13 +55,14 @@ fi
 # Do the things
 for bg in $bg_colors; do
 	clear
-	echo "\e[48;5;${bg}m\e[J"
-
 	echo "Background color $bg"
+	echo -n "\e[48;5;${bg}m\e[J"
+
 	[[ $preview_script == *"yolo"* ]] && echo
 	"$script_dir/$preview_script"
 
-	echo -n '\nPress a key to continue, or Ctrl+C to exit... '
+	echo -n '\n\e[0m' #\e[J
+	echo -n 'Press a key to continue, or Ctrl+C to exit... '
 	read -rs -k1
 done
 
