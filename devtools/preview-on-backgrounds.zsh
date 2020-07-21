@@ -53,16 +53,31 @@ else
 fi
 
 # Do the things
-for bg in $bg_colors; do
+function echo_readable() {
+	local bg=$1
+	shift
+
+	if (( (0 <= bg && bg <= 9) || (16 <= bg && bg <= 33) || (52 <= bg && bg <= 63) || (88 <= bg && bg <= 99) ||
+		(124 <= bg && bg <= 135) || (160 <= bg && bg <= 165) || (196 <= bg && bg <= 201) || (232 <= bg && bg <= 245) ))
+	then
+		local fg=255
+	else
+		local fg=0
+	fi
+
+	echo -e "\e[38;5;${fg}m"
+	echo "$@"
+}
+
+for bg_color in $bg_colors; do
 	clear
-	echo "Background color $bg"
-	echo -n "\e[48;5;${bg}m\e[J"
+	echo -n "\e[48;5;${bg_color}m\e[J"
+	echo_readable $bg_color " Background color $bg_color"
 
 	[[ $preview_script == *"yolo"* ]] && echo
 	"$script_dir/$preview_script"
 
-	echo -n '\n\e[0m' #\e[J
-	echo -n 'Press a key to continue, or Ctrl+C to exit... '
+	echo_readable $bg_color -n ' Press a key to continue, or Ctrl+C to exit... '
 	read -rs -k1
 done
 
