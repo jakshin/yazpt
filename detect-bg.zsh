@@ -1,7 +1,4 @@
 #!/usr/bin/env zsh
-# FIXME call .yazpt_detect_bg from preview-presets.zsh & preview-yolo.zsh
-
-emulate -L zsh
 
 script_dir="${${(%):-%x}:A:h}"
 source "$script_dir/yazpt.zsh-theme"

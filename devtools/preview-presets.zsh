@@ -4,9 +4,6 @@
 # FIXME ability to run without color adjustments?
 # FIXME special consideration for spearmint's bright white input
 
-emulate -L zsh
-setopt no_prompt_subst
-
 script_dir="${${(%):-%x}:A:h}"
 source "$script_dir/../yazpt.zsh-theme"
 source "$script_dir/dev-utils.zsh"

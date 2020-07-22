@@ -3,9 +3,6 @@
 # to make it easier to see how they look in any given terminal theme.
 # FIXME ability to run without color adjustments?
 
-emulate -L zsh
-setopt no_prompt_subst
-
 script_dir="${${(%):-%x}:A:h}"
 source "$script_dir/../yazpt.zsh-theme"
 source "$script_dir/dev-utils.zsh"
