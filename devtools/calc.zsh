@@ -2,8 +2,8 @@
 # Based on https://stackoverflow.com/a/27165165, verified with https://jonasjacek.github.io/colors.
 #
 function .yazpt_rgb() {
-	local index=$1
-	local var=$2
+	local index=$1  # A number in [16-255]
+	local var=$2    # Name of the array variable to assign RGB values to
 
 	if (( 16 <= index && index <= 255 )); then
 		if (( index < 232 )); then
