@@ -90,11 +90,7 @@ function .yazpt_read_term_color() {
 		if [[ $ch == $'\a' || $ch == '\' ]]; then
 			break
 		elif [[ $colon == true ]]; then
-			if [[ $ch == $'\e' ]]; then
-				break
-			else
-				str+="$ch"
-			fi
+			[[ $ch == $'\e' ]] || str+="$ch"
 		elif [[ $ch == ':' ]]; then
 			colon=true
 		fi
