@@ -11,11 +11,11 @@ source "$script_dir/yazpt.zsh-theme"
 	emulate -L zsh
 
 	# Zsh added true color support and the nearcolor module in v5.7 (see http://zsh.sourceforge.net/releases.html),
-	# so on lower versions we won't be able to use a "#rgb" color
+	# so on lower versions we won't be able to use "#rgb" colors like we need to
 	yazpt_zsh_ver=(${(s:.:)ZSH_VERSION})
 
 	if (( $yazpt_zsh_ver[1] < 5 || ($yazpt_zsh_ver[1] == 5 && $yazpt_zsh_ver[2] < 7) )); then
-		echo "Not supported on zsh v$ZSH_VERSION"
+		echo "Not supported on zsh version $ZSH_VERSION"
 		return 1
 	fi
 
@@ -52,6 +52,8 @@ source "$script_dir/yazpt.zsh-theme"
 			copy mySettings's background color & mySettings's normal text color to stdout
 			end tell"
 			)"}")
+
+		echo "Got Terminal.app colors with AppleScript: $arr"
 
 		bg_rgb=( $(printf "%.4x %.4x %.4x" $arr[1,3]) )
 		fg_rgb=( $(printf "%.4x %.4x %.4x" $arr[4,6]) )
@@ -94,9 +96,9 @@ source "$script_dir/yazpt.zsh-theme"
 	echo "Foreground brightness: $fg_brightness"
 
 	if (( bg_brightness > fg_brightness )); then
-		echo "Background is light"
+		echo "Background is light ($bg_rgb > $fg_rgb)"
 	else
-		echo "Background is dark"
+		echo "Background is dark ($bg_rgb < $fg_rgb)"
 	fi
 }
 
