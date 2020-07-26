@@ -82,8 +82,8 @@ source "$script_dir/yazpt.zsh-theme"
 	local bg_brightness=0 fg_brightness=0 i=1
 
 	for (( i=1; i <= 3; i++ )); do
-		[[ $#$bg_rgb[$i] == 2 ]] && bg_rgb[$i]+="00"
-		[[ $#$fg_rgb[$i] == 2 ]] && fg_rgb[$i]+="00"
+		[[ $#bg_rgb[$i] == 2 ]] && bg_rgb[$i]+="00"
+		[[ $#fg_rgb[$i] == 2 ]] && fg_rgb[$i]+="00"
 
 		# FIXME https://www.nbdtech.com/Blog/archive/2008/04/27/Calculating-the-Perceived-Brightness-of-a-Color.aspx
 		(( bg_brightness+=16#${bg_rgb[$i]} ))
