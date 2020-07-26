@@ -7,13 +7,13 @@
 # but to summarize, valid values include: default (meaning the terminal's default foreground colour, usually gray);
 # black, red, green, yellow, blue, magenta, cyan, white; numbers from 0-255 (where 0-7 are the named colors above,
 # 8-15 are the bold/bright variants of those colors, 16-231 are colors from a palette of 216, and 232-255 are shades of gray);
-# and on a terminal that supports true color, "#" followed by 3 or 6 hex digits specifying RGB.
+# and on zsh 5.7+ in a terminal that supports true color, "#" followed by 3 or 6 hex digits specifying RGB.
 #
 # Giving an invalid value sometimes results in the terminal's default foreground color being used,
 # and sometimes results in black being used (like you'd used the value `0`), which in many color schemes makes it invisible.
 #
 # Unpredictable but generally unfortunate things tend to happen if you use #RGB colors in a terminal without true color,
-# such as Terminal.app. You can work around this limitation with zsh's "nearcolor" module:
+# such as Terminal.app. You can work around this limitation on zsh 5.7+ with its "nearcolor" module:
 # [[ $COLORTERM == *(24bit|truecolor)* ]] || zmodload zsh/nearcolor
 #
 # Yazpt doesn't escape *COLOR variables as it uses them in creating $PS1 and $RPS1, so you can have a bit of pointless fun
