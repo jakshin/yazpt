@@ -3,80 +3,100 @@
 script_dir="${${(%):-%x}:A:h}"
 source "$script_dir/yazpt.zsh-theme"
 
-# Tries to figure out whether the terminal is using dark text on a light background;
-# if so, yazpt's presets will try to adjust their colors accordingly.
-# Sets the readonly global $yazpt_bg variable to "dark", "light", or "hued".
-# Based loosely on https://github.com/rocky/shell-term-background (GPL v2+).
+# Adjusts yazpt's current colors, if the relevant zsh and terminal support is available,
+# so they contrast well against the terminal emulator's current background color.
+# Some parts are based loosely on https://github.com/rocky/shell-term-background (GPL v2+).
 #
-.yazpt_detect_bg() {
-  local debug=$1
+.yazpt_adjust_colors() {
+	emulate -L zsh
 
-	# if [[ -n $yazpt_bg ]]; then
-	# 	return
-	# elif [[ $COLORFGBG == "0;"* ]]; then
-	# 	yazpt_bg="light"  # FIXME what about hued?
-	# 	return
-	# elif [[ $COLORFGBG == *";0" ]]; then
-	# 	yazpt_bg="dark"
-	# 	return
-	# fi
+	# Zsh added true color support and the nearcolor module in v5.7 (see http://zsh.sourceforge.net/releases.html),
+	# so on lower versions we won't be able to use a "#rgb" color
+	yazpt_zsh_ver=(${(s:.:)ZSH_VERSION})
 
-	local fg bg
+	if (( $yazpt_zsh_ver[1] < 5 || ($yazpt_zsh_ver[1] == 5 && $yazpt_zsh_ver[2] < 7) )); then
+		echo "Not supported on zsh v$ZSH_VERSION"
+		return 1
+	fi
+
+	# Determine whether we need to use nearcolor for this terminal
+	local truecolor=false
+
+	if [[ $COLORTERM == *(24bit|truecolor)* ]]; then
+		truecolor=true
+	else
+		[[ -n $yazpt_terminal ]] || .yazpt_detect_terminal
+
+		if [[ $yazpt_terminal == "mintty" ]]; then
+			truecolor=true
+		elif [[ $yazpt_terminal == "xterm" ]] && (( ${XTERM_VERSION//[a-zA-Z()]/} >= 331 )); then
+			truecolor=true
+		fi
+	fi
+
+	if [[ $truecolor == true ]]; then
+		echo "This terminal supports true color"
+	else
+		echo "This terminal isn't known to support true color; loading zsh's nearcolor module"
+		zmodload zsh/nearcolor
+	fi
+
+	# Get colors from the terminal
+	local bg_rgb fg_rgb
+
 	if [[ $TERM_PROGRAM == 'Apple_Terminal' ]] && (( $TERM_PROGRAM_VERSION < 430 )); then
-		# Terminal.app before Catalina doesn't answer xterm-style queries about foreground/background color
+		# Terminal.app before Catalina doesn't answer XTerm-style queries about foreground/background color
 		local arr=("${(s:, :)"$(osascript -e "tell application \"Terminal\"
 			set myTab to the selected tab of the front window
 			set mySettings to myTab's current settings
-			copy mySettings's normal text color & mySettings's background color & mySettings's name to stdout
+			copy mySettings's background color & mySettings's normal text color to stdout
 			end tell"
 			)"}")
 
-		[[ -n $debug ]] && echo "arr = $arr"
-		fg=$(( arr[1] + arr[2] + arr[3] ))
-		bg=$(( arr[4] + arr[5] + arr[6] ))
+		bg_rgb=( $(printf "%.4x %.4x %.4x" $arr[1,3]) )
+		fg_rgb=( $(printf "%.4x %.4x %.4x" $arr[4,6]) )
 	else
-		# local delim=$'\a' fg_arr bg_arr i
-		# [[ $OSTYPE == "cygwin" ]] && delim='\'  # FIXME maybe this is actually Mintty-specific?
-
 		if [[ -t 0 ]]; then
 			local tty_settings="$(stty -g)"  # Save TTY settings
 			stty -echo                       # Turn echo to TTY off
 		fi
 
-		# echo -en '\e]10;?\a'; IFS=:/ read -t 0.1 -d $delim -A fg_arr  # Get foreground color
-		# echo -en '\e]11;?\a'; IFS=:/ read -t 0.1 -d $delim -A bg_arr  # Get background color
-		# [[ -n $debug ]] && echo "fg_arr = ${fg_arr[2,4]//$'\e'/}, bg_arr = ${bg_arr[2,4]//$'\e'/}"
-		# [[ -z $tty_settings ]] || stty "$tty_settings"  # Restore TTY settings
-		#
-		# for (( i=2; i <= 4; i++ )); do
-		# 	(( fg+=16#${fg_arr[$i]//[^a-zA-Z0-9]/} ))
-		# 	(( bg+=16#${bg_arr[$i]//[^a-zA-Z0-9]/} ))
-		# done
+		# Get background color, and if that worked, then foreground color
+		echo -en '\e]11;?\a'; .yazpt_read_term_color bg_rgb
+		[[ $#bg_rgb == 3 ]] && echo -en '\e]10;?\a'; .yazpt_read_term_color fg_rgb
 
-		local fg_arr bg_arr i
-		echo -en '\e]10;?\a'; .yazpt_read_term_color fg_arr  # Get foreground color
-		echo -en '\e]11;?\a'; .yazpt_read_term_color bg_arr  # Get background color
-		[[ -z $tty_settings ]] || stty "$tty_settings"       # Restore TTY settings
-
-		[[ -n $debug ]] && echo "fg_arr = $fg_arr, bg_arr = $bg_arr"
-
-		for (( i=1; i <= 3; i++ )); do
-			(( fg+=16#${fg_arr[$i]} ))
-			(( bg+=16#${bg_arr[$i]} ))
-		done
+		[[ -z $tty_settings ]] || stty "$tty_settings"  # Restore TTY settings
 	fi
 
-	if (( fg < bg )); then
-		# FIXME declare -rg
-		# FIXME what about hued?
-		yazpt_bg="light"
+	if [[ $#bg_rgb != 3 ]]; then
+		echo "Couldn't get the terminal's background color"
+		return 1
+	elif [[ $#fg_rgb != 3 ]]; then
+		echo "Couldn't get the terminal's foreground color, using midpoint"
+		fg_rgb=(7fff 7fff 7fff)
+	fi
+
+	echo "bg_rgb: $bg_rgb"
+	echo "fg_rgb: $fg_rgb"
+
+	local bg_brightness=0 fg_brightness=0 i=1
+
+	for (( i=1; i <= 3; i++ )); do
+		[[ $#$bg_rgb[$i] == 2 ]] && bg_rgb[$i]+="00"
+		[[ $#$fg_rgb[$i] == 2 ]] && fg_rgb[$i]+="00"
+
+		# FIXME https://www.nbdtech.com/Blog/archive/2008/04/27/Calculating-the-Perceived-Brightness-of-a-Color.aspx
+		(( bg_brightness+=16#${bg_rgb[$i]} ))
+		(( fg_brightness+=16#${fg_rgb[$i]} ))
+	done
+
+	echo "Background brightness: $bg_brightness"
+	echo "Foreground brightness: $fg_brightness"
+
+	if (( bg_brightness > fg_brightness )); then
+		echo "Background is light"
 	else
-		yazpt_bg="dark"
-	fi
-
-	if [[ -n $debug ]]; then
-		echo "fg: $fg, bg: $bg"
-		echo "background: $yazpt_bg"
+		echo "Background is dark"
 	fi
 }
 
@@ -99,4 +119,4 @@ function .yazpt_read_term_color() {
 	eval "$var=(\${(s:/:)str})"
 }
 
-.yazpt_detect_bg true
+.yazpt_adjust_colors
