@@ -3,8 +3,6 @@
 # by displaying the relevant Unicode/emoji characters and various environment-detection results.
 # Run like `YAZPT_NO_TWEAKS=true check-rendering.zsh` to see what yazpt'd do without tweaks applied.
 
-emulate -L zsh
-
 script_dir="${${(%):-%x}:A:h}"
 source "$script_dir/../yazpt.zsh-theme"
 source "$script_dir/dev-utils.zsh"

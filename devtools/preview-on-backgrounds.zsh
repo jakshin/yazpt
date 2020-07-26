@@ -1,6 +1,5 @@
 #!/usr/bin/env zsh
 
-emulate -L zsh
 script_dir="${${(%):-%x}:A:h}"
 script_name="${${(%):-%x}:A:t}"
 
