@@ -19,28 +19,6 @@ source "$script_dir/yazpt.zsh-theme"
 		return 1
 	fi
 
-	# Determine whether we need to use nearcolor for this terminal
-	local truecolor=false
-
-	if [[ $COLORTERM == *(24bit|truecolor)* ]]; then
-		truecolor=true
-	else
-		[[ -n $yazpt_terminal ]] || .yazpt_detect_terminal
-
-		if [[ $yazpt_terminal == "mintty" ]]; then
-			truecolor=true
-		elif [[ $yazpt_terminal == "xterm" ]] && (( ${XTERM_VERSION//[a-zA-Z()]/} >= 331 )); then
-			truecolor=true
-		fi
-	fi
-
-	if [[ $truecolor == true ]]; then
-		echo "This terminal supports true color"
-	else
-		echo "This terminal isn't known to support true color; loading zsh's nearcolor module"
-		zmodload zsh/nearcolor
-	fi
-
 	# Get colors from the terminal
 	local bg_rgb fg_rgb
 
@@ -99,6 +77,28 @@ source "$script_dir/yazpt.zsh-theme"
 		echo "Background is light ($bg_rgb > $fg_rgb)"
 	else
 		echo "Background is dark ($bg_rgb < $fg_rgb)"
+	fi
+
+	# Determine whether we need to use nearcolor for this terminal
+	local truecolor=false
+
+	if [[ $COLORTERM == *(24bit|truecolor)* ]]; then
+		truecolor=true
+	else
+		[[ -n $yazpt_terminal ]] || .yazpt_detect_terminal
+
+		if [[ $yazpt_terminal == "mintty" ]]; then
+			truecolor=true
+		elif [[ $yazpt_terminal == "xterm" ]] && (( ${XTERM_VERSION//[a-zA-Z()]/} >= 331 )); then
+			truecolor=true
+		fi
+	fi
+
+	if [[ $truecolor == true ]]; then
+		echo "This terminal supports true color"
+	else
+		echo "This terminal isn't known to support true color; loading zsh's nearcolor module"
+		zmodload zsh/nearcolor
 	fi
 }
 
