@@ -42,6 +42,7 @@ source "$script_dir/yazpt.zsh-theme"
 		fi
 
 		# Get background color, and if that worked, then foreground color
+		# FIXME early exit if background is quite dark
 		echo -en '\e]11;?\a'; .yazpt_read_term_color bg_rgb
 		[[ $#bg_rgb == 3 ]] && echo -en '\e]10;?\a'; .yazpt_read_term_color fg_rgb
 

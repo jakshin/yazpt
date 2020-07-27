@@ -3,7 +3,7 @@
 # Based on https://stackoverflow.com/questions/6615002/given-an-rgb-value-how-do-i-create-a-tint-or-shade.
 
 zmodload zsh/mathfunc  # For int() and rint()
-[[ $COLORTERM == *(24bit|truecolor)* ]] || zmodload zsh/nearcolor
+[[ $COLORTERM == *(24bit|truecolor)* ]] || zmodload zsh/nearcolor  # FIXME use .yazpt_adjust_colors's logic
 
 if echo "$1" | grep -Eq '^#?[0-9a-f]{6}$'; then
 	hex="${1//\#/}"
@@ -52,6 +52,7 @@ for (( tint_num=0; $tint[1] < 255 || $tint[2] < 255 || $tint[3] < 255; tint_num+
 done
 
 # Display
+# FIXME show each hue's percent difference from the background's brightness
 (( $#shades > $#tints )) && count=$#shades || count=$#tints
 
 for (( i=1; i <= count; i++ )); do
