@@ -130,6 +130,7 @@ I've used or tested yazpt in the following distros, using both their standard te
 * **Kali Linux 2020.2**;
     [Install a font](./tips-for-linux.md#kali-linux-20202) to upgrade from emoticons to color emoji
 * **Kubuntu 20.04**
+* **Linux Mint Cinnamon 20 (Ulyana)**
 * **Linux Mint Cinnamon 19.3 (Tricia)**
 * **Linux Mint Cinnamon 18.3 (Sylvia)**;
     No color emoji, but monochrome emoji if you [install a font](./tips-for-linux.md#linux-mint-cinnamon-183-sylvia)

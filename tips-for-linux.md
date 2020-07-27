@@ -46,7 +46,7 @@ In both LXTerminal and QTerminal, everything works out of the box -- except emoj
 In Konsole, yazpt works well out of the box, except the default hourglass Unicode character is rendered as a color emoji instead of monochrome in the same color as nearby text, as intended. I haven't found a way to fix this. 🤷
 
 
-## Linux Mint Cinnamon 19.3 (Tricia)
+## Linux Mint Cinnamon 20 (Ulyana) and 19.3 (Tricia)
 
 Everything just works out of the box.
 
