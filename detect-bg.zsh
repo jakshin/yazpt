@@ -56,26 +56,21 @@ source "$script_dir/yazpt.zsh-theme"
 		fg_rgb=(7fff 7fff 7fff)
 	fi
 
+	local i
+	for (( i=1; i <= 3; i++ )); do
+		# Normalize to 4 hex characters for each component of RGB, e.g. for iTerm
+		[[ $#bg_rgb[$i] == 2 ]] && bg_rgb[$i]+="00"
+		[[ $#fg_rgb[$i] == 2 ]] && fg_rgb[$i]+="00"
+	done
+
 	echo "bg_rgb: $bg_rgb"
 	echo "fg_rgb: $fg_rgb"
 
-	local bg_brightness=0 fg_brightness=0 i=1
-
-	for (( i=1; i <= 3; i++ )); do
-		[[ $#bg_rgb[$i] == 2 ]] && bg_rgb[$i]+="00"
-		[[ $#fg_rgb[$i] == 2 ]] && fg_rgb[$i]+="00"
-
-		# FIXME https://www.nbdtech.com/Blog/archive/2008/04/27/Calculating-the-Perceived-Brightness-of-a-Color.aspx
-		(( bg_brightness+=16#${bg_rgb[$i]} ))
-		(( fg_brightness+=16#${fg_rgb[$i]} ))
-	done
-
-	echo "Naive background brightness: $bg_brightness"
-	echo "Naive foreground brightness: $fg_brightness"
-
+	# Calculate the perceived brightness of the bg/fg colors
+	# (See https://www.nbdtech.com/Blog/archive/2008/04/27/Calculating-the-Perceived-Brightness-of-a-Color.aspx)
 	zmodload -af zsh/mathfunc sqrt
-	bg_brightness=$(( sqrt( (0.241 * 0x${bg_rgb[1]}**2) + (0.691 * 0x${bg_rgb[2]}**2) + (0.068 * 0x${bg_rgb[3]}**2) ) ))
-	fg_brightness=$(( sqrt( (0.241 * 0x${fg_rgb[1]}**2) + (0.691 * 0x${fg_rgb[2]}**2) + (0.068 * 0x${fg_rgb[3]}**2) ) ))
+	local bg_brightness=$(( sqrt( (0.241 * 0x${bg_rgb[1]}**2) + (0.691 * 0x${bg_rgb[2]}**2) + (0.068 * 0x${bg_rgb[3]}**2) ) ))
+	local fg_brightness=$(( sqrt( (0.241 * 0x${fg_rgb[1]}**2) + (0.691 * 0x${fg_rgb[2]}**2) + (0.068 * 0x${fg_rgb[3]}**2) ) ))
 
 	echo "Background brightness: $bg_brightness"
 	echo "Foreground brightness: $fg_brightness"
@@ -107,6 +102,8 @@ source "$script_dir/yazpt.zsh-theme"
 		echo "This terminal isn't known to support true color; loading zsh's nearcolor module"
 		zmodload zsh/nearcolor
 	fi
+
+	# FIXME actually adjust colors...
 }
 
 # \e]10;rgb:c10a/c10b/c10a\a
