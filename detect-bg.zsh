@@ -5,7 +5,9 @@ source "$script_dir/yazpt.zsh-theme"
 
 # Adjusts yazpt's current colors, if the relevant zsh and terminal support is available,
 # so they contrast well against the terminal emulator's current background color.
-# Some parts are based loosely on https://github.com/rocky/shell-term-background (GPL v2+).
+#
+# Some parts are based loosely on https://github.com/rocky/shell-term-background (GPL v2+),
+# and https://gist.github.com/XVilka/8346728 was used as a reference.
 #
 .yazpt_adjust_colors() {
 	emulate -L zsh

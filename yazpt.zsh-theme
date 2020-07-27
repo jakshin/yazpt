@@ -340,6 +340,9 @@ function .yazpt_detect_terminal() {
 
 	if [[ $OSTYPE == "darwin"* && -n $TERM_PROGRAM ]]; then
 		# Terminal emulators on macOS tend to set $TERM_PROGRAM (e.g. Terminal.app, iTerm, Terminus)
+		# If this ever needs to be updated to a proper check, here are examples how:
+		# https://github.com/jakshin/schlep/blob/master/bash-settings/bash.sh
+		# https://github.com/gnachman/iterm2-website/blob/master/source/utilities/it2check
 		yazpt_terminal=${TERM_PROGRAM:l}
 		yazpt_terminal_info="n/a"
 	else
