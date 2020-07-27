@@ -333,9 +333,7 @@ function .yazpt_detect_font() {
 function .yazpt_detect_terminal() {
 	emulate -L zsh
 
-	[[ -n $yazpt_terminal && $yazpt_terminal != "unknown" ]] && return 0
-	[[ $+yazpt_terminal == 1 ]] && typeset +r -g yazpt_terminal
-	[[ $+yazpt_terminal_info == 1 ]] && typeset +r -g yazpt_terminal_info=""
+	[[ -n $yazpt_terminal ]] && return 0
 	yazpt_terminal="unknown"  # Pessimism
 
 	if [[ $OSTYPE == "darwin"* && -n $TERM_PROGRAM ]]; then
