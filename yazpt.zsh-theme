@@ -327,7 +327,6 @@ function .yazpt_detect_font() {
 }
 
 # Tries to figure out which terminal emulator yazpt is running under.
-# Sets its result into the readonly global $yazpt_terminal variable.
 # Based on https://github.com/mintty/mintty/issues/776#issuecomment-475720406.
 #
 function .yazpt_detect_terminal() {
@@ -342,25 +341,25 @@ function .yazpt_detect_terminal() {
 		# https://github.com/jakshin/schlep/blob/master/bash-settings/bash.sh
 		# https://github.com/gnachman/iterm2-website/blob/master/source/utilities/it2check
 		yazpt_terminal=${TERM_PROGRAM:l}
-		yazpt_terminal_info="n/a"
+		yazpt_terminal_ident="n/a"
 	else
 		if [[ -t 0 ]]; then
 			local tty_settings="$(stty -g)"  # Save TTY settings
 			stty -echo                       # Turn echo to TTY off
 		fi
 
-		local info
+		local ident
 		echo -n "\033[>c" > /dev/tty           # Request secondary device attributes
-		read -s -t 0.1 -d ">" info < /dev/tty  # Read and discard the prefix
-		read -s -t -d "c" info < /dev/tty      # Read the rest of the response
+		read -s -t 0.1 -d ">" ident < /dev/tty  # Read and discard the prefix
+		read -s -t -d "c" ident < /dev/tty      # Read the rest of the response
 
 		[[ -z $tty_settings ]] || stty "$tty_settings"  # Restore TTY settings
 
-		yazpt_terminal_info="$info"
-		info=(${(s.;.)info})
+		yazpt_terminal_ident="$ident"
+		ident=(${(s.;.)ident})
 
-		if (( $#info == 3 )); then
-			if (( ($info[1] == 1 && $info[2] >= 2000) || $info[1] == 65 )); then
+		if (( $#ident == 3 )); then
+			if (( ($ident[1] == 1 && $ident[2] >= 2000) || $ident[1] == 65 )); then
 				# Could be GNOME Terminal, LXTerminal, MATE Terminal, Pantheon Terminal, or Xfce Terminal (and maybe others?)
 				local desktop=$XDG_CURRENT_DESKTOP
 				if [[ -n $GNOME_TERMINAL_SCREEN || $desktop == *"GNOME"* || $desktop == "X-Cinnamon" || $desktop == "Unity" ]]; then
@@ -375,28 +374,28 @@ function .yazpt_detect_terminal() {
 					yazpt_terminal="xfce4-terminal"
 				fi
 
-			elif (( $info[1] == 0 && $info[2] == 115 )); then
+			elif (( $ident[1] == 0 && $ident[2] == 115 )); then
 				yazpt_terminal="konsole"  # Or QTerminal
-			elif (( $info[1] == 41 )); then
+			elif (( $ident[1] == 41 )); then
 				yazpt_terminal="xterm"
-			elif (( $info[1] == 61 && $info[2] == 337 )); then
+			elif (( $ident[1] == 61 && $ident[2] == 337 )); then
 				yazpt_terminal="terminology"  # Enlightenment's terminal, "61;337;0"
-			elif (( $info[1] == 67 )) && [[ $TERM_PROGRAM == "Terminus" ]]; then
+			elif (( $ident[1] == 67 )) && [[ $TERM_PROGRAM == "Terminus" ]]; then
 				yazpt_terminal="terminus"  # Only seen on MSYS2
-			elif (( $info[1] == 77 )); then
+			elif (( $ident[1] == 77 )); then
 				yazpt_terminal="mintty"
 
-			elif [[ $info == "0 136 0" && -n $ConEmuBuild ]]; then
+			elif [[ $ident == "0 136 0" && -n $ConEmuBuild ]]; then
 				yazpt_terminal="conemu"
-			elif [[ $info == "0 136 0" && $PATH == *"/MobaXterm/"* ]]; then
+			elif [[ $ident == "0 136 0" && $PATH == *"/MobaXterm/"* ]]; then
 				yazpt_terminal="mobaxterm"
 			fi
-		elif (( $#info == 0 )); then
+		elif (( $#ident == 0 )); then
 			[[ -n $TERM_PROGRAM ]] && yazpt_terminal=${TERM_PROGRAM:l}  # Including Terminus
 		fi
 	fi
 
-	typeset -rg yazpt_terminal yazpt_terminal_info
+	typeset -rg yazpt_terminal yazpt_terminal_ident
 	[[ $yazpt_terminal != "unknown" ]]
 }
 

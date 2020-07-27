@@ -92,9 +92,9 @@ fi
 echo "${header}Zsh shell version: ${normal}${ZSH_VERSION}"
 
 echo -n "${header}Terminal emulator: ${normal}"
-typeset +r -g yazpt_terminal="" yazpt_terminal_info=""
+typeset +r -g yazpt_terminal="" yazpt_terminal_ident=""
 .yazpt_detect_terminal
-echo "$yazpt_terminal ($yazpt_terminal_info)"
+echo "$yazpt_terminal ($yazpt_terminal_ident)"
 
 if [[ $linux_or_bsd == true ]]; then
 	echo "\n${header}Checking the Noto emoji fonts...${normal}"
