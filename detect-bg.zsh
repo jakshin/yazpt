@@ -70,6 +70,13 @@ source "$script_dir/yazpt.zsh-theme"
 		(( fg_brightness+=16#${fg_rgb[$i]} ))
 	done
 
+	echo "Naive background brightness: $bg_brightness"
+	echo "Naive foreground brightness: $fg_brightness"
+
+	zmodload -af zsh/mathfunc sqrt
+	bg_brightness=$(( sqrt( (0.241 * 0x${bg_rgb[1]}**2) + (0.691 * 0x${bg_rgb[2]}**2) + (0.068 * 0x${bg_rgb[3]}**2) ) ))
+	fg_brightness=$(( sqrt( (0.241 * 0x${fg_rgb[1]}**2) + (0.691 * 0x${fg_rgb[2]}**2) + (0.068 * 0x${fg_rgb[3]}**2) ) ))
+
 	echo "Background brightness: $bg_brightness"
 	echo "Foreground brightness: $fg_brightness"
 
