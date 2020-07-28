@@ -19,7 +19,6 @@ else
 fi
 
 # Apply multiples of the shading/tinting factor to the base color, generating shades & tints
-echo "Showing shades and tints of base color $base_color[1] $base_color[2] $base_color[3]\n"
 factor=0.027
 
 shades=()
@@ -54,7 +53,10 @@ done
 
 # Display
 (( $+yazpt_terminal_bg )) || .yazpt_detect_terminal_bg
-bg_brightness_percent=$(( 100 * ${yazpt_terminal_bg[brightness]} / 255 ))
+bg_brightness_percent=$(( 100 * ${yazpt_terminal_bg[brightness]} / 65535 ))
+
+echo -n "Showing shades and tints of base color $base_color[1] $base_color[2] $base_color[3] "
+echo "on background $yazpt_terminal_bg[rgb] ($(( int(rint($bg_brightness_percent)) ))% bright)\n"
 
 function calc_brightness_difference() {
 	local hex=$1
