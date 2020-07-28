@@ -60,7 +60,6 @@ source "$script_dir/yazpt.zsh-theme"
 			)"}")
 
 		[[ -n $debug ]] && echo "Got Terminal.app colors with AppleScript: $arr"
-
 		bg_rgb=( $(printf "%.4x %.4x %.4x" $arr[1,3]) )
 		fg_rgb=( $(printf "%.4x %.4x %.4x" $arr[4,6]) )
 	else
@@ -82,7 +81,13 @@ source "$script_dir/yazpt.zsh-theme"
 				fi
 			done
 
-			eval "$var=(\${(s:/:)str})"
+			local arr=(${(s:/:)str}) i
+			for (( i=1; i <= $#arr; i++ )); do
+				# Normalize to 4 hex characters for each component of RGB, e.g. for iTerm
+				[[ $#arr[$i] == 2 ]] && arr[$i]+="00"
+			done
+
+			eval "$var=(\$arr)"
 		}
 
 		if [[ -t 0 ]]; then
@@ -92,36 +97,18 @@ source "$script_dir/yazpt.zsh-theme"
 
 		# Get background color, and if that worked, then foreground color
 		echo -en '\e]11;?\a'; .yazpt_read_term_color bg_rgb
-
-		if [[ $#bg_rgb == 3 ]]; then
-			# We can short-circuit if the background is black
-			if (( $bg_rgb[1] == 0 && $bg_rgb[2] == 0 && $bg_rgb[3] == 0 )); then
-				declare -rg yazpt_terminal_bg=('rgb' "$bg_rgb" 'brightness' 0 'light' false)
-			else
-				echo -en '\e]10;?\a'; .yazpt_read_term_color fg_rgb
-			fi
-		fi
+		if [[ $#bg_rgb == 3 ]] && echo -en '\e]10;?\a'; .yazpt_read_term_color fg_rgb
 
 		[[ -z $tty_settings ]] || stty "$tty_settings"  # Restore TTY settings
 	fi
 
-	if (( $+yazpt_terminal_bg )); then
-		[[ -n $debug ]] && echo "Background is black, returning early: $yazpt_terminal_bg"
-		return 0
-	elif [[ $#bg_rgb != 3 ]]; then
+	if [[ $#bg_rgb != 3 ]]; then
 		[[ -n $debug ]] && echo "Couldn't get the terminal's background color"
 		return 1
 	elif [[ $#fg_rgb != 3 ]]; then
 		[[ -n $debug ]] && echo "Couldn't get the terminal's foreground color, using midpoint"
 		fg_rgb=(7fff 7fff 7fff)
 	fi
-
-	local i
-	for (( i=1; i <= 3; i++ )); do
-		# Normalize to 4 hex characters for each component of RGB, e.g. for iTerm
-		[[ $#bg_rgb[$i] == 2 ]] && bg_rgb[$i]+="00"
-		[[ $#fg_rgb[$i] == 2 ]] && fg_rgb[$i]+="00"
-	done
 
 	if [[ -n $debug ]]; then
 		echo "bg_rgb: $bg_rgb"
@@ -131,27 +118,19 @@ source "$script_dir/yazpt.zsh-theme"
 	# Calculate the perceived brightness of the bg/fg colors
 	# (See https://www.nbdtech.com/Blog/archive/2008/04/27/Calculating-the-Perceived-Brightness-of-a-Color.aspx)
 	zmodload -af zsh/mathfunc sqrt
-	local bg_brightness=$(( sqrt( (0.241 * 0x${bg_rgb[1]}**2) + (0.691 * 0x${bg_rgb[2]}**2) + (0.068 * 0x${bg_rgb[3]}**2) ) ))
-	local fg_brightness=$(( sqrt( (0.241 * 0x${fg_rgb[1]}**2) + (0.691 * 0x${fg_rgb[2]}**2) + (0.068 * 0x${fg_rgb[3]}**2) ) ))
+	local -F bg_brightness=$(( sqrt( (0.241 * 0x${bg_rgb[1]}**2) + (0.691 * 0x${bg_rgb[2]}**2) + (0.068 * 0x${bg_rgb[3]}**2) ) ))
+	local -F fg_brightness=$(( sqrt( (0.241 * 0x${fg_rgb[1]}**2) + (0.691 * 0x${fg_rgb[2]}**2) + (0.068 * 0x${fg_rgb[3]}**2) ) ))
 
 	if [[ -n $debug ]]; then
 		echo "Background brightness: $bg_brightness"
 		echo "Foreground brightness: $fg_brightness"
 	fi
 
-	if (( bg_brightness > fg_brightness )); then
-		[[ -n $debug ]] && echo "Background is light ($bg_rgb > $fg_rgb)"
-		local light_bg=true
-	else
-		[[ -n $debug ]] && echo "Background is dark ($bg_rgb < $fg_rgb)"
-		local light_bg=false
-	fi
+	local light_bg=false
+	(( bg_brightness > fg_brightness )) && light_bg=true
 
-	declare -rg yazpt_terminal_bg=(
-		'rgb' "$bg_rgb"
-		'brightness' "$bg_brightness"
-		'light' "$light_bg"
-	)
+	declare -rg yazpt_terminal_bg=('rgb' "$bg_rgb" 'brightness' "$bg_brightness" 'light' "$light_bg")
+	[[ -n $debug ]] && echo "$yazpt_terminal_bg"
 }
 
 # Tries to figure out whether the terminal supports 24bit/"true" color.
