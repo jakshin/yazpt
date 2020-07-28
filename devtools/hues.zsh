@@ -2,8 +2,11 @@
 # Shows shades and tints of a given color; pass either an index 16-255, or RGB using hex values.
 # Based on https://stackoverflow.com/questions/6615002/given-an-rgb-value-how-do-i-create-a-tint-or-shade.
 
+script_dir="${${(%):-%x}:A:h}"
+source "$script_dir/../detect-bg.zsh"  # FIXME yazpt.zsh-theme
+
+.yazpt_detect_terminal_truecolor || zmodload zsh/nearcolor  # Run with COLORTERM=24bit to force truecolor on
 zmodload zsh/mathfunc  # For int() and rint()
-[[ $COLORTERM == *(24bit|truecolor)* ]] || zmodload zsh/nearcolor  # FIXME use .yazpt_adjust_colors's logic
 
 if echo "$1" | grep -Eq '^#?[0-9a-f]{6}$'; then
 	hex="${1//\#/}"
