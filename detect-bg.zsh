@@ -91,14 +91,24 @@ source "$script_dir/yazpt.zsh-theme"
 		fi
 
 		# Get background color, and if that worked, then foreground color
-		# FIXME early exit if background is quite dark?
 		echo -en '\e]11;?\a'; .yazpt_read_term_color bg_rgb
-		[[ $#bg_rgb == 3 ]] && echo -en '\e]10;?\a'; .yazpt_read_term_color fg_rgb
+
+		if [[ $#bg_rgb == 3 ]]; then
+			# We can short-circuit if the background is black
+			if (( $bg_rgb[1] == 0 && $bg_rgb[2] == 0 && $bg_rgb[3] == 0 )); then
+				declare -rg yazpt_terminal_bg=('rgb' "$bg_rgb" 'brightness' 0 'light' false)
+			else
+				echo -en '\e]10;?\a'; .yazpt_read_term_color fg_rgb
+			fi
+		fi
 
 		[[ -z $tty_settings ]] || stty "$tty_settings"  # Restore TTY settings
 	fi
 
-	if [[ $#bg_rgb != 3 ]]; then
+	if (( $+yazpt_terminal_bg )); then
+		[[ -n $debug ]] && echo "Background is black, returning early: $yazpt_terminal_bg"
+		return 0
+	elif [[ $#bg_rgb != 3 ]]; then
 		[[ -n $debug ]] && echo "Couldn't get the terminal's background color"
 		return 1
 	elif [[ $#fg_rgb != 3 ]]; then
