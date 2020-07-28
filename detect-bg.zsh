@@ -129,7 +129,7 @@ source "$script_dir/yazpt.zsh-theme"
 	local light_bg=false
 	(( bg_brightness > fg_brightness )) && light_bg=true
 
-	declare -rg yazpt_terminal_bg=('rgb' "$bg_rgb" 'brightness' "$bg_brightness" 'light' "$light_bg")
+	declare -rgA yazpt_terminal_bg=('rgb' "$bg_rgb" 'brightness' "$bg_brightness" 'light' "$light_bg")
 	[[ -n $debug ]] && echo "$yazpt_terminal_bg"
 }
 
@@ -154,6 +154,33 @@ function .yazpt_detect_terminal_truecolor() {
 
 	typeset -rg yazpt_terminal_truecolor
 	[[ $yazpt_terminal_truecolor == "true" ]]
+}
+
+# Returns RGB for a color in the 256-color palette (16 through 255).
+# Based on https://stackoverflow.com/a/27165165 and https://jonasjacek.github.io/colors.
+#
+function .yazpt_rgb() {
+	local index=$1  # A number in [16-255]
+	local var=$2    # Name of the array variable to assign RGB values to
+
+	if (( 16 <= index && index <= 255 )); then
+		if (( index < 232 )); then
+			declare -a rgb
+			rgb[1]=$(( (index - 16) / 36 ))
+			rgb[2]=$(( ((index - 16) % 36) / 6 ))
+			rgb[3]=$(( (index - 16) % 6 ))
+
+			local n
+			for n in 1 2 3; do
+				(( $rgb[$n] == 0 )) || rgb[$n]=$(( $rgb[$n] * 40 + 55 ))
+			done
+
+			eval "$var=($rgb)"
+		else
+			local val=$(( (index - 232) * 10 + 8 ))
+			eval "$var=($val $val $val)"
+		fi
+	fi
 }
 
 .yazpt_adjust_colors true
