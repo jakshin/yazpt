@@ -51,11 +51,12 @@ else
 	usage
 fi
 
-# Do the things
+# A way to show text in white or black, whichever is more readable on the current background
 function echo_readable() {
 	local bg=$1
 	shift
 
+	# FIXME replace this list with a perceptual brightness calculation, and comparison to midpoint's (32767)
 	if (( (0 <= bg && bg <= 9) || (16 <= bg && bg <= 33) || (52 <= bg && bg <= 63) || (88 <= bg && bg <= 99) ||
 		(124 <= bg && bg <= 135) || (160 <= bg && bg <= 165) || (196 <= bg && bg <= 201) || (232 <= bg && bg <= 245) ))
 	then
@@ -68,6 +69,7 @@ function echo_readable() {
 	echo "$@"
 }
 
+# Do the things
 for bg_color in $bg_colors; do
 	clear
 	echo -n "\e[48;5;${bg_color}m\e[J"
