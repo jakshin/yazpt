@@ -60,9 +60,6 @@ fi
 
 bg_brightness_percent=$(( 100 * ${yazpt_terminal_bg[brightness]} / 65535 ))
 
-echo -n "Showing shades and tints of base color $base_color[1] $base_color[2] $base_color[3] "
-echo "on background $yazpt_terminal_bg[rgb] ($(( int(rint($bg_brightness_percent)) ))% bright)\n"
-
 function calc_brightness_difference() {
 	local hex=$1
 	local var=$2
@@ -77,12 +74,36 @@ function calc_brightness_difference() {
 	eval "$var=$diff"
 }
 
-for (( i=1; i <= $#shades; i++ )); do
-	shade_hex=$shades[$i]
-	calc_brightness_difference $shade_hex shade_brightness_diff
-	print -Pn "%F{${shade_hex}}\u2588\u2588\u2588\u2588\u2588  ${shade_hex} ($shade_brightness_diff%%)%f"
+if [[ $#shades == 0 ]]; then
+	showing="ONLY TINTS"
+	count=$#tints
+elif [[ $#tints == 0 ]]; then
+	showing="ONLY SHADES"
+	count=$#shades
+else
+	showing="shades and tints"
+	(( $#shades > $#tints )) && count=$#shades || count=$#tints
+fi
 
+echo -n "Showing $showing of base color $base_color[1] $base_color[2] $base_color[3] "
+echo "on background $yazpt_terminal_bg[rgb] ($(( int(rint($bg_brightness_percent)) ))% bright)\n"
+
+for (( i=1; i <= $count; i++ )); do
+	shade_hex=$shades[$i]
 	tint_hex=$tints[$i]
-	calc_brightness_difference $tint_hex tint_brightness_diff
-	print -P "\t%F{${tint_hex}}\u2588\u2588\u2588\u2588\u2588  ${tint_hex} ($tint_brightness_diff%%)%f"
+
+	if [[ -n $shade_hex ]]; then
+		calc_brightness_difference $shade_hex shade_brightness_diff
+		print -Pn " %F{${shade_hex}}\u2588\u2588\u2588\u2588\u2588  ${shade_hex} ($shade_brightness_diff%%)%f\t"
+	elif [[ $#shades != 0 ]]; then
+		printf ' %.0s' {1..20}
+		echo -n '\t'
+	fi
+
+	if [[ -n $tint_hex ]]; then
+		calc_brightness_difference $tint_hex tint_brightness_diff
+		print -P " %F{${tint_hex}}\u2588\u2588\u2588\u2588\u2588  ${tint_hex} ($tint_brightness_diff%%)%f"
+	else
+		echo
+	fi
 done
