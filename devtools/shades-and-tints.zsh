@@ -53,6 +53,11 @@ done
 
 # Display
 (( $+yazpt_terminal_bg )) || .yazpt_detect_terminal_bg
+if [[ -z $yazpt_terminal_bg[brightness] ]]; then
+	echo "Couldn't figure out how bright the terminal's background is"
+	exit 1
+fi
+
 bg_brightness_percent=$(( 100 * ${yazpt_terminal_bg[brightness]} / 65535 ))
 
 echo -n "Showing shades and tints of base color $base_color[1] $base_color[2] $base_color[3] "
