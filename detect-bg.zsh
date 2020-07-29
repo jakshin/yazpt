@@ -43,7 +43,7 @@ source "$script_dir/yazpt.zsh-theme"
 	local debug=$1  # Any value except empty string turns debug output on
 
 	if (( $+yazpt_terminal_bg )); then
-		[[ -n $debug ]] && echo "Keeping existing yazpt_terminal_bg: $yazpt_terminal_bg"
+		[[ -n $debug ]] && echo "Keeping existing yazpt_terminal_bg: ${(kv)yazpt_terminal_bg}"
 		return 0
 	fi
 
@@ -130,7 +130,7 @@ source "$script_dir/yazpt.zsh-theme"
 	(( bg_brightness > fg_brightness )) && light_bg=true
 
 	declare -rgA yazpt_terminal_bg=('rgb' "$bg_rgb" 'brightness' "$bg_brightness" 'light' "$light_bg")
-	[[ -n $debug ]] && echo "$yazpt_terminal_bg"
+	[[ -n $debug ]] && echo "${(kv)yazpt_terminal_bg}"
 }
 
 # Tries to figure out whether the terminal supports 24bit/"true" color.
