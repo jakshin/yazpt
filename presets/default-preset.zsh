@@ -123,6 +123,11 @@ if [[ -z $YAZPT_NO_TWEAKS ]]; then
 		_yazpt_tweaks_file="tweaks-for-linux.zsh"
 	elif [[ $OSTYPE == "freebsd"* ]]; then
 		_yazpt_tweaks_file="tweaks-for-freebsd.zsh"
+	elif [[ $OSTYPE == "haiku" ]]; then
+		_yazpt_tweaks_file="tweaks-for-haiku.zsh"
+		YAZPT_VCS_CONTEXT_META_COLOR=243
+		YAZPT_VCS_CONTEXT_IGNORED_COLOR=243
+		YAZPT_VCS_CONTEXT_UNVERSIONED_COLOR=243
 	else
 		unset _yazpt_tweaks_file
 	fi

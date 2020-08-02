@@ -13,3 +13,7 @@ source "$yazpt_default_preset_file"
 YAZPT_LAYOUT=$'\n[<vcs><? ><cwd><? ><exit>]\n<char> '
 YAZPT_CWD_COLOR=226       # Yellow
 YAZPT_EXECTIME_COLOR=240  # Dark gray
+
+if [[ -z $YAZPT_NO_TWEAKS && $OSTYPE == "haiku" ]]; then
+	YAZPT_CWD_COLOR=227
+fi

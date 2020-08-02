@@ -36,5 +36,18 @@ if [[ -z $YAZPT_NO_TWEAKS ]]; then
 	elif [[ $OSTYPE == "linux-gnu" ]]; then
 		functions .yazpt_tweak_checkmark > /dev/null || source "$yazpt_base_dir/functions/tweaks-for-linux.zsh"
 		.yazpt_tweak_checkmark
+
+	elif [[ $OSTYPE == "haiku" ]]; then
+		functions .yazpt_tweak_checkmark > /dev/null || source "$yazpt_base_dir/functions/tweaks-for-haiku.zsh"
+		.yazpt_tweak_checkmark
+
+		YAZPT_CWD_COLOR=110
+		YAZPT_EXECTIME_COLOR=67
+		YAZPT_EXIT_OK_COLOR=250
+		YAZPT_VCS_CONTEXT_COLOR=81
+		YAZPT_VCS_CONTEXT_META_COLOR=243
+		YAZPT_VCS_CONTEXT_IGNORED_COLOR=243
+		YAZPT_VCS_CONTEXT_UNVERSIONED_COLOR=243
+		YAZPT_VCS_STATUS_NO_UPSTREAM_COLOR=245
 	fi
 fi

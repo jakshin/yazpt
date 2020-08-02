@@ -24,3 +24,8 @@ YAZPT_VCS_STATUS_NO_UPSTREAM_COLOR=240
 YAZPT_VCS_WRAPPER_CHARS=('(' ')')
 
 zle_highlight=(default:fg=254 suffix:fg=243)
+
+if [[ -z $YAZPT_NO_TWEAKS && $OSTYPE == "haiku" ]]; then
+	YAZPT_CWD_COLOR=29
+	YAZPT_VCS_STATUS_NO_UPSTREAM_COLOR=245
+fi

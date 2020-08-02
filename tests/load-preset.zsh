@@ -86,7 +86,7 @@ yazpt_load_preset "/dev/null"
 return_code=$?
 test_init_done
 equals yazpt_dummy $yazpt_dummy ""
-equals return_code $return_code "1"
+equals return_code $return_code "1"  # Need to install "file" on Haiku, using HaikuDepot
 
 # Clean up
 after_tests

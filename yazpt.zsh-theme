@@ -318,7 +318,7 @@ function .yazpt_detect_font() {
 function .yazpt_detect_terminal() {
 	emulate -L zsh
 
-	[[ -n $yazpt_terminal && $yazpt_terminal != "unknown" ]] && return 0
+	[[ -n $yazpt_terminal ]] && return 0
 	[[ $+yazpt_terminal == 1 ]] && typeset +r -g yazpt_terminal
 	[[ $+yazpt_terminal_info == 1 ]] && typeset +r -g yazpt_terminal_info=""
 	yazpt_terminal="unknown"  # Pessimism
@@ -335,10 +335,12 @@ function .yazpt_detect_terminal() {
 
 		local info
 		echo -n "\033[>c" > /dev/tty           # Request secondary device attributes
-		read -s -t 0.1 -d ">" info < /dev/tty  # Read and discard the prefix
-		read -s -t -d "c" info < /dev/tty      # Read the rest of the response
+		read -s -t 0.1 -d "c" info < /dev/tty  # Read the response
 
 		[[ -z $tty_settings ]] || stty "$tty_settings"  # Restore TTY settings
+
+		info="${info//*\[}"
+		info="${info/*>/}"  # For everything except Haiku Terminal, which responds with esc[?6c
 
 		yazpt_terminal_info="$info"
 		info=(${(s.;.)info})
@@ -375,6 +377,8 @@ function .yazpt_detect_terminal() {
 			elif [[ $info == "0 136 0" && $PATH == *"/MobaXterm/"* ]]; then
 				yazpt_terminal="mobaxterm"
 			fi
+		elif [[ $#info == 1 && $info[1] == "?6" ]]; then
+			yazpt_terminal="haiku-terminal"
 		elif (( $#info == 0 )); then
 			[[ -n $TERM_PROGRAM ]] && yazpt_terminal=${TERM_PROGRAM:l}  # Including Terminus
 		fi

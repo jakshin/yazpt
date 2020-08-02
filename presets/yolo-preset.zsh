@@ -37,7 +37,9 @@ function .yazpt_random_int() {
 	local lowest=$1
 	local highest=$2
 
-	local rand=$(hexdump -e '"%u"' -n 1 /dev/urandom)  # Seems better than $RANDOM
+	local rand=$(hexdump -e '"%u"' -n 1 /dev/urandom 2> /dev/null)  # Seems better than $RANDOM
+	[[ -n $rand ]] || rand=$RANDOM
+
 	local modulo=$((highest - lowest + 1))
 	echo $((rand % modulo + lowest))
 }
@@ -80,6 +82,8 @@ if [[ -z $YAZPT_NO_TWEAKS ]]; then
 		_yazpt_tweaks_file="tweaks-for-linux.zsh"
 	elif [[ $OSTYPE == "freebsd"* ]]; then
 		_yazpt_tweaks_file="tweaks-for-freebsd.zsh"
+	elif [[ $OSTYPE == "haiku" ]]; then
+		_yazpt_tweaks_file="tweaks-for-haiku.zsh"
 	else
 		unset _yazpt_tweaks_file
 	fi

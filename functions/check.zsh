@@ -80,14 +80,14 @@ function .yazpt_check() {
 			source "$yazpt_base_dir/functions/tweaks-for-linux.zsh"
 			.yazpt_detect_linux_distro
 			echo "GNU/Linux (distro = $yazpt_linux_distro_name, version $yazpt_linux_distro_version)"
-			local linux_or_bsd=true
 
 		elif [[ $OSTYPE == "freebsd"* ]]; then
 			source "$yazpt_base_dir/functions/tweaks-for-freebsd.zsh"
 			.yazpt_detect_ghostbsd && os="GhostBSD" || os="FreeBSD (or a derivative)"
 			echo "$os"
-			local linux_or_bsd=true
 
+		elif [[ $OSTYPE == "haiku" ]]; then
+			echo "Haiku"
 		else
 			echo "unknown"
 		fi
@@ -99,7 +99,7 @@ function .yazpt_check() {
 		.yazpt_detect_terminal
 		echo "$yazpt_terminal ($yazpt_terminal_info)"
 
-		if [[ $linux_or_bsd == true ]]; then
+		if [[ $OSTYPE != "darwin"* && $OS != "Windows"* ]]; then
 			echo "\n${bright}Checking the Noto emoji fonts...${normal}"
 
 			if ! which fc-list > /dev/null; then
@@ -131,7 +131,7 @@ function .yazpt_check() {
 		fi
 
 		# Save current settings before we overwrite them
-		local state_stash=$(typeset -m 'YAZPT_*' | tr '\n' ';')
+		local state_stash=$(typeset -m 'YAZPT_*' -m '_yazpt_*' | tr '\n' ';')
 
 		# Preview Unicode and emoji characters
 		echo "\n${bright}Special characters used by the default preset:${normal}"
@@ -146,7 +146,7 @@ function .yazpt_check() {
 		yazpt_load_preset yolo
 		.yazpt_check_variables 'YAZPT_EXECTIME_CHAR' 'YAZPT_VCS_WRAPPER_CHARS'
 
-		eval "$(grep -E "(happy|sad)_chars=" "$yazpt_base_dir/presets/yolo-preset.zsh")"
+		eval "$(grep -aE "(happy|sad)_chars=" "$yazpt_base_dir/presets/yolo-preset.zsh")"
 		echo "  hands: $_yazpt_yolo_happy_chars"
 		echo "  faces: $_yazpt_yolo_sad_chars"
 

@@ -113,6 +113,22 @@ I don't always run zsh on Windows, but when I do, I prefer to use [Cygwin](https
 
 I've also tested yazpt on Windows 10 in various other scenarios, like with MSYS2 and Windows Subsystem for Linux (WSL), and in alternate terminals like ConEmu, Terminus, MobaXterm, etc. In almost all cases, a bit of tweaking is needed for best results - see the [tips for using yazpt on Windows](./tips-for-windows.md) for details.
 
+### Haiku
+
+Yazpt works in [Haiku R1/beta2's](https://www.haiku-os.org) Terminal application, after these steps are taken:
+* Install zsh and the DejaVu fonts, either in HaikuDepot, or with `pkgman install zsh dejavu`
+* Configure Terminal to use the DejaVu Sans Mono font
+
+You'll also want to switch Terminal's color theme from the default to one with a dark background.
+
+If you'd like for Terminal to run zsh every time you open a window or tab, rather than bash, create `~/config/settings/bash_profile` with these contents:
+
+```sh
+if [[ $- =~ i && -x /bin/zsh ]]; then
+	exec /bin/zsh
+fi
+```
+
 ### Linux
 
 In many recent GNU/Linux versions, especially those targeted at general desktop/laptop use, yazpt is rendered pretty well out of the box, but usually some minimal adjustments are needed for best effect; for instance, _in GNOME Terminal, you always need to check the "Custom font" checkbox to get decent rendering of yazpt's Unicode characters_. It's also common for changing the terminal font to improve rendering of yazpt's Unicode characters, and not unusual to need to install a font or two, especially to get the yolo preset's emoji looking good. See the [tips for using yazpt on GNU/Linux](./tips-for-linux.md) for details.
@@ -288,7 +304,7 @@ YAZPT_SVN_PATHS=("$user_profile_path/Documents/Code/")
 YAZPT_TFVC_PATHS=("$user_profile_path/Source/Workspaces/")
 ```
 
-Note that while yazpt knows when the current directory is ignored by Git or Subversion, and uses a different color when displaying the VCS context, it doesn't know this for TFVC -- if you cd into an ignored directory in a TFVC loca workspace, the VCS status will still be displayed in the default color. Yazpt does know enough about whether files/directories are ignored by TFVC to correctly display the local workspace's clean/dirty state, though.
+Note that while yazpt knows when the current directory is ignored by Git or Subversion, and uses a different color when displaying the VCS context, it doesn't know this for TFVC -- if you cd into an ignored directory in a TFVC local workspace, the VCS status will still be displayed in the default color. Yazpt does know enough about whether files/directories are ignored by TFVC to correctly display the local workspace's clean/dirty state, though.
 
 Also, when using TFVC on Windows, with the workspace open in Visual Studio, any changes in the workspace get noticed immediately, whether they're made through Visual Studio or otherwise, and TFVC updates its metadata in the `$tf` directory right away. The same is true when making changes via the `tf` CLI, whether VS is running or not. But otherwise, like while changing files using general command-line utilities without Visual Studio running, TFVC won't notice changes until you kick it a little - by, say, running `tf info` or `tf status`. I hope to improve on this situation eventually.
 <p align="center">•</p>

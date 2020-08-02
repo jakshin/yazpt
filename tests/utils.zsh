@@ -275,7 +275,8 @@ function contains_context() {
 function contains_dim_context() {
 	local context_str="$1"
 	local has_special_chars="$2"  # Boolean
-	contains "%{%F{240}%}$context_str" $has_special_chars
+	[[ $OSTYPE == "haiku" ]] && local color=243 || local color=240
+	contains "%{%F{$color}%}$context_str" $has_special_chars
 }
 
 # Verifies that $PROMPT contains the given git status indicator
