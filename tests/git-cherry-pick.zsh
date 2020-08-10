@@ -8,11 +8,11 @@ source ./utils.zsh
 before_tests $script_name "git"
 YAZPT_VCS_ORDER=(git)
 
-# Recent versions of git end "cherry-picking mode" earlier, probably starting in v2.25.1:
+# Recent versions of git end "cherry-picking mode" earlier, apparerenltly starting in v2.24:
 # https://github.com/git/git/commit/f233c9f4550a831a69892e0a38db2a7654beb995
 version=$(git --version | awk '{ print $3 }')
 v=("${(@s/./)version}")
-if (( v[1] > 2 || (v[1] == 2 && v[2] >= 25) )); then
+if (( v[1] > 2 || (v[1] == 2 && v[2] >= 24) )); then
 	recent_git=true
 fi
 
