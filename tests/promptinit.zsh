@@ -13,6 +13,10 @@ default_ps1='%n@%m %1~ %# '
 default_yazpt_ps1='[%{%F{73}%}%~%{%f%}]%# '
 jakshin_yazpt_ps1='[%{%F{226}%}%~%{%f%}]%# '
 
+if [[ $OSTYPE == "haiku" ]]; then
+	jakshin_yazpt_ps1="${jakshin_yazpt_ps1/226/227}"
+fi
+
 # Test
 function run_test_variant_1() {
 	prompt yazpt
