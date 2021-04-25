@@ -2,7 +2,7 @@
 # Copyright (c) 2020 Jason Jackson <jasonjackson@pobox.com>. Distributed under GPL v2.0, see LICENSE for details.
 
 # Changes the hand and face emoji to happy/sad emoticons,
-# unless we're in XTerm on GhostBSD with the Noto Emoji font installed.
+# unless we're in XTerm with the Noto Emoji font installed.
 #
 function .yazpt_tweak_emoji() {
 	emulate -L zsh
@@ -22,9 +22,11 @@ function .yazpt_tweak_emoji() {
 function .yazpt_tweak_hourglass() {
 	emulate -L zsh
 
-	if .yazpt_detect_font "Noto Emoji"; then
+	if .yazpt_detect_font "Noto Sans Mono"; then
+		return
+	elif .yazpt_detect_font "Noto Emoji"; then
 		YAZPT_EXECTIME_CHAR+=" "
-	elif ! .yazpt_detect_ghostbsd; then
+	else
 		YAZPT_EXECTIME_CHAR=""
 	fi
 }
