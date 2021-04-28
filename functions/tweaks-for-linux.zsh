@@ -9,12 +9,16 @@ function .yazpt_tweak_checkmark() {
 	.yazpt_detect_terminal
 
 	if [[ $yazpt_terminal == "konsole" ]]; then
-		# Kubuntu's Konsole doesn't display the default checkmark nicely
+		# Konsole doesn't display the default checkmark nicely in Kubuntu or KDE neon
 		[[ $VENDOR != "ubuntu" ]] || YAZPT_EXIT_OK_CHAR="✓"
 
 	elif [[ $yazpt_terminal == "xterm" ]]; then
-		# Only Ubuntu's XTerm displays the default checkmark nicely
-		[[ $VENDOR == "ubuntu" ]] || YAZPT_EXIT_OK_CHAR="✓"
+		# On a couple distros, XTerm doesn't display the default checkmark nicely
+		.yazpt_detect_linux_distro
+
+		if [[ $yazpt_linux_distro_name == "fedora" || $VENDOR == "suse" ]]; then
+			YAZPT_EXIT_OK_CHAR="✓"
+		fi
 	fi
 }
 
@@ -30,11 +34,18 @@ function .yazpt_tweak_emoji() {
 
 		if [[ $yazpt_linux_distro_name == "kali" ]]; then
 			# Emoji are awful in Kali's QTerminal (detected as Konsole), not worth displaying at all,
-			# unless the Noto Color Emoji font is installed; they're only monochrome if Noto Emoji is also installed
+			# unless the Noto Color Emoji font is installed, and even then only one face renders well
+			if .yazpt_detect_font "Noto Color Emoji"; then
+				YAZPT_EXIT_ERROR_CHAR="😬"
+			else
+				.yazpt_use_emoticons
+			fi
+
+		elif [[ $yazpt_linux_distro_name == "ubuntu" && $XDG_CURRENT_DESKTOP == "LXQt" ]]; then
+			# Lubuntu's QTerminal only handles some monochrome emoji,
+			# and only if the Noto Emoji font has been manually installed
 			if .yazpt_detect_font "Noto Emoji"; then
 				.yazpt_use_safe_emoji
-			elif .yazpt_detect_font "Noto Color Emoji"; then
-				YAZPT_EXIT_ERROR_CHAR="😬"
 			else
 				.yazpt_use_emoticons
 			fi
@@ -49,21 +60,15 @@ function .yazpt_tweak_emoji() {
 			fi
 		fi
 
-	elif [[ $yazpt_terminal == "lxterminal" ]]; then
-		.yazpt_detect_linux_distro
-
-		# On Kali Linux 2020.2, emoji are fine if the the Noto Color Emoji font is installed,
-		# otherwise we have passable special-case monochrome emoji iff the Noto Emoji font is installed
-		if [[ $yazpt_linux_distro_name == "kali" ]] && ! .yazpt_detect_font "Noto Color Emoji"; then
-			.yazpt_detect_font "Noto Emoji" && .yazpt_use_safe_emoji || .yazpt_use_emoticons
-		fi
-
 	elif [[ $yazpt_terminal == "terminology" ]]; then
 		# Only one full-color face emoji renders in Bodhi Linux 5.1
 		.yazpt_detect_font "Noto Color Emoji" && YAZPT_EXIT_ERROR_CHAR="😬" || .yazpt_use_emoticons
 
 	elif [[ $yazpt_terminal == "xterm" ]]; then
 		.yazpt_detect_xterm_emoji_support && .yazpt_use_safe_emoji || .yazpt_use_emoticons
+
+	elif [[ $yazpt_linux_distro_name == "antix" ]]; then
+		.yazpt_detect_font "Noto Color Emoji" || .yazpt_use_emoticons
 	fi
 }
 
@@ -77,11 +82,6 @@ function .yazpt_tweak_hourglass() {
 	if [[ $yazpt_linux_distro_name == "debian" ]]; then
 		# Need more space after the hourglass in both GNOME Terminal and XTerm
 		YAZPT_EXECTIME_CHAR+=" "
-
-	elif [[ $yazpt_linux_distro_name == "debian" || $yazpt_linux_distro_name == "fedora" ]]; then
-		# Need more space after the hourglass in GNOME Terminal (but not XTerm)
-		.yazpt_detect_terminal
-		[[ $yazpt_terminal == "gnome-terminal" ]] && YAZPT_EXECTIME_CHAR+=" "
 
 	else
 		.yazpt_detect_terminal
@@ -123,13 +123,6 @@ function .yazpt_tweak_hourglass_emoji() {
 		# (We also take this code path in QTerminal, e.g. on Kali Linux)
 		YAZPT_EXECTIME_CHAR="$yazpt_hourglass"
 
-	elif [[ $yazpt_terminal == "lxterminal" ]]; then
-		# On Kali Linux 2020.2, without either the Noto Emoji or Noto Color Emoji font(s) installed,
-		# we get better spacing with the Unicode hourglass (both hourglasses are rendered the same anyway)
-		if ! .yazpt_detect_font "Noto Emoji" && ! .yazpt_detect_font "Noto Color Emoji"; then
-			YAZPT_EXECTIME_CHAR="$yazpt_hourglass"
-		fi
-
 	elif [[ $yazpt_terminal == "terminology" ]]; then
 		# On Bodhi 5.1, the hourglass is okay (with or without Noto Color Emoji installed),
 		# but there's no space after the "%" prompt character either way
@@ -152,6 +145,12 @@ function .yazpt_tweak_hourglass_emoji() {
 				# Still switch to the Unicode hourglass if we're in a Debian derivative like MX Linux
 				.yazpt_detect_linux_distro; [[ $yazpt_linux_distro_name == "debian" ]] || YAZPT_EXECTIME_CHAR="$yazpt_hourglass"
 			fi
+		fi
+
+	elif [[ $VENDOR == "debian" ]]; then
+		.yazpt_detect_linux_distro
+		if [[ $yazpt_linux_distro_name == "antix" ]]; then
+			.yazpt_detect_font "Noto Color Emoji" || YAZPT_EXECTIME_CHAR="$yazpt_hourglass"
 		fi
 	fi
 }

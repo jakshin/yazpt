@@ -131,37 +131,29 @@ fi
 
 ### Linux
 
-In many recent GNU/Linux versions, especially those targeted at general desktop/laptop use, yazpt is rendered pretty well out of the box, but usually some minimal adjustments are needed for best effect; for instance, _in GNOME Terminal, you always need to check the "Custom font" checkbox to get decent rendering of yazpt's Unicode characters_. It's also common for changing the terminal font to improve rendering of yazpt's Unicode characters, and not unusual to need to install a font or two, especially to get the yolo preset's emoji looking good. See the [tips for using yazpt on GNU/Linux](./tips-for-linux.md) for details.
+Yazpt just works, without any tinkering, in these distros:
 
-I've used or tested yazpt in the following distros, using both their standard terminal emulator (usually GNOME Terminal, but sometimes Konsole, MATE Terminal, or Xfce Terminal), with default settings; and XTerm, with my [.Xresources file](./resources/Xresources) loaded:
-
-* **Bodhi Linux 5.1**, running Enlightenment;
-    [Install a font](./tips-for-linux.md#bodhi-linux-51-enlightenment) to upgrade from emoticons to color emoji
-* **CentOS 8.1**, installed as a "server with GUI";
-    [Install a font](./tips-for-linux.md#centos-81-installed-as-a-server-with-gui) for better rendering
-* **Debian 10.3**
-* **elementary OS 5.1 (Hera)**
-* **Fedora Workstation 32**
-* **Kali Linux 2020.2**;
-    [Install a font](./tips-for-linux.md#kali-linux-20202) to upgrade from emoticons to color emoji
-* **Kubuntu 20.04**
-* **Linux Mint Cinnamon 19.3 (Tricia)**
-* **Linux Mint Cinnamon 18.3 (Sylvia)**;
-    No color emoji, but monochrome emoji if you [install a font](./tips-for-linux.md#linux-mint-cinnamon-183-sylvia)
-* **Manjaro 20.0 (Lysia)**, running XFCE;
-    [Install a font or two](./tips-for-linux.md#manjaro-200-lysia-running-xfce) for better emoji rendering
-* **MX Linux 19.1 (patito feo)**;
-    [Install a font](./tips-for-linux.md#mx-linux-191-patito-feo) to upgrade from monochrome to color emoji
+* **CentOS 8.3**, installed as a "server with GUI"
+* **Kali Linux 2021.1**;
+* **KDE neon**
+* **Kubuntu 21.04 and 20.04 LTS**
+* **Linux Mint Cinnamon 20.1 (Ulyssa) and 19.3 (Tricia)**
 * **openSUSE Tumbleweed**, running KDE Plasma 5
-* **Pop!_OS 20.04**
-* **Solus 4.1 (Fortitude)**, running Budgie
-* **Ubuntu 20.04 (Focal)**
-* **Ubuntu 19.10 (Eoan)**
-* **Ubuntu 18.04 (Bionic)**
-* **Ubuntu 16.04 (Xenial)**;
-    No color emoji, but monochrome emoji if you [install a font and tweak fonts.conf](./tips-for-linux.md#ubuntu-1604-xenial-xerus)
-* **Ubuntu MATE 20.04**
-* **Ubuntu MATE 19.10**
+* **Pop!_OS 20.10 and 20.04**
+* **Solus 4.2 (Fortitude)**, running Budgie
+
+It also works tolerably well in the distros listed below, though you may need to make some minor tweaks to settings and/or install a font or two for best results. See the [tips for using yazpt on GNU/Linux](./tips-for-linux.md) for details.
+
+* **antiX 19.3**
+* **Bodhi Linux 5.1**, running Enlightenment
+* **Debian 10.9**
+* **elementary OS 5.1 (Hera)**
+* **Fedora Workstation 33 and 34**
+* **Lubuntu 21.04 and 20.04 LTS**
+* **Manjaro 20.0 (Lysia)**, running XFCE
+* **MX Linux 19.4 (patito feo)**
+* **Ubuntu Desktop 21.04 (Hirsute Hippo) and 20.04 LTS (Focal Fossa)**
+* **Ubuntu MATE 21.04 and 20.04 LTS**
 
 ### FreeBSD
 
