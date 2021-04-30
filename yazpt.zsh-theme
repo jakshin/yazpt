@@ -361,26 +361,36 @@ function .yazpt_detect_terminal() {
 					yazpt_terminal="xfce4-terminal"
 				fi
 
+			elif (( $info[1] == 0 && $info[2] == 10 )); then
+				# https://github.com/microsoft/terminal/pull/6850
+				yazpt_terminal="windows-terminal"
+
 			elif (( $info[1] == 0 && $info[2] == 115 )); then
 				yazpt_terminal="konsole"  # Or QTerminal
 			elif (( $info[1] == 41 )); then
 				yazpt_terminal="xterm"
 			elif (( $info[1] == 61 && $info[2] == 337 )); then
 				yazpt_terminal="terminology"  # Enlightenment's terminal, "61;337;0"
-			elif (( $info[1] == 67 )) && [[ $TERM_PROGRAM == "Terminus" ]]; then
-				yazpt_terminal="terminus"  # Only seen on MSYS2
 			elif (( $info[1] == 77 )); then
-				yazpt_terminal="mintty"
+				yazpt_terminal="mintty"  # (WSLtty is a special bundling of Mintty)
 
 			elif [[ $info == "0 136 0" && -n $ConEmuBuild ]]; then
-				yazpt_terminal="conemu"
+				yazpt_terminal="conemu"  # Not detected on WSL, because $ConEmuBuild isn't set
 			elif [[ $info == "0 136 0" && $PATH == *"/MobaXterm/"* ]]; then
 				yazpt_terminal="mobaxterm"
 			fi
+
 		elif [[ $#info == 1 && $info[1] == "?6" ]]; then
 			yazpt_terminal="haiku-terminal"
+
 		elif (( $#info == 0 )); then
-			[[ -n $TERM_PROGRAM ]] && yazpt_terminal=${TERM_PROGRAM:l}  # Including Terminus
+			if [[ -n $TERM_PROGRAM ]]; then
+				yazpt_terminal=${TERM_PROGRAM:l}  # Including Terminus
+
+			elif [[ $OS == "Windows"* && $TTY == "/dev/cons"* ]]; then
+				# zsh.exe was launched directly; this detection doesn't work on WSL
+				yazpt_terminal="ms-console"
+			fi
 		fi
 	fi
 
@@ -521,7 +531,6 @@ function @yazpt_segment_cwd() {
 	fi
 
 	[[ -n $cwd ]] || cwd='%~'
-	[[ $_yazpt_terminus_hacks == true ]] && cwd=" $cwd "
 	yazpt_state[cwd]="%{%F{${YAZPT_CWD_COLOR:=default}}%}${cwd}%{%f%}"
 }
 
@@ -561,6 +570,11 @@ function @yazpt_segment_exectime() {
 		local zsh_ver_parts=(${(s:.:)ZSH_VERSION})
 		local zsh_ver="$zsh_ver_parts[1].$zsh_ver_parts[2]"
 		(( $zsh_ver <= 5.3 )) && char=$'  %{\b\b'"${char}%}"  # (Only accounting for one hourglass)
+
+	elif [[ $char == *"$yazpt_hourglass_emoji"* ]]; then
+		# A similar problem occurs in ConEmu, on Cygwin/MSYS2
+		.yazpt_detect_terminal
+		[[ $yazpt_terminal == "conemu" ]] && char=$'  %{\b\b'"${char}%}"
 	fi
 
 	yazpt_state[exectime]="%{%F{${YAZPT_EXECTIME_COLOR:=default}}%}${char}${fmt}%{%f%}"
@@ -590,12 +604,10 @@ function @yazpt_segment_exit() {
 		[[ -o prompt_bang ]] && char=${char//'!'/'!!'}
 		[[ -o prompt_percent ]] && char=${char//\%/%%}
 		yazpt_state[exit]="%{%F{${color:-default}}%}${char}%{%f%}"
-		[[ $_yazpt_terminus_hacks == true ]] && yazpt_state[exit]="$char"$'\b '
 	fi
 
 	if [[ ${code_visible:l} == true ]]; then
 		if [[ -z $ZPREZTODIR ]] || zstyle -T ':prezto:module:prompt' show-return-val; then
-			[[ $_yazpt_terminus_hacks == true ]] && yazpt_state[exit]+=" " && color=7
 			yazpt_state[exit]+="%{%F{${color:-default}}%}${exit_code}%{%f%}"
 		fi
 	fi
@@ -760,9 +772,7 @@ function @yazpt_segment_git() {
 			fi
 		fi
 
-		local i extra="" git_status=""
-		[[ $_yazpt_terminus_hacks == true ]] && extra=" "
-
+		local i git_status=""
 		for (( i=1; i <= $#statuses; i++ )); do
 			local char_var="YAZPT_VCS_STATUS_${statuses[$i]}_CHAR"
 			local color_var="${char_var%_CHAR}_COLOR"
@@ -771,7 +781,7 @@ function @yazpt_segment_git() {
 				local char=${(P)${char_var}}
 				[[ -o prompt_bang ]] && char=${char//'!'/'!!'}
 				[[ -o prompt_percent ]] && char="${char//\%/%%}"
-				git_status+="%{%F{${(P)${color_var}:=default}}%}${char}${extra}%{%f%}"
+				git_status+="%{%F{${(P)${color_var}:=default}}%}${char}%{%f%}"
 			fi
 		done
 	fi
@@ -793,7 +803,7 @@ function @yazpt_segment_git() {
 
 		before="%{%F{$color}%}${before}%{%f%}"
 		after="%{%F{$color}%}${after}%{%f%}"
-		combined="${before}${extra}${combined}${after}"
+		combined="${before}${combined}${after}"
 	fi
 
 	yazpt_state[git]="$combined"
@@ -843,6 +853,15 @@ function @yazpt_segment_vcs() {
 
 # Tell zsh not to complain about variables that aren't set, temporarily.
 [[ -o no_unset ]] && _yazpt_restore_no_unset=true && setopt unset
+
+# For correct operation, we need for $LANG to be set reasonably.
+[[ -n $LANG ]] || LANG=en_US.UTF-8
+
+# The path may not be set right under MS Console, i.e. when zsh.exe is launched directly.
+if [[ $OS == "Windows"* && $TTY == "/dev/cons"* ]]; then
+	[[ $path[(Ie)/usr/local/bin] == 0 ]] && path+=(/usr/local/bin)
+	[[ $path[(Ie)/usr/bin] == 0 ]] && path+=(/usr/bin)
+fi
 
 # Set some variables that'll be used in multiple presets, tweaks, etc.
 # These two hourglass characters look the same in VS Code, but they aren't.

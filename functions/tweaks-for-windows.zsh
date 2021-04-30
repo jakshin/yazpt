@@ -12,6 +12,14 @@ function .yazpt_tweak_checkmark() {
 		# Minty can have issues with the default checkmark, depending on its configuration
 		# (It does render fine with both DejaVu Sans Mono and color emoji support enabled)
 		YAZPT_EXIT_OK_CHAR="✓"
+
+	elif [[ $yazpt_terminal == "windows-terminal" ]]; then
+		# The default checkmark is rendered in green, which is kinda cool, but eh
+		YAZPT_EXIT_OK_CHAR="✓"
+
+	elif [[ $yazpt_terminal == "ms-console" ]]; then
+		# The default checkmark gets rendered nicely, but with an empty tofu box just after it
+		YAZPT_EXIT_OK_CHAR="✓"
 	fi
 }
 
@@ -22,8 +30,9 @@ function .yazpt_tweak_emoji() {
 	emulate -L zsh
 	.yazpt_detect_terminal
 
-	if [[ $yazpt_terminal == "conemu" ]]; then
-		YAZPT_EXIT_ERROR_CHAR=":("  # ConEmu mangles our hand/face emoji
+	if [[ $yazpt_terminal == "conemu" || $yazpt_terminal == "ms-console" ]]; then
+		# ConEmu and MS Console can't display our hand/face emoji
+		YAZPT_EXIT_ERROR_CHAR=":("
 		YAZPT_EXIT_OK_CHAR=":)"
 	fi
 }
@@ -49,10 +58,8 @@ function .yazpt_tweak_hourglass() {
 			YAZPT_EXECTIME_CHAR=""
 		fi
 
-	elif [[ $yazpt_terminal == "terminus" ]]; then
-		# We get better spacing between the hourglass and text if we use the hourglass emoji
-		# (Terminus renders our default Unicode hourglass character as an emoji anyway)
-		YAZPT_EXECTIME_CHAR="$yazpt_hourglass_emoji"
+	elif [[ $yazpt_terminal == "ms-console" ]]; then
+		YAZPT_EXECTIME_CHAR=""
 	fi
 }
 
@@ -78,6 +85,14 @@ function .yazpt_tweak_hourglass_emoji() {
 		# MobaXterm renders emoji as tiny little monochrome line drawings, which oh well,
 		# and also puts the emoji hourglass too far from the related text, which we can fix
 		YAZPT_EXECTIME_CHAR="$yazpt_hourglass"
+
+	elif [[ $yazpt_terminal == "terminus" ]]; then
+		# The hourglass emoji renders beautifully, but causes cursor-position problems
+		# when it's used in $RPS1, and I can't figure out why or how to work around it
+		YAZPT_EXECTIME_CHAR="$yazpt_hourglass"
+
+	elif [[ $yazpt_terminal == "ms-console" ]]; then
+		YAZPT_EXECTIME_CHAR=""
 	fi
 }
 
@@ -88,10 +103,6 @@ function .yazpt_tweak_hourglass_emoji() {
 #
 function .yazpt_detect_mintty_emoji_support() {
 	local cfg_path=~/.minttyrc
-	if [[ -n $WSL_DISTRO_NAME ]]; then
-		local appdata_path="$(wslpath "$APPDATA" 2> /dev/null)"
-		[[ -n $appdata_path && -f "$appdata_path/wsltty/config" ]] && cfg_path="$appdata_path/wsltty/config"
-	fi
 
 	if [[ -f $cfg_path && -r $cfg_path ]]; then
 		local cfg_lines=(${(f)"$(< $cfg_path)"}) emoji=false i=1
@@ -114,12 +125,7 @@ function .yazpt_detect_mintty_emoji_support() {
 function .yazpt_detect_windows_version() {
 	[[ -n $yazpt_windows_version ]] && return
 
-	if [[ -n $WSL_DISTRO_NAME ]]; then
-		# In WSL, uname shows Linux info, but WSL only exists on Windows 10+
-		declare -rg yazpt_windows_version=10
-	else
-		local os="$(uname -s)"
-		local os_parts=(${(s:-:)os})
-		declare -rg yazpt_windows_version=$os_parts[2]  # Cache indefinitely
-	fi
+	local os="$(uname -s)"
+	local os_parts=(${(s:-:)os})
+	declare -rg yazpt_windows_version=$os_parts[2]  # Cache indefinitely
 }

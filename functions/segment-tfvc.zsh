@@ -56,9 +56,7 @@ function @yazpt_segment_tfvc() {
 		statuses+="CLEAN"
 	fi
 
-	local extra="" i=1 tfvc_status=""
-	[[ $_yazpt_terminus_hacks == true ]] && extra=" "
-
+	local i=1 tfvc_status=""
 	for (( i=1; i <= $#statuses; i++ )); do
 		local char_var="YAZPT_VCS_STATUS_${statuses[$i]}_CHAR"
 		local color_var="${char_var%_CHAR}_COLOR"
@@ -67,7 +65,7 @@ function @yazpt_segment_tfvc() {
 			local char=${(P)${char_var}}
 			[[ -o prompt_bang ]] && char=${char//'!'/'!!'}
 			[[ -o prompt_percent ]] && char="${char//\%/%%}"
-			tfvc_status+="%{%F{${(P)${color_var}:=default}}%}${char}${extra}%{%f%}"
+			tfvc_status+="%{%F{${(P)${color_var}:=default}}%}${char}%{%f%}"
 		fi
 	done
 

@@ -29,8 +29,12 @@ YAZPT_VCS_STATUS_UNKNOWN_COLOR=15
 
 # Tweaks and fixups for various environments
 if [[ -z $YAZPT_NO_TWEAKS ]]; then
-	if [[ $OS == "Windows"* || -n $WSL_DISTRO_NAME ]]; then
+	if [[ $OS == "Windows"* ]]; then
 		functions .yazpt_tweak_checkmark > /dev/null || source "$yazpt_base_dir/functions/tweaks-for-windows.zsh"
+		.yazpt_tweak_checkmark
+
+	elif [[ -n $WSL_DISTRO_NAME ]]; then
+		functions .yazpt_tweak_checkmark > /dev/null || source "$yazpt_base_dir/functions/tweaks-for-wsl.zsh"
 		.yazpt_tweak_checkmark
 
 	elif [[ $OSTYPE == "linux-gnu" ]]; then

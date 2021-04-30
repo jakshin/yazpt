@@ -114,9 +114,7 @@ function @yazpt_segment_svn() {
 				[[ -n $YAZPT_VCS_STATUS_CLEAN_CHAR ]] && statuses+="CLEAN"
 		fi
 
-		local extra="" i=1 svn_status=""
-		[[ $_yazpt_terminus_hacks == true ]] && extra=" "
-
+		local i=1 svn_status=""
 		for (( i=1; i <= $#statuses; i++ )); do
 			local char_var="YAZPT_VCS_STATUS_${statuses[$i]}_CHAR"
 			local color_var="${char_var%_CHAR}_COLOR"
@@ -125,7 +123,7 @@ function @yazpt_segment_svn() {
 				local char=${(P)${char_var}}
 				[[ -o prompt_bang ]] && char=${char//'!'/'!!'}
 				[[ -o prompt_percent ]] && char="${char//\%/%%}"
-				svn_status+="%{%F{${(P)${color_var}:=default}}%}${char}${extra}%{%f%}"
+				svn_status+="%{%F{${(P)${color_var}:=default}}%}${char}%{%f%}"
 			fi
 		done
 	} always {

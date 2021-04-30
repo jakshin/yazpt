@@ -104,14 +104,14 @@ My primary environment is macOS, and yazpt works without fuss on recent versions
 
 ### Windows
 
-I don't always run zsh on Windows, but when I do, I prefer to use [Cygwin](https://cygwin.com). Here's a list of the Windows versions on which I've used yazpt with Cygwin, in Mintty 3.x (Cygwin's default terminal):
+I don't always run zsh on Windows, but when I do, I prefer to use [Cygwin](https://cygwin.com) and either Windows Terminal or Mintty.
 
-* **Windows 10 Pro (version 1909)**
+* **Windows 10 Pro (version 1909, version 20H2)**
 * **Windows 8.1 Pro**
 * **Windows 7**,
   with the [DejaVu Sans Mono font installed](./tips-for-windows.md#older-windows-versions) so yazpt's Unicode characters will render right
 
-I've also tested yazpt on Windows 10 in various other scenarios, like with MSYS2 and Windows Subsystem for Linux (WSL), and in alternate terminals like ConEmu, Terminus, MobaXterm, etc. In almost all cases, a bit of tweaking is needed for best results - see the [tips for using yazpt on Windows](./tips-for-windows.md) for details.
+I've also tested yazpt on Windows 10 in various other scenarios, like with MSYS2 and Windows Subsystem for Linux (WSL), and in alternate terminals like ConEmu, Terminus, and MobaXterm. In most cases, a bit of tweaking is needed for best results - see the [tips for using yazpt on Windows](./tips-for-windows.md) for details.
 
 ### Haiku
 

@@ -117,8 +117,10 @@ if [[ -z $YAZPT_NO_TWEAKS ]]; then
 		# but it renders problematically almost everywhere except on macOS
 		YAZPT_VCS_STATUS_LINKED_BARE_CHAR="⚭"
 
-	elif [[ $OS == "Windows"* || -n $WSL_DISTRO_NAME ]]; then
+	elif [[ $OS == "Windows"* ]]; then
 		_yazpt_tweaks_file="tweaks-for-windows.zsh"
+	elif [[ -n $WSL_DISTRO_NAME ]]; then
+		_yazpt_tweaks_file="tweaks-for-wsl.zsh"
 	elif [[ $OSTYPE == "linux-gnu" ]]; then
 		_yazpt_tweaks_file="tweaks-for-linux.zsh"
 	elif [[ $OSTYPE == "freebsd"* ]]; then
@@ -138,9 +140,6 @@ if [[ -z $YAZPT_NO_TWEAKS ]]; then
 		.yazpt_tweak_hourglass
 	fi
 fi
-
-# Default any flags set by other presets.
-unset _yazpt_terminus_hacks
 
 # Set/restore default settings for input highlighting.
 if (( $+_yazpt_default_zle_highlight )); then

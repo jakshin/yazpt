@@ -29,7 +29,7 @@ function .yazpt_random_color() {
 	local rand=$(.yazpt_random_int 1 $#_yazpt_yolo_color_ranges)
 	local range=$_yazpt_yolo_color_ranges[$rand]
 	echo $range | IFS=- read -A range
-	.yazpt_random_int $range[1] $range[2]	
+	.yazpt_random_int $range[1] $range[2]
 }
 
 function .yazpt_random_int() {
@@ -66,18 +66,10 @@ YAZPT_VCS_WRAPPER_CHARS=('❨' '❩')
 
 # Tweaks and fixups for various environments
 if [[ -z $YAZPT_NO_TWEAKS ]]; then
-	if [[ $OS == "Windows"* || -n $WSL_DISTRO_NAME ]]; then
+	if [[ $OS == "Windows"* ]]; then
 		_yazpt_tweaks_file="tweaks-for-windows.zsh"
-
-		if [[ $yazpt_terminal == "terminus" ]]; then
-			# Try to hack around Terminus 1.0.110's weird emoji-rendering issues
-			_yazpt_terminus_hacks=true  # Activates special behavior in segment functions
-			YAZPT_EXECTIME_COLOR=$(( _yazpt_yolo_base_color + 6 ))
-			YAZPT_VCS_CONTEXT_COLOR=7
-			YAZPT_VCS_CONTEXT_META_COLOR=7
-			YAZPT_VCS_CONTEXT_IGNORED_COLOR=7
-			YAZPT_VCS_CONTEXT_UNVERSIONED_COLOR=7
-		fi
+	elif [[ -n $WSL_DISTRO_NAME ]]; then
+		_yazpt_tweaks_file="tweaks-for-wsl.zsh"
 	elif [[ $OSTYPE == "linux-gnu" ]]; then
 		_yazpt_tweaks_file="tweaks-for-linux.zsh"
 	elif [[ $OSTYPE == "freebsd"* ]]; then

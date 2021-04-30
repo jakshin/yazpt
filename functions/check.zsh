@@ -69,12 +69,13 @@ function .yazpt_check() {
 		if [[ $OSTYPE == "darwin"* ]]; then
 			echo "macOS"
 
-		elif [[ $OS == "Windows"* || -n $WSL_DISTRO_NAME ]]; then
+		elif [[ $OS == "Windows"* ]]; then
 			source "$yazpt_base_dir/functions/tweaks-for-windows.zsh"
 			.yazpt_detect_windows_version
-			os="Windows, NT version = $yazpt_windows_version"
-			[[ -n $WSL_DISTRO_NAME ]] && os+=" (Windows Subsystem for Linux, $VENDOR)"
-			echo "$os"
+			echo "Windows, NT version = $yazpt_windows_version"
+
+		elif [[ -n $WSL_DISTRO_NAME ]]; then
+			echo "Windows Subsystem for Linux ($VENDOR)"
 
 		elif [[ $OSTYPE == "linux-gnu" ]]; then
 			source "$yazpt_base_dir/functions/tweaks-for-linux.zsh"
