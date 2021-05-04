@@ -857,10 +857,11 @@ function @yazpt_segment_vcs() {
 # For correct operation, we need for $LANG to be set reasonably.
 [[ -n $LANG ]] || LANG=en_US.UTF-8
 
-# The path may not be set right under MS Console, i.e. when zsh.exe is launched directly.
+# The path may not be set right when running on Windows Terminal,
+# or in MS console, i.e. when zsh.exe is launched directly.
 if [[ $OS == "Windows"* && $TTY == "/dev/cons"* ]]; then
-	[[ $path[(Ie)/usr/local/bin] == 0 ]] && path+=(/usr/local/bin)
-	[[ $path[(Ie)/usr/bin] == 0 ]] && path+=(/usr/bin)
+	[[ ":$PATH:" != *":/usr/local/bin:"* ]] && path+=(/usr/local/bin)
+	[[ ":$PATH:" != *":/usr/bin:"* ]] && path+=(/usr/bin)
 fi
 
 # Set some variables that'll be used in multiple presets, tweaks, etc.
