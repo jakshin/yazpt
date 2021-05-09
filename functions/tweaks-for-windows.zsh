@@ -46,7 +46,7 @@ function .yazpt_tweak_hourglass() {
 
 	if [[ $yazpt_terminal == "mintty" ]]; then
 		.yazpt_detect_windows_version
-		[[ $yazpt_windows_version == 6.1 ]] && YAZPT_EXECTIME_CHAR=""
+		[[ $yazpt_windows_version == 6.1 ]] && YAZPT_EXECTIME_CHAR="$yazpt_clock"
 
 	elif [[ $yazpt_terminal == "conemu" ]]; then
 		# The Unicode hourglass character isn't rendered right, even with the DejaVu Sans Mono font,
@@ -55,11 +55,11 @@ function .yazpt_tweak_hourglass() {
 		if (( $yazpt_windows_version >= 10 )); then
 			YAZPT_EXECTIME_CHAR="$yazpt_hourglass_emoji"
 		else
-			YAZPT_EXECTIME_CHAR=""
+			YAZPT_EXECTIME_CHAR="$yazpt_clock"
 		fi
 
 	elif [[ $yazpt_terminal == "ms-console" ]]; then
-		YAZPT_EXECTIME_CHAR=""
+		YAZPT_EXECTIME_CHAR="$yazpt_clock"
 	fi
 }
 
@@ -79,7 +79,7 @@ function .yazpt_tweak_hourglass_emoji() {
 		# The emoji hourglass is only rendered right in Windows 10
 		# (and the Unicode hourglass isn't rendered right in any Windows version)
 		.yazpt_detect_windows_version
-		(( $yazpt_windows_version >= 10 )) || YAZPT_EXECTIME_CHAR=""
+		(( $yazpt_windows_version >= 10 )) || YAZPT_EXECTIME_CHAR="$yazpt_clock"
 
 	elif [[ $yazpt_terminal == "mobaxterm" ]]; then
 		# MobaXterm renders emoji as tiny little monochrome line drawings, which oh well,
@@ -92,7 +92,7 @@ function .yazpt_tweak_hourglass_emoji() {
 		YAZPT_EXECTIME_CHAR="$yazpt_hourglass"
 
 	elif [[ $yazpt_terminal == "ms-console" ]]; then
-		YAZPT_EXECTIME_CHAR=""
+		YAZPT_EXECTIME_CHAR="$yazpt_clock"
 	fi
 }
 

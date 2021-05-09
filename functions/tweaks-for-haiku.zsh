@@ -19,7 +19,7 @@ function .yazpt_tweak_emoji() {
 # to one that does.
 #
 function .yazpt_tweak_hourglass() {
-	YAZPT_EXECTIME_CHAR="◷ "   # Looks like a clock, if you squint
+	YAZPT_EXECTIME_CHAR="$yazpt_clock"
 }
 
 # Changes the hourglass emoji, which doesn't render in Haiku Terminal,

@@ -33,7 +33,7 @@ function .yazpt_tweak_hourglass() {
 	.yazpt_detect_terminal
 
 	if [[ $yazpt_terminal == "unknown" ]]; then
-		YAZPT_EXECTIME_CHAR="◷ "  # Looks like a clock, if you squint
+		YAZPT_EXECTIME_CHAR="$yazpt_clock"
 	fi
 }
 
@@ -52,7 +52,7 @@ function .yazpt_tweak_hourglass_emoji() {
 		YAZPT_EXECTIME_CHAR="$yazpt_hourglass"
 
 	elif [[ $yazpt_terminal == "unknown" ]]; then
-		YAZPT_EXECTIME_CHAR="◷ "
+		YAZPT_EXECTIME_CHAR="$yazpt_clock"
 	fi
 }
 

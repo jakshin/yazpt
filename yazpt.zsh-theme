@@ -868,6 +868,7 @@ fi
 # These two hourglass characters look the same in VS Code, but they aren't.
 (( $+yazpt_hourglass )) || declare -rg yazpt_hourglass="⌛︎"
 (( $+yazpt_hourglass_emoji )) || declare -rg yazpt_hourglass_emoji="⌛ "
+(( $+yazpt_clock )) || declare -rg yazpt_clock="◷ "  # Looks like a clock, if you squint a little
 
 # Set up our defaults, by loading our default preset. Other presets can be loaded
 # with yazpt_load_preset (run yazpt_list_presets to see the list of presets),

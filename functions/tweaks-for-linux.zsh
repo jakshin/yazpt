@@ -89,11 +89,14 @@ function .yazpt_tweak_hourglass() {
 		if [[ $yazpt_terminal == "terminology" ]]; then
 			# On Bodhi 5.1, the hourglass is rendered okay if Noto Color Emoji isn't installed, but poorly if it is,
 			# and there's no space after the "%" prompt character, regardless of Noto fonts
-			YAZPT_EXECTIME_CHAR=""
+			YAZPT_EXECTIME_CHAR="$yazpt_clock"
 
 		elif [[ $yazpt_terminal == "xterm" ]]; then
 			if (( ${XTERM_VERSION//[a-zA-Z()]/} < 330 )); then
 				YAZPT_EXECTIME_CHAR=""
+
+			elif (( ${XTERM_VERSION//[a-zA-Z()]/} == 330 )); then
+				YAZPT_EXECTIME_CHAR="$yazpt_clock"
 
 			elif [[ $yazpt_linux_distro_name == "opensuse-tumbleweed" ]]; then
 				# With the Noto Emoji font installed, the Unicode hourglass is rendered wrong, but the emoji hourglass looks fine
@@ -124,13 +127,16 @@ function .yazpt_tweak_hourglass_emoji() {
 		YAZPT_EXECTIME_CHAR="$yazpt_hourglass"
 
 	elif [[ $yazpt_terminal == "terminology" ]]; then
-		# On Bodhi 5.1, the hourglass is okay (with or without Noto Color Emoji installed),
+		# On Bodhi 5.1, the hourglass emoji is okay (with or without Noto Color Emoji installed),
 		# but there's no space after the "%" prompt character either way
-		YAZPT_EXECTIME_CHAR=""
+		YAZPT_EXECTIME_CHAR="$yazpt_clock"
 
 	elif [[ $yazpt_terminal == "xterm" ]]; then
 		if (( ${XTERM_VERSION//[a-zA-Z()]/} < 330 )); then
 			YAZPT_EXECTIME_CHAR=""
+
+		elif (( ${XTERM_VERSION//[a-zA-Z()]/} == 330 )); then
+			YAZPT_EXECTIME_CHAR="$yazpt_clock"
 
 		elif [[ $VENDOR == "suse" ]]; then
 			# Use the Unicode hourglass, unless the Noto Emoji font is installed
