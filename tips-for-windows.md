@@ -70,7 +70,7 @@ As of version 210422, ConEmu doesn't render the yolo preset's emoji correctly, e
 
 It's a bit heavyweight, but [Terminus](https://eugeny.github.io/terminus) is very pretty, and renders better-looking color emoji than most other Windows terminals I've tried. It also has macOS and Linux versions, which makes it possible to standardize your terminal across OSes. (I like its "Base16 Default Dark" color scheme, by the way, and the "Fluent" background type.)
 
-In its settings, ensure Shell > Use ConPTY is checked. You'll also need to switch its font from the default Consolas to DejaVu Sans Mono for all of yazpt's Unicode characters to render well.
+In its settings, ensure Shell > Use ConPTY is checked. You'll also need to switch its font from the default Consolas to [DejaVu Sans Mono](https://dejavu-fonts.github.io) for all of yazpt's Unicode characters to render well.
 
 To enable the yolo theme's color emoji when running Terminus on WSL, you'll need to manually set the `$TERM_PROGRAM` environment variable (which Terminus normally does itself, but which doesn't work when it's running on WSL). You can set the environment variable before loading yazpt, or else reload yazpt after you've done so:
 
