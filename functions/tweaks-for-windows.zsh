@@ -1,9 +1,8 @@
 # Tweaks to make yazpt look better in various Windows environments (hopefully).
+# On WSL, we detect only Mintty/WSLtty, MobaXterm, and Windows Terminal,
+# and Terminus iff $TERM_PROGRAM is manually set; we can't detect ConEmu or MS console.
 # Copyright (c) 2020 Jason Jackson <jasonjackson@pobox.com>. Distributed under GPL v2.0, see LICENSE for details.
 
-# Changes the checkmark character for better rendering,
-# based on the detected terminal emulator.
-#
 function .yazpt_tweak_checkmark() {
 	emulate -L zsh
 	.yazpt_detect_terminal
@@ -20,89 +19,49 @@ function .yazpt_tweak_checkmark() {
 	elif [[ $yazpt_terminal == "ms-console" ]]; then
 		# The default checkmark gets rendered nicely, but with an empty tofu box just after it
 		YAZPT_EXIT_OK_CHAR="✓"
+
+	elif [[ -n $WSL_DISTRO_NAME && $yazpt_terminal == "unknown" ]]; then
+		YAZPT_EXIT_OK_CHAR="✓"
 	fi
 }
 
-# Changes the hand and face emoji for better rendering, potentially to happy/sad emoticons,
-# based on the detected terminal emulator.
-#
 function .yazpt_tweak_emoji() {
 	emulate -L zsh
 	.yazpt_detect_terminal
 
-	if [[ $yazpt_terminal == "conemu" || $yazpt_terminal == "ms-console" ]]; then
-		# ConEmu and MS Console can't display our hand/face emoji
+	local downgrade=false
+	if [[ $yazpt_terminal == "mintty" ]]; then
+		.yazpt_detect_mintty_emoji_support || downgrade=true
+
+	elif [[ $yazpt_terminal == "conemu" || $yazpt_terminal == "ms-console" ]]; then
+		downgrade=true  # ConEmu and MS console can't display our emoji
+
+	elif [[ -n $WSL_DISTRO_NAME && $yazpt_terminal == "unknown" ]]; then
+		downgrade=true
+	fi
+
+	if [[ $downgrade == true ]]; then
 		YAZPT_EXIT_ERROR_CHAR=":("
 		YAZPT_EXIT_OK_CHAR=":)"
-	fi
-}
-
-# Changes the hourglass character for better rendering,
-# based on the detected Windows version and/or terminal emulator.
-#
-function .yazpt_tweak_hourglass() {
-	emulate -L zsh
-	.yazpt_detect_terminal
-
-	if [[ $yazpt_terminal == "mintty" ]]; then
-		.yazpt_detect_windows_version
-		[[ $yazpt_windows_version == 6.1 ]] && YAZPT_EXECTIME_CHAR="$yazpt_clock"
-
-	elif [[ $yazpt_terminal == "conemu" ]]; then
-		# The Unicode hourglass character isn't rendered right, even with the DejaVu Sans Mono font,
-		# but the hourglass emoji is A-OK in Windows 10
-		.yazpt_detect_windows_version
-		if (( $yazpt_windows_version >= 10 )); then
-			YAZPT_EXECTIME_CHAR="$yazpt_hourglass_emoji"
-		else
-			YAZPT_EXECTIME_CHAR="$yazpt_clock"
-		fi
-
-	elif [[ $yazpt_terminal == "ms-console" ]]; then
-		YAZPT_EXECTIME_CHAR="$yazpt_clock"
-	fi
-}
-
-# Changes the hourglass emoji for better rendering, based on the detected terminal emulator
-# (and, if it's Mintty, whether color emoji support is enabled).
-#
-function .yazpt_tweak_hourglass_emoji() {
-	emulate -L zsh
-	.yazpt_detect_terminal
-
-	if [[ $yazpt_terminal == "mintty" ]]; then
-		# We get better spacing with the default Unicode hourglass, iff Mintty's color emoji support isn't enabled;
-		# when emoji support is enabled/disabled, the change won't be noticed until the yolo preset is reloaded
-		.yazpt_detect_mintty_emoji_support || YAZPT_EXECTIME_CHAR="$yazpt_hourglass"
-
-	elif [[ $yazpt_terminal == "conemu" ]]; then
-		# The emoji hourglass is only rendered right in Windows 10
-		# (and the Unicode hourglass isn't rendered right in any Windows version)
-		.yazpt_detect_windows_version
-		(( $yazpt_windows_version >= 10 )) || YAZPT_EXECTIME_CHAR="$yazpt_clock"
-
-	elif [[ $yazpt_terminal == "mobaxterm" ]]; then
-		# MobaXterm renders emoji as tiny little monochrome line drawings, which oh well,
-		# and also puts the emoji hourglass too far from the related text, which we can fix
-		YAZPT_EXECTIME_CHAR="$yazpt_hourglass"
-
-	elif [[ $yazpt_terminal == "terminus" ]]; then
-		# The hourglass emoji renders beautifully, but causes cursor-position problems
-		# when it's used in $RPS1, and I can't figure out why or how to work around it
-		YAZPT_EXECTIME_CHAR="$yazpt_hourglass"
-
-	elif [[ $yazpt_terminal == "ms-console" ]]; then
 		YAZPT_EXECTIME_CHAR="$yazpt_clock"
 	fi
 }
 
 # -------------------------------------------------------------------------------------------------
 
-# Tries to figure out whether Mintty has emoji support installed.
+# Tries to figure out whether Mintty/WSLtty has emoji support installed.
 # Doesn't cache its result (a preset load should update the value).
 #
 function .yazpt_detect_mintty_emoji_support() {
-	local cfg_path=~/.minttyrc
+	if [[ -n $WSL_DISTRO_NAME ]]; then
+		local appdata_path="$(wslpath "$APPDATA" 2> /dev/null)"
+		local cfg_path="$appdata_path/wsltty/config"
+		[[ -f $cfg_path ]] || cfg_path=""
+	fi
+
+	if [[ -z $cfg_path ]]; then
+		local cfg_path=~/.minttyrc
+	fi
 
 	if [[ -f $cfg_path && -r $cfg_path ]]; then
 		local cfg_lines=(${(f)"$(< $cfg_path)"}) emoji=false i=1
@@ -115,7 +74,7 @@ function .yazpt_detect_mintty_emoji_support() {
 		done
 	fi
 
-	return 1  # No emoji support, or we couldn't find Mintty's config file
+	return 1  # No emoji support, or we couldn't find Mintty's/WSLtty's config file
 }
 
 # Tries to figure out which major version of Windows we're running on.

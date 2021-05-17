@@ -398,6 +398,30 @@ function .yazpt_detect_terminal() {
 	[[ $yazpt_terminal != "unknown" ]]
 }
 
+# Loads the tweak functions for this environment.
+#
+function .yazpt_load_tweaks() {
+	emulate -L zsh
+	[[ -z $yazpt_tweaks_file ]] || return 0
+
+	if [[ $OS == "Windows"* || -n $WSL_DISTRO_NAME ]]; then
+		yazpt_tweaks_file="tweaks-for-windows.zsh"
+	elif [[ $OSTYPE == "haiku" ]]; then
+		yazpt_tweaks_file="tweaks-for-haiku.zsh"
+	elif [[ $OSTYPE == "linux-gnu" ]]; then
+		yazpt_tweaks_file="tweaks-for-linux.zsh"
+	elif [[ $OSTYPE == "freebsd"* ]]; then
+		yazpt_tweaks_file="tweaks-for-freebsd.zsh"
+	else
+		yazpt_tweaks_file="n/a"
+	fi
+
+	typeset -rg yazpt_tweaks_file
+	if [[ $yazpt_tweaks_file != "n/a" ]]; then
+		source "$yazpt_base_dir/functions/$yazpt_tweaks_file"
+	fi
+}
+
 # Parses the given layout into the given variable, intended to be $PS1 or $RPS1.
 # This is called from yazpt_precmd (possibly twice).
 #
@@ -562,21 +586,6 @@ function @yazpt_segment_exectime() {
 
 	[[ -o prompt_bang ]] && local char=${YAZPT_EXECTIME_CHAR//'!'/'!!'} || local char=$YAZPT_EXECTIME_CHAR
 	[[ -o prompt_percent ]] && char=${char//\%/%%}
-
-	# zsh 5.3 renders slightly wrong if the Unicode hourglass is used in either prompt,
-	# apparently because it doesn't realize it's two characters wide (at least on macOS);
-	# we can fix the problem by telling zsh an inverse untruth
-	if [[ $char == *"$yazpt_hourglass"* && $OSTYPE == "darwin"* ]]; then
-		local zsh_ver_parts=(${(s:.:)ZSH_VERSION})
-		local zsh_ver="$zsh_ver_parts[1].$zsh_ver_parts[2]"
-		(( $zsh_ver <= 5.3 )) && char=$'  %{\b\b'"${char}%}"  # (Only accounting for one hourglass)
-
-	elif [[ $char == *"$yazpt_hourglass_emoji"* ]]; then
-		# A similar problem occurs in ConEmu, on Cygwin/MSYS2
-		.yazpt_detect_terminal
-		[[ $yazpt_terminal == "conemu" ]] && char=$'  %{\b\b'"${char}%}"
-	fi
-
 	yazpt_state[exectime]="%{%F{${YAZPT_EXECTIME_COLOR:=default}}%}${char}${fmt}%{%f%}"
 }
 
@@ -864,10 +873,7 @@ if [[ $OS == "Windows"* && $TTY == "/dev/cons"* ]]; then
 	[[ ":$PATH:" != *":/usr/bin:"* ]] && path+=(/usr/bin)
 fi
 
-# Set some variables that'll be used in multiple presets, tweaks, etc.
-# These two hourglass characters look the same in VS Code, but they aren't.
-(( $+yazpt_hourglass )) || declare -rg yazpt_hourglass="⌛︎"
-(( $+yazpt_hourglass_emoji )) || declare -rg yazpt_hourglass_emoji="⌛ "
+# Set variables that'll be used in multiple presets, tweaks, etc.
 (( $+yazpt_clock )) || declare -rg yazpt_clock="◷ "  # Looks like a clock, if you squint a little
 
 # Set up our defaults, by loading our default preset. Other presets can be loaded

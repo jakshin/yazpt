@@ -38,7 +38,7 @@ YAZPT_CWD_COLOR=73                       # Cyan
 # Settings for the "exectime" prompt segment, which shows the execution time of the previous command,
 # i.e how long it took to run. Formatted with hours/minutes/seconds, eliding any values which are zeros.
 
-YAZPT_EXECTIME_CHAR="$yazpt_hourglass"   # Shown to the left of the execution time (include a trailing space if you want one)
+YAZPT_EXECTIME_CHAR="$yazpt_clock"       # Shown to the left of the execution time (include a trailing space if you want one)
 YAZPT_EXECTIME_COLOR=195                 # Pale light blue
 YAZPT_EXECTIME_MIN_SECONDS=10            # Minimum execution time to trigger display in the prompt
 
@@ -117,27 +117,10 @@ if [[ -z $YAZPT_NO_TWEAKS ]]; then
 		# but it renders problematically almost everywhere except on macOS
 		YAZPT_VCS_STATUS_LINKED_BARE_CHAR="⚭"
 
-	elif [[ $OS == "Windows"* ]]; then
-		_yazpt_tweaks_file="tweaks-for-windows.zsh"
-	elif [[ -n $WSL_DISTRO_NAME ]]; then
-		_yazpt_tweaks_file="tweaks-for-wsl.zsh"
-	elif [[ $OSTYPE == "linux-gnu" ]]; then
-		_yazpt_tweaks_file="tweaks-for-linux.zsh"
-	elif [[ $OSTYPE == "freebsd"* ]]; then
-		_yazpt_tweaks_file="tweaks-for-freebsd.zsh"
 	elif [[ $OSTYPE == "haiku" ]]; then
-		_yazpt_tweaks_file="tweaks-for-haiku.zsh"
 		YAZPT_VCS_CONTEXT_META_COLOR=243
 		YAZPT_VCS_CONTEXT_IGNORED_COLOR=243
 		YAZPT_VCS_CONTEXT_UNVERSIONED_COLOR=243
-	else
-		unset _yazpt_tweaks_file
-	fi
-
-	if [[ -n $_yazpt_tweaks_file ]]; then
-		functions .yazpt_tweak_hourglass > /dev/null || source "$yazpt_base_dir/functions/$_yazpt_tweaks_file"
-		unset _yazpt_tweaks_file
-		.yazpt_tweak_hourglass
 	fi
 fi
 

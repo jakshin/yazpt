@@ -46,7 +46,7 @@ You'll get Mintty shortcuts automatically with Cygwin and MSYS2 installations, a
 
 You should ensure that Mintty is configured with `xterm-256color` as its terminal type (icon > `Options...` > `Terminal` pane > `Type`); otherwise colors, including yazpt's, might not show up. And I personally prefer the `flat-ui` color theme (on the `Looks` tab), but whatever floats your boat.
 
-You'll probably also want to set up color emoji support, especially if you like yazpt's yolo preset: although Mintty supports emoji on Windows 8.1 and Windows 10, it renders them as monochrome line drawings by default. To get a nice full-color emoji experience, you need to [install emoji support for Mintty](https://github.com/mintty/mintty/wiki/Tips#emojis). This even works on Windows 7, where emoji are otherwise only rendered as empty boxes.
+You'll probably also want to set up color emoji support, especially if you like yazpt's yolo preset: although Mintty supports emoji on Windows 8.1 and Windows 10, it renders them as awkward monochrome line drawings by default. To get a nice full-color emoji experience, you need to [install emoji support for Mintty](https://github.com/mintty/mintty/wiki/Tips#emojis). This even works on Windows 7, where emoji are otherwise only rendered as empty boxes.
 
 The easiest way to install Mintty's emoji support is to use this `svn` command at a zsh prompt:
 
@@ -62,7 +62,9 @@ Then open Mintty's options dialog, select the Text panel, and in the Emojis sect
 
 ### ConEmu
 
-[ConEmu](https://conemu.github.io) has some nice features, and is incredibly configurable. With its default settings, it mangles many of yazpt's Unicode characters, but you can fix that by installing the [DejaVu Sans Mono font](https://dejavu-fonts.github.io) and configuring ConEmu to use it, on its Fonts settings panel; choose DejaVu Sans Mono in the "Main console font" dropdown, and uncheck the "Alternative font" checkbox a bit further down.
+[ConEmu](https://conemu.github.io) has some nice features, and is incredibly configurable. But the screen can feel a little laggy if you type quickly, and it doesn't handle 256-color mode very well.
+
+With its default settings, it mangles many of yazpt's Unicode characters, but you can fix that by installing the [DejaVu Sans Mono font](https://dejavu-fonts.github.io) and configuring ConEmu to use it, on its Fonts settings panel; choose DejaVu Sans Mono in the "Main console font" dropdown, and uncheck the "Alternative font" checkbox a bit further down.
 
 As of version 210422, ConEmu doesn't render the yolo preset's emoji correctly, even with DejaVu Sans Mono, so when yazpt detects it's running under ConEmu, it uses emoticons instead.
 
@@ -76,7 +78,7 @@ To enable the yolo theme's color emoji when running Terminus on WSL, you'll need
 
 ```sh
 export TERM_PROGRAM=Terminus  # (Only needed when running Terminus on WSL)
-source ~/.yazpt/yazpt.zsh-theme
+yazpt_plugin_unload && source ~/.yazpt/yazpt.zsh-theme
 ```
 
 ### MobaXterm (as a WSL terminal)

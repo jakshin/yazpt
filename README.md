@@ -95,10 +95,16 @@ Yazpt's code logic should work just about anywhere zsh 5.1+ itself does, and wit
 
 ### macOS
 
-My primary environment is macOS, and yazpt works without fuss on recent versions, in Terminal.app and [iTerm](https://iterm2.com) v3.3+, with the system zsh, and either the system or [Homebrew](https://brew.sh) versions of git and svn. I use yazpt on these macOS versions regularly:
+My primary environment is macOS, and yazpt works without fuss on recent versions -- in Terminal.app, [iTerm](https://iterm2.com), and [Terminus](https://eugeny.github.io/terminus/) -- with the system zsh, and either the system or [Homebrew](https://brew.sh) versions of git and svn. I use yazpt on these macOS versions regularly, or did at one time:
 
-* **macOS 10.15 Catalina**,
-  using Andale Mono, Courier, Menlo, Monaco, [Bitstream Vera Sans Mono](https://www.gnome.org/fonts), [Fira Code](https://github.com/tonsky/FiraCode), [Meslo](https://www.nerdfonts.com), and [Source Code Pro](https://github.com/adobe-fonts/source-code-pro) fonts (all with Terminal.app's "Antialias text" setting turned on)
+* **macOS 11 Big Sur**,
+  with the preinstalled fixed width fonts, plus
+  [Bitstream Vera Sans Mono](https://www.gnome.org/fonts),
+  [Fira Code](https://github.com/tonsky/FiraCode),
+  [Meslo](https://www.nerdfonts.com), and
+  [Source Code Pro](https://github.com/adobe-fonts/source-code-pro)
+  (all with Terminal.app's "Antialias text" setting turned on)
+* **macOS 10.15 Catalina**
 * **macOS 10.14.6 Mojave**
 * **macOS 10.13.6 High Sierra**
 
@@ -106,7 +112,7 @@ My primary environment is macOS, and yazpt works without fuss on recent versions
 
 I don't always run zsh on Windows, but when I do, I prefer to use [Cygwin](https://cygwin.com) and either Windows Terminal or Mintty.
 
-* **Windows 10 Pro (version 1909, version 20H2)**
+* **Windows 10 Pro (version 1909, 20H2 and 21H1)**
 * **Windows 8.1 Pro**
 * **Windows 7**,
   with the [DejaVu Sans Mono font installed](./tips-for-windows.md#older-windows-versions) so yazpt's Unicode characters will render right
@@ -133,8 +139,9 @@ fi
 
 Yazpt just works, without any tinkering, in these distros:
 
-* **CentOS 8.3**, installed as a "server with GUI"
-* **Kali Linux 2021.1**;
+* **CentOS 8.3 and CentOS Stream 8**, installed as a "server with GUI"
+* **Debian 10.9**
+* **Kali Linux 2021.1**
 * **KDE neon**
 * **Kubuntu 21.04 and 20.04 LTS**
 * **Linux Mint Cinnamon 20.1 (Ulyssa) and 19.3 (Tricia)**
@@ -144,9 +151,9 @@ Yazpt just works, without any tinkering, in these distros:
 
 It also works tolerably well in the distros listed below, though you may need to make some minor tweaks to settings and/or install a font or two for best results. See the [tips for using yazpt on GNU/Linux](./tips-for-linux.md) for details.
 
+* **Amazon Linux 2**, running MATE Desktop
 * **antiX 19.3**
-* **Bodhi Linux 5.1**, running Enlightenment
-* **Debian 10.9**
+* **Bodhi Linux 5.1**, running Moksha/Enlightenment
 * **elementary OS 5.1 (Hera)**
 * **Fedora Workstation 33 and 34**
 * **Lubuntu 21.04 and 20.04 LTS**

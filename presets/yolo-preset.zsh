@@ -50,7 +50,7 @@ _yazpt_yolo_base_color=$(.yazpt_random_color)
 YAZPT_LAYOUT=$'\n<exit><? ><cwd><? ><vcs>\n<char> '
 YAZPT_CWD_COLOR=$_yazpt_yolo_base_color
 
-YAZPT_EXECTIME_CHAR="$yazpt_hourglass_emoji"
+YAZPT_EXECTIME_CHAR="🕒 "  # Clock emoji, 3 o'clock
 YAZPT_EXECTIME_COLOR=$(( _yazpt_yolo_base_color + 12 ))
 
 YAZPT_EXIT_ERROR_CHAR=$(.yazpt_random_char _yazpt_yolo_sad_chars)
@@ -66,27 +66,12 @@ YAZPT_VCS_WRAPPER_CHARS=('❨' '❩')
 
 # Tweaks and fixups for various environments
 if [[ -z $YAZPT_NO_TWEAKS ]]; then
-	if [[ $OS == "Windows"* ]]; then
-		_yazpt_tweaks_file="tweaks-for-windows.zsh"
-	elif [[ -n $WSL_DISTRO_NAME ]]; then
-		_yazpt_tweaks_file="tweaks-for-wsl.zsh"
-	elif [[ $OSTYPE == "linux-gnu" ]]; then
-		_yazpt_tweaks_file="tweaks-for-linux.zsh"
-	elif [[ $OSTYPE == "freebsd"* ]]; then
-		_yazpt_tweaks_file="tweaks-for-freebsd.zsh"
-	elif [[ $OSTYPE == "haiku" ]]; then
-		_yazpt_tweaks_file="tweaks-for-haiku.zsh"
-	else
-		unset _yazpt_tweaks_file
-	fi
-
-	if [[ -n $_yazpt_tweaks_file ]]; then
-		functions .yazpt_tweak_emoji > /dev/null || source "$yazpt_base_dir/functions/$_yazpt_tweaks_file"
-		unset _yazpt_tweaks_file
+	.yazpt_load_tweaks
+	if functions .yazpt_tweak_emoji > /dev/null; then
 		.yazpt_tweak_emoji
-		.yazpt_tweak_hourglass_emoji
 	fi
 fi
 
+# Cleanup
 unfunction .yazpt_random_int .yazpt_random_char .yazpt_random_color
 unset _yazpt_yolo_base_color _yazpt_yolo_color_ranges _yazpt_yolo_happy_chars _yazpt_yolo_sad_chars

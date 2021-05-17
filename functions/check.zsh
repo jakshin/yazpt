@@ -75,6 +75,7 @@ function .yazpt_check() {
 			echo "Windows, NT version = $yazpt_windows_version"
 
 		elif [[ -n $WSL_DISTRO_NAME ]]; then
+			source "$yazpt_base_dir/functions/tweaks-for-windows.zsh"
 			echo "Windows Subsystem for Linux ($VENDOR)"
 
 		elif [[ $OSTYPE == "linux-gnu" ]]; then
@@ -160,9 +161,9 @@ function .yazpt_check() {
 
 		echo " chosen: $chosen_hands $chosen_faces"
 
-		echo "\n${bright}Hourglass characters:${normal}"
-		echo " Unicode: [$yazpt_hourglass]"
-		echo "   Emoji: [$yazpt_hourglass_emoji]"
+		echo "\n${bright}Clock characters:${normal}"
+		echo " Unicode: ${yazpt_clock}..."  # Defined in yazpt.zsh-theme with a trailing space
+		echo "   Emoji: 🕒 ..."             # Defined in yolo-preset.zsh
 
 		echo "\n${bright}Previewing the right-hand prompt...${normal}"
 		.yazpt_check_rprompt " default"
