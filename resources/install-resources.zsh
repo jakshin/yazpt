@@ -163,8 +163,16 @@ fi
 
 # Install Xresources
 target=~$USER/.Xresources  # So it works while running under su
-echo
 
+if [[ $OSTYPE == "linux-gnu" && -f /etc/os-release ]]; then
+	# ~/.Xresources doesn't work on Debian, but ~/.Xdefaults-$(hostname) does
+	# We match some Debian derivaties here, e.g. antiX and MX, but that's okay
+	if grep 'ID=debian' /etc/os-release &> /dev/null; then
+		target=~$USER/.Xdefaults-$(hostname)
+	fi
+fi
+
+echo
 if ask_to_install "Using XTerm with its default settings can be a bit painful. Yazpt includes an Xresources file" \
      "which makes XTerm look considerably nicer. It's installed by creating a symlink in your home directory." && \
    ask_to_replace "$target"
@@ -178,8 +186,13 @@ then
 		installed=true || warn "An error occurred during installation."
 
 	if [[ $installed == true ]]; then
-		msg="Installed. If ~/.Xresources doesn't have any effect when you start a new XTerm, "
-		msg+="it might help if you rename it to ~/.Xdefaults-$(hostname)."
+		msg="Installed. "
+
+		if [[ $target == *".Xresources" ]]; then
+			msg+="If ~/.Xresources doesn't have any effect when you start a new XTerm, "
+			msg+="it might help if you rename it to ~/.Xdefaults-$(hostname)."
+		fi
+
 		.yazpt_print_wrapped "$msg"
 	fi
 fi
