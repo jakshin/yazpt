@@ -14,7 +14,7 @@ I also tested yazpt in XTerm when I could. Regardless of distro, using XTerm is 
 * Kubuntu 21.04 and 20.04 LTS
 * Linux Mint Cinnamon 20.1 (Ulyssa) and 19.3 (Tricia)
 * openSUSE Tumbleweed, running KDE Plasma 5
-* Pop!_OS 20.10 and 20.04
+* Pop!_OS 21.04, 20.10 and 20.04
 * Solus 4.2 (Fortitude), running Budgie
 
 

@@ -146,7 +146,7 @@ Yazpt just works, without any tinkering, in these distros:
 * **Kubuntu 21.04 and 20.04 LTS**
 * **Linux Mint Cinnamon 20.1 (Ulyssa) and 19.3 (Tricia)**
 * **openSUSE Tumbleweed**, running KDE Plasma 5
-* **Pop!_OS 20.10 and 20.04**
+* **Pop!_OS 21.04, 20.10 and 20.04**
 * **Solus 4.2 (Fortitude)**, running Budgie
 
 It also works tolerably well in the distros listed below, though you may need to make some minor tweaks to settings and/or install a font or two for best results. See the [tips for using yazpt on GNU/Linux](./tips-for-linux.md) for details.
