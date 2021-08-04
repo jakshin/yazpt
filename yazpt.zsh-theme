@@ -373,6 +373,8 @@ function .yazpt_detect_terminal() {
 				yazpt_terminal="terminology"  # Enlightenment's terminal, "61;337;0"
 			elif (( $info[1] == 77 )); then
 				yazpt_terminal="mintty"  # (WSLtty is a special bundling of Mintty)
+			elif (( $info[1] == 85 )); then
+				yazpt_terminal="rxvt"    # Either rxvt or urxvt (aka rxvt-unicode), e.g. "85;95;0"
 
 			elif [[ $info == "0 136 0" && -n $ConEmuBuild ]]; then
 				yazpt_terminal="conemu"  # Not detected on WSL, because $ConEmuBuild isn't set
