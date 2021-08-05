@@ -31,10 +31,16 @@ function .yazpt_tweak_emoji() {
 			# unless the Noto Color Emoji font is installed, and even then only one face renders well
 			.yazpt_detect_font "Noto Color Emoji" && YAZPT_EXIT_ERROR_CHAR="😬" || .yazpt_use_emoticons
 
-		elif [[ $VENDOR == "suse" ]]; then
-			# In openSUSE Tumbleweed's Konsole, we have decent color emoji (except only one "sad" face renders properly),
+		elif [[ $VENDOR == "slackware" || $VENDOR == "suse" ]]; then
+			# With Noto Color Emoji installed, we have decent color emoji (except only one "sad" face renders properly),
 			# UNLESS Noto Emoji is installed, in which case emoji are monochrome, and only a couple are worth displaying
-			.yazpt_detect_font "Noto Emoji" && .yazpt_use_safe_emoji || YAZPT_EXIT_ERROR_CHAR="😬"
+			if .yazpt_detect_font "Noto Emoji"; then
+				.yazpt_use_safe_emoji
+			elif .yazpt_detect_font "Noto Color Emoji"; then
+				YAZPT_EXIT_ERROR_CHAR="😬"
+			else
+				.yazpt_use_emoticons
+			fi
 
 		elif [[ $yazpt_linux_distro_name == "ubuntu" && $XDG_CURRENT_DESKTOP == "LXQt" ]]; then
 			# Lubuntu's QTerminal only handles some monochrome emoji,
@@ -113,6 +119,7 @@ function .yazpt_detect_xterm_emoji_support() {
 				( [[ $distro == "manjarolinux" ]] && (( $version >= 20 )) ) ||
 				( [[ $distro == "opensuse-tumbleweed" ]] && (( $version >= 20200500 )) ) ||
 				( [[ $distro == "pop" ]] && (( $version >= 20.10 )) ) ||
+				( [[ $distro == "slackware" ]] && (( $version >= 14.2 )) ) ||
 				( [[ $distro == "ubuntu" && $XDG_CURRENT_DESKTOP != "KDE" ]] && (( $version >= 19.10 )) ) ||
 				( [[ $distro == "ubuntu" ]] && (( $version >= 21.04 )) )
 		then
