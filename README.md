@@ -28,13 +28,13 @@ sapphire preset | spearmint preset | yolo preset
 
 ## Features
 
-* **It's pretty fast, without async.**
+* **It's fast.**
   It's faster than any prompt theme which relies on [vcs_info](https://github.com/zsh-users/zsh/tree/master/Functions/VCS_Info), and faster than nearly all prompt themes which don't use async approaches for obtaining and displaying VCS status. Prompt themes which populate the VCS parts of the prompt asynchronously can be faster, but I actually tend not to love them, as I personally find it a bit distracting when part of the prompt pops into existence a bit later than the rest.
 
   Yazpt also allows you to configure lists of path prefixes in which you expect to find Git repos, Subversion working copies, and/or Team Foundation Version Control local workspaces - if you've done so, then while working in any path which isn't in one or more of those lists, it skips checking for Git/Subversion/TFVC status, improving performance even further. If you don't happen to use one or more of the supported VCSs, you can also entirely disable yazpt's use of any of them.
 
 * **It's as configurable as you want it to be.**
-  Yazpt uses about three dozen environment variables to tweak its appearance and behavior. If that sounds like too much to bother with, it also comes with a handful of "presets", i.e. preconfigured settings for the environment variables, in a variety of styles. Or if, on the other hand, you really want to dig in and customize it, it's straightforward to add new prompt segments, or override the default implementations of existing prompt segments, using zsh functions. Either way, the details are [documented](customizing.md).
+  Yazpt uses about three dozen environment variables to tweak its appearance and behavior. If that sounds like too much to bother with, it also comes with a handful of "presets", i.e. preconfigured settings for the environment variables, in a variety of styles. Or if, on the other hand, you really want to dig in and customize it, it's straightforward to add new prompt segments, or override the default implementations of existing prompt segments, using zsh functions. Either way, the details are all [carefully documented](customizing.md) to help you jump right in.
 
 * **It lets you do your own thing with $PS1 and $RPS1.**
   Yazpt thinks of itself as an add-on or power-up, not a replacement, for zsh's built-in prompt logic, so if you've already spent time pimping out your `$PS1` or `$RPS1`, there's no need to throw that work away - you can copy your current `$PS1` straight into `$YAZPT_LAYOUT` (and/or `$RPS1` into `$YAZPT_RLAYOUT`), and then add any yazpt-specific segments you'd like.
@@ -149,7 +149,7 @@ Yazpt just works, without any tinkering, in these distros:
 * **Pop!_OS 21.04, 20.10 and 20.04**
 * **Solus 4.2 (Fortitude)**, running Budgie
 
-It also works tolerably well in the distros listed below, though you may need to make some minor tweaks to settings and/or install a font or two for best results. See the [tips for using yazpt on GNU/Linux](./tips-for-linux.md) for details.
+It's also been tested in the distros listed below, and works tolerably well, though you may need to make some minor tweaks to settings and/or install a font or two for best results. See the [tips for using yazpt on GNU/Linux](./tips-for-linux.md) for details.
 
 * **Amazon Linux 2**, running MATE Desktop
 * **antiX 19.3**
@@ -159,8 +159,11 @@ It also works tolerably well in the distros listed below, though you may need to
 * **Lubuntu 21.04 and 20.04 LTS**
 * **Manjaro 20.0 (Lysia)**, running XFCE
 * **MX Linux 19.4 (patito feo)**
+* **Puppy Linux FossaPup 9.5**
+* **Slackware**, installed from Live Edition, running KDE
 * **Ubuntu Desktop 21.04 (Hirsute Hippo) and 20.04 LTS (Focal Fossa)**
 * **Ubuntu MATE 21.04 and 20.04 LTS**
+* **Zorin OS 15.3 Core**
 
 ### FreeBSD
 

@@ -32,7 +32,7 @@ Yazpt works well out of the box, except emojis aren't rendered in ROXTerm, so th
 
 In Terminology, yazpt's Unicode characters are rendered a bit poorly with the default font; you can fix it by changing the font to, say, DejaVu Sans Mono (right click anywhere in a Terminology window > Settings > Font).
 
-The yolo preset's emoji are also rendered as awful little monochrome line drawings by default, so yazpt automatically switches to emoticons instead. To get emoji in the prompt, just install the [Noto Color Emoji font](https://github.com/googlefonts/noto-emoji/blob/master/fonts/NotoColorEmoji.ttf), by copying it to the `~/.local/share/fonts` directory and then running `fc-cache -f` -- next time you load yazpt, it'll automatically use emoji.
+The yolo preset's emoji are also rendered as awful little monochrome line drawings by default, so yazpt automatically switches to emoticons instead. To get emoji in the prompt, just install the [Noto Color Emoji font](https://github.com/googlefonts/noto-emoji/blob/master/fonts/NotoColorEmoji.ttf), by copying it to the ~/.local/share/fonts directory and then running `fc-cache -f` -- next time you load yazpt, it'll automatically use emoji.
 
 
 ## elementary OS 5.1 (Hera)
@@ -62,6 +62,16 @@ In XTerm, you can get decent monochrome rendering of yolo's emoji by installing 
 In Xfce Terminal, the yolo preset's emoji are rendered as monochrome line drawings by default; if you'd prefer the full-color experience, install `fonts-noto-color-emoji` in MX Package Installer. The "Dark Pastels" terminal color scheme is much nicer than the default, by the way, especially when using yazpt's sapphire preset.
 
 
+## Puppy Linux FossaPup 9.5
+
+For somewhat nicer rendering of yazpt's Unicode characters in urxvt and rxvt, switch to the DejaVu Sans Mono font, by replacing "Droid Sans Mono" with "DejaVu Sans Mono" twice in ~/.Xdefaults. I haven't found a way to make the yolo preset's emoji work in those terminals.
+
+
+## Slackware, installed from Live Edition, running KDE
+
+Install the [Noto Color Emoji font](https://github.com/googlefonts/noto-emoji/blob/master/fonts/NotoColorEmoji.ttf) to get nice rendering of the yolo preset's emoji in Konsole, Yakuake, and Xfce Terminal. You can install the [Noto Emoji font](https://github.com/googlefonts/noto-emoji/blob/master/fonts/NotoEmoji-Regular.ttf) for decent monochrome emoji in XTerm, but note that doing so will cause Konsole and Yakuake to revert to monochrome emoji as well.
+
+
 ## Ubuntu Desktop 21.04 (Hirsute Hippo) and 20.04 LTS (Focal Fossa)
 
 GNOME Terminal doesn't render yazpt's Unicode characters very well by default; to fix things up, click `Terminal` in the menu bar > `Preferences` > `Unnamed` (or whatever your profile is named) > `Text` tab > check `Custom font`. Otherwise everything just works.
@@ -74,3 +84,8 @@ In XTerm, you can get decent monochrome rendering of yolo's emoji by downloading
 MATE Terminal doesn't render yazpt's Unicode characters very well by default; to fix things up, click the `Edit` menu > `Profile Preferences` > `General` tab > uncheck `Use the system fixed width font`.
 
 In XTerm, you can get decent monochrome rendering of yolo's emoji by downloading and manually installing the [Noto Emoji font](https://github.com/googlefonts/noto-emoji/blob/master/fonts/NotoEmoji-Regular.ttf).
+
+
+# Zorin OS 15.3 Core
+
+For nicer rendering of yazpt's Unicode characters in GNOME Terminal, click `Edit` in the menu bar > `Preferences` > `Unnamed` (or whatever your profile is named) > `Text` tab > check `Custom font`.
