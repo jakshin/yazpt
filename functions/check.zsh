@@ -85,7 +85,7 @@ function .yazpt_check() {
 
 		elif [[ $OSTYPE == "freebsd"* ]]; then
 			source "$yazpt_base_dir/functions/tweaks-for-freebsd.zsh"
-			.yazpt_detect_ghostbsd && os="GhostBSD" || os="FreeBSD (or a derivative)"
+			.yazpt_detect_freebsd_derivative && os="$yazpt_freebsd_derivative" || os="FreeBSD (or a derivative)"
 			echo "$os"
 
 		elif [[ $OSTYPE == "haiku" ]]; then

@@ -359,6 +359,8 @@ function .yazpt_detect_terminal() {
 					yazpt_terminal="pantheon-terminal"  # elementary OS, io.elementary.terminal
 				elif [[ $desktop == "XFCE" ]]; then
 					yazpt_terminal="xfce4-terminal"
+				elif [[ $GIO_LAUNCHED_DESKTOP_FILE == *"sakura.desktop" ]]; then
+					yazpt_terminal="sakura"  # Found on NomadBSD 130R
 				fi
 
 			elif (( $info[1] == 0 && $info[2] == 10 )); then

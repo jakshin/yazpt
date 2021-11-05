@@ -1,17 +1,22 @@
-# Tips for using yazpt on FreeBSD and derivative BSDs
-
-I have yet to encounter a FreeBSD/derivative installation that handles emoji in terminal out of the box, so yazpt's yolo presets defaults to using emoticons when it detects that it's running under FreeBSD. Run `sudo pkg install noto-emoji` to get monochrome emoji with the yolo preset in XTerm (but not MATE Terminal or Xfce Terminal, sadly).
+# Tips for using yazpt on FreeBSD derivatives
 
 
-## FuryBSD 12.1, running XFCE   
-
-Yazpt works rather poorly out of the box in Xfce Terminal; to fix it, add this to your `~/.zshenv` (or your shell's rough equivalent, if zsh isn't your login shell):   
-
-```sh
-export LANG=en_US.UTF-8 LC_ALL=en_US.UTF-8 LC_CTYPE=en_US.UTF-8
-```
-
-
-## GhostBSD 20.04.1
+## GhostBSD 21.10.16
 
 For better rendering of yazpt's Unicode characters in MATE Terminal, uncheck its "Use the system fixed width font" checkbox in your profile preferences.
+
+The yolo preset's emoji don't work out of the box, so emoticons are used by default. It's easy to fix: run `sudo pkg install noto-emoji` to get emoji support in MATE Terminal and XTerm.
+
+
+## MidnightBSD 2.1.1
+
+Xfce Terminal mangles yazpt's Unicode characters, unless you go to Edit > Preferences > Advanced tab, and change the Default character encoding to UTF-8.
+
+The yolo preset's emoji don't work out of the box, so emoticons are used by default. You can get emoji support in Xfce Terminal and XTerm with `sudo mport install noto-emoji`.
+
+
+## NomadBSD 130R
+
+NomadBSD uses Sakura as its default terminal, and has it configured with Source Code Pro as its font, which doesn't present yazpt's Unicode characters particularly well. There are a bunch of other monospace fonts preinstalled and available for use in Sakura, nearly all of which make yazpt look better.
+
+The yolo preset's emoji don't work out of the box, so emoticons are used by default. Running `sudo pkg install noto-emoji` fixes things up, in both Sakura and XTerm.
