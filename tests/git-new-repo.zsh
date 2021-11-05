@@ -12,13 +12,14 @@ YAZPT_VCS_ORDER=(git)
 test_case "New repo with no branches/commits"
 git init
 test_init_done
-contains_context "master"
+branch_name="$(git branch --show-current)"
+contains_context "$branch_name"
 contains_status "no-upstream"
 
 test_case "In the .git directory of a new repo with no branches/commits"
 cd $(git rev-parse --git-dir)
 test_init_done
-contains_dim_context "master"
+contains_dim_context "$branch_name"
 contains_status "no-upstream"
 contains "IN-GIT-DIR"
 
