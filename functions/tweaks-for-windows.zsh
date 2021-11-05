@@ -8,7 +8,7 @@ function .yazpt_tweak_checkmark() {
 	.yazpt_detect_terminal
 
 	if [[ $yazpt_terminal == "mintty" ]]; then
-		# Minty can have issues with the default checkmark, depending on its configuration
+		# Mintty can have issues with the default checkmark, depending on its configuration
 		# (It does render fine with both DejaVu Sans Mono and color emoji support enabled)
 		YAZPT_EXIT_OK_CHAR="✓"
 
@@ -78,13 +78,22 @@ function .yazpt_detect_mintty_emoji_support() {
 }
 
 # Tries to figure out which major version of Windows we're running on.
-# Sets its result into the readonly global $yazpt_windows_version variable
-# (10.x means Windows 10, 6.3 means Windows 8.1, 6.1 means Windows 7).
+# Sets its result into the readonly global $yazpt_windows_version variable.
 #
 function .yazpt_detect_windows_version() {
 	[[ -n $yazpt_windows_version ]] && return
 
 	local os="$(uname -s)"
 	local os_parts=(${(s:-:)os})
-	declare -rg yazpt_windows_version=$os_parts[2]  # Cache indefinitely
+
+	if [[ $os_parts[2] == "10."* ]]; then
+		# Distinguish between Windows 10 and Windows 11
+		yazpt_windows_version="$(wmic os get Caption | grep -Eo "[[:digit:]]+")"
+	elif [[ $os_parts[2] == "6.3" ]]; then
+		yazpt_windows_version=8
+	elif [[ $os_parts[2] == "6.1" ]]; then
+		yazpt_windows_version=7
+	fi
+
+	typeset -rg yazpt_windows_version  # Cache indefinitely
 }

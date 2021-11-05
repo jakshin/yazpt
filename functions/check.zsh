@@ -72,7 +72,7 @@ function .yazpt_check() {
 		elif [[ $OS == "Windows"* ]]; then
 			source "$yazpt_base_dir/functions/tweaks-for-windows.zsh"
 			.yazpt_detect_windows_version
-			echo "Windows, NT version = $yazpt_windows_version"
+			echo "Windows $yazpt_windows_version"
 
 		elif [[ -n $WSL_DISTRO_NAME ]]; then
 			source "$yazpt_base_dir/functions/tweaks-for-windows.zsh"

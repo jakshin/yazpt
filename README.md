@@ -95,7 +95,7 @@ Yazpt's code logic should work just about anywhere zsh 5.1+ itself does, and wit
 
 ### macOS
 
-My primary environment is macOS, and yazpt works without fuss on recent versions -- in Terminal.app, [iTerm](https://iterm2.com), and [Terminus](https://eugeny.github.io/terminus/) -- with the system zsh, and either the system or [Homebrew](https://brew.sh) versions of git and svn. I use yazpt on these macOS versions regularly, or did at one time:
+My primary environment is macOS, and yazpt works without fuss on recent versions -- in Terminal.app, [iTerm](https://iterm2.com), and [Tabby](https://tabby.sh) -- with the system zsh, and either the system or [Homebrew](https://brew.sh) versions of git and svn. I use yazpt on these macOS versions regularly, or did at one time:
 
 * **macOS 11 Big Sur**,
   with the preinstalled fixed width fonts, plus
@@ -110,14 +110,9 @@ My primary environment is macOS, and yazpt works without fuss on recent versions
 
 ### Windows
 
-I don't always run zsh on Windows, but when I do, I prefer to use [Cygwin](https://cygwin.com) and either Windows Terminal or Mintty.
+Yazpt also works without fuss in Windows Terminal on Windows 10 and Windows 11, whether it's running on Windows Subsystem for Linux (WSL), [Cygwin](https://cygwin.com) or [MSYS2](https://www.msys2.org).
 
-* **Windows 10 Pro (version 1909, 20H2 and 21H1)**
-* **Windows 8.1 Pro**
-* **Windows 7**,
-  with the [DejaVu Sans Mono font installed](./tips-for-windows.md#older-windows-versions) so yazpt's Unicode characters will render right
-
-I've also tested yazpt on Windows 10 in various other scenarios, like with MSYS2 and Windows Subsystem for Linux (WSL), and in alternate terminals like ConEmu, Terminus, and MobaXterm. In most cases, a bit of tweaking is needed for best results - see the [tips for using yazpt on Windows](./tips-for-windows.md) for details.
+It also works in various other terminals, including Mintty, Tabby, MobaXterm, and ConEmu, and on Windows 7 and 8, but a little bit of tinkering is needed for good results -- see the [tips for using yazpt on Windows](./tips-for-windows.md) for details.
 
 ### Haiku
 

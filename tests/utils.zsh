@@ -135,7 +135,7 @@ function before_tests() {
 		local short_host=$host_parts[1]
 
 		if [[ $repo_type == *"tfvc-winky"* ]]; then
-			if [[ $TTY == "/dev/cons"* && $TERM_PROGRAM != "Terminus" ]]; then
+			if [[ $TTY == "/dev/cons"* && $TERM_PROGRAM != "Tabby" ]]; then
 				# This test fails in Windows Terminal and when launching zsh.exe directly,
 				# but I don't think it's yazpt's fault (it works in other terminals)
 				echo "${warning}⚠ Skipping this test suite because it doesn't work in this terminal${normal}"

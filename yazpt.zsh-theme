@@ -324,7 +324,7 @@ function .yazpt_detect_terminal() {
 	yazpt_terminal="unknown"  # Pessimism
 
 	if [[ $OSTYPE == "darwin"* && -n $TERM_PROGRAM ]]; then
-		# Terminal emulators on macOS tend to set $TERM_PROGRAM (e.g. Terminal.app, iTerm, Terminus)
+		# Terminal emulators on macOS tend to set $TERM_PROGRAM (e.g. Terminal.app, iTerm, Tabby)
 		yazpt_terminal=${TERM_PROGRAM:l}
 		yazpt_terminal_info="n/a"
 	else
@@ -347,7 +347,7 @@ function .yazpt_detect_terminal() {
 
 		if (( $#info == 3 )); then
 			if (( ($info[1] == 1 && $info[2] >= 2000) || $info[1] == 65 )); then
-				# Could be GNOME Terminal, LXTerminal, MATE Terminal, Pantheon Terminal, or Xfce Terminal (and maybe others?)
+				# Could be anything VTE-based, including GNOME Terminal, MATE Terminal, Xfce Terminal, and others
 				local desktop=$XDG_CURRENT_DESKTOP
 				if [[ -n $GNOME_TERMINAL_SCREEN || $desktop == *"GNOME"* || $desktop == "X-Cinnamon" || $desktop == "Unity" ]]; then
 					yazpt_terminal="gnome-terminal"
@@ -364,8 +364,14 @@ function .yazpt_detect_terminal() {
 				fi
 
 			elif (( $info[1] == 0 && $info[2] == 10 )); then
-				# https://github.com/microsoft/terminal/pull/6850
-				yazpt_terminal="windows-terminal"
+				if [[ -n $WT_SESSION ]]; then
+					yazpt_terminal="windows-terminal"
+				elif [[ -n $TERM_PROGRAM ]]; then
+					yazpt_terminal=${TERM_PROGRAM:l}  # Including Tabby on Windows 11, except on WSL
+				elif [[ $SESSIONNAME == "Console" ]]; then
+					# we only get here under MS console on Windows 11, not Windows 10
+					yazpt_terminal="ms-console"
+				fi
 
 			elif (( $info[1] == 0 && $info[2] == 115 )); then
 				yazpt_terminal="konsole"  # Or QTerminal
@@ -389,10 +395,11 @@ function .yazpt_detect_terminal() {
 
 		elif (( $#info == 0 )); then
 			if [[ -n $TERM_PROGRAM ]]; then
-				yazpt_terminal=${TERM_PROGRAM:l}  # Including Terminus
+				yazpt_terminal=${TERM_PROGRAM:l}  # Including Tabby on Windows 10
 
 			elif [[ $OS == "Windows"* && $TTY == "/dev/cons"* ]]; then
-				# zsh.exe was launched directly; this detection doesn't work on WSL
+				# zsh.exe was launched directly on Windows 10; this detection doesn't work on WSL,
+				# and on Windows 11, we get "0;10;1" back and take the code path above
 				yazpt_terminal="ms-console"
 			fi
 		fi
