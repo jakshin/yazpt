@@ -132,33 +132,19 @@ fi
 
 ### Linux
 
-Yazpt just works, without any tinkering, in these distros:
+Yazpt just works, without any tinkering, in many popular distros:
 
-* **CentOS 8.3 and CentOS Stream 8**, installed as a "server with GUI"
-* **Debian 10.9**
-* **Kali Linux 2021.1**
-* **KDE neon**
-* **Kubuntu 21.04 and 20.04 LTS**
-* **Linux Mint Cinnamon 20.1 (Ulyssa) and 19.3 (Tricia)**
-* **openSUSE Tumbleweed**, running KDE Plasma 5
-* **Pop!_OS 21.04, 20.10 and 20.04**
-* **Solus 4.2 (Fortitude)**, running Budgie
+* CentOS 8.3 and CentOS Stream 8, installed as a "server with GUI"
+* Debian 10.9
+* Kali Linux 2021.1
+* KDE neon
+* Kubuntu 21.04 and 20.04 LTS
+* Linux Mint Cinnamon 20.1 (Ulyssa) and 19.3 (Tricia)
+* openSUSE Tumbleweed, running KDE Plasma 5
+* Pop!_OS 20.04 and newer
+* Solus 4.2 (Fortitude), running Budgie
 
-It's also been tested in the distros listed below, and works tolerably well, though you may need to make some minor tweaks to settings and/or install a font or two for best results. See the [tips for using yazpt on GNU/Linux](./tips-for-linux.md) for details.
-
-* **Amazon Linux 2**, running MATE Desktop
-* **antiX 19.3**
-* **Bodhi Linux 5.1**, running Moksha/Enlightenment
-* **elementary OS 5.1 (Hera)**
-* **Fedora Workstation 33 and 34**
-* **Lubuntu 21.04 and 20.04 LTS**
-* **Manjaro 20.0 (Lysia)**, running XFCE
-* **MX Linux 19.4 (patito feo)**
-* **Puppy Linux FossaPup 9.5**
-* **Slackware**, installed from Live Edition, running KDE
-* **Ubuntu Desktop 21.04 (Hirsute Hippo) and 20.04 LTS (Focal Fossa)**
-* **Ubuntu MATE 21.04 and 20.04 LTS**
-* **Zorin OS 15.3 Core**
+It also works tolerably well in lots of other distros, including Ubuntu and its variants, though you may need to make some minor tweaks to settings and/or install a font or two for best results. See the [tips for using yazpt on GNU/Linux](./tips-for-linux.md) for details.
 
 ### FreeBSD
 
