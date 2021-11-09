@@ -132,19 +132,18 @@ fi
 
 ### Linux
 
-Yazpt just works, without any tinkering, in many popular distros:
+Yazpt just works, without any special attention, in many popular distros:
 
 * CentOS 8.3 and CentOS Stream 8, installed as a "server with GUI"
-* Debian 10.9
-* Kali Linux 2021.1
+* Debian 10.9 and 11.x, installed with defaults ("Debian desktop environment")
+* Kali Linux 2021.1, 2021.3
 * KDE neon
-* Kubuntu 21.04 and 20.04 LTS
-* Linux Mint Cinnamon 20.1 (Ulyssa) and 19.3 (Tricia)
+* Kubuntu 20.04 and newer
+* Linux Mint 20.1 and newer (Cinnamon, MATE or XFCE)
 * openSUSE Tumbleweed, running KDE Plasma 5
 * Pop!_OS 20.04 and newer
-* Solus 4.2 (Fortitude), running Budgie
 
-It also works tolerably well in lots of other distros, including Ubuntu and its variants, though you may need to make some minor tweaks to settings and/or install a font or two for best results. See the [tips for using yazpt on GNU/Linux](./tips-for-linux.md) for details.
+It also works well in lots of other distros, including [Ubuntu](tips-for-linux.md#ubuntu-desktop-2004-lts-focal-fossa-2104-hirsute-hippo-2110-impish-indri) and its variants, after making some minor tweaks to settings and/or installing a font or two. See the [tips for using yazpt on GNU/Linux](./tips-for-linux.md) for details.
 
 ### FreeBSD
 
