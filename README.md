@@ -116,7 +116,7 @@ It also works in various other terminals, including Mintty, Tabby, MobaXterm, an
 
 ### Haiku
 
-Yazpt works in [Haiku R1/beta2's](https://www.haiku-os.org) Terminal application, after these steps are taken:
+Yazpt works in [Haiku R1/beta3's](https://www.haiku-os.org) Terminal application, after these steps are taken:
 * Install zsh and the DejaVu fonts, either in HaikuDepot, or with `pkgman install zsh dejavu`
 * Configure Terminal to use the DejaVu Sans Mono font
 
