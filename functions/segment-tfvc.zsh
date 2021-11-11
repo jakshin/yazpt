@@ -101,7 +101,7 @@ function .yazpt_find_tf_dir() {
 	local dir=$PWD
 
 	if [[ -z $yazpt_tf_dir_name ]]; then
-		if [[ $OS == "Windows"* ]]; then
+		if [[ $OS == "Windows"* || ($OSTYPE == "linux-gnu" && -n $WSL_DISTRO_NAME) ]]; then
 			yazpt_tf_dir_name='$tf'
 		else
 			yazpt_tf_dir_name='.tf'
