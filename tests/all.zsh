@@ -2,6 +2,12 @@
 # Runs all of yazpt's test suites.
 # Copyright (c) 2020 Jason Jackson <jasonjackson@pobox.com>. Distributed under GPL v2.0, see LICENSE for details.
 
+if [[ -n $1 ]]; then
+	# If this filter isn't empty, we'll only run test suites whose filename matches it
+	# No wildcards/regex, just a substring to match filenames against
+	filter="$1"
+fi
+
 script_name="$(basename -- "$0")"
 cd -- "$(dirname -- "$0")"
 source ./utils.zsh
@@ -13,6 +19,10 @@ first=true
 for suite in *.zsh; do
 	if [[ $suite == $script_name || ! -x $suite ]]; then
 		continue  # Skip this file and utils.zsh
+	fi
+
+	if [[ -n $filter && $suite != *"$filter"* ]]; then
+		continue
 	fi
 
 	[[ $first == true ]] || echo
