@@ -14,7 +14,7 @@ YAZPT_VCS_CONTEXT_COLOR=1
 YAZPT_VCS_CONTEXT_META_COLOR=2
 test_init_done
 contains '%{%F{1}%}$/yazpt-tfvc-test/Main%{%f%}'
-cd $tf_dir_name
+cd '$tf'
 test_init_done
 contains '%{%F{2}%}$/yazpt-tfvc-test/Main|IN-TF-DIR%{%f%}'
 
@@ -27,7 +27,7 @@ contains '%{%F{17}%}★%{%f%}'
 test_case "TFVC status = dirty"
 YAZPT_VCS_STATUS_DIRTY_CHAR="☆"
 YAZPT_VCS_STATUS_DIRTY_COLOR=18
-function zstat() { stat=(24) }
+function zstat() { file_size=(24) }
 function .yazpt_parse_pendingchanges_tf1() { _yazpt_tfvc_status=ny }
 test_init_done
 contains '%{%F{18}%}☆%{%f%}'

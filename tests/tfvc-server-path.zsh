@@ -14,7 +14,7 @@ test_init_done
 contains_context '$/yazpt-tfvc-test/Main'
 
 test_case 'In the $tf (or .tf) folder'
-cd $tf_dir_name
+cd '$tf'
 test_init_done
 contains_dim_context '$/yazpt-tfvc-test/Main'
 contains "|IN-TF-DIR"

@@ -30,7 +30,7 @@ test_case "Empty YAZPT_VCS_STATUS_DIRTY_CHAR (YAZPT_CHECK_TFVC_LOCKS=true)"
 reset_tfvc_status_chars
 YAZPT_CHECK_TFVC_LOCKS=true
 function .yazpt_parse_pendingchanges_tf1() { _yazpt_tfvc_status=ny }
-function zstat() { stat=(24) }
+function zstat() { file_size=(24) }
 function .yazpt_parse_properties_tf1() {
 	# Mock this function to avoid errors caused by mocking zstat
 	_yazpt_server_path='$/yazpt-tfvc-test/Mock'
@@ -82,7 +82,7 @@ excludes "%F{$YAZPT_VCS_STATUS_UNKNOWN_COLOR}"
 
 test_case "Empty YAZPT_VCS_STATUS_UNKNOWN_CHAR (zstat failure)"
 reset_tfvc_status_chars
-touch "$tf_dir_name/pendingchanges.tf1"
+touch '$tf/pendingchanges.tf1'
 function .yazpt_parse_pendingchanges_tf1() { _yazpt_tfvc_status=yy }  # Shouldn't get called
 function zstat() { return 1 }
 test_init_done

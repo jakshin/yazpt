@@ -35,20 +35,22 @@ function @yazpt_segment_tfvc() {
 	fi
 
 	# Find out whether the local workspace has pending changes or not
-	local stat=() statuses=()
-	zstat +size -A stat -- "$_yazpt_tf_dir/pendingchanges.tf1" &> /dev/null
+	local file_size=() statuses=()
+	zstat +size -A file_size -- "$_yazpt_tf_dir/pendingchanges.tf1" &> /dev/null
 
-	if [[ -z $stat && -e "$_yazpt_tf_dir/pendingchanges.tf1" ]]; then
+	if [[ -z $file_size && -e "$_yazpt_tf_dir/pendingchanges.tf1" ]]; then
 		[[ -n $YAZPT_VCS_STATUS_UNKNOWN_CHAR ]] && statuses+="UNKNOWN"
-	elif [[ -n $stat ]] && (( $stat[1] > 23 )); then
+
+	elif [[ -n $file_size ]] && (( $file_size[1] > 23 )); then
 		if [[ ${YAZPT_CHECK_TFVC_LOCKS:l} == true ]]; then
-			.yazpt_parse_pendingchanges_tf1 "$_yazpt_tf_dir/pendingchanges.tf1" $stat[1]  # Sets $_yazpt_tfvc_status
+			.yazpt_parse_pendingchanges_tf1 "$_yazpt_tf_dir/pendingchanges.tf1" $file_size[1]  # Sets $_yazpt_tfvc_status
 			[[ $_yazpt_tfvc_status[1] == y || $_yazpt_tfvc_status[2] == y ]] || _yazpt_tfvc_status[3]=y
 
 			[[ $_yazpt_tfvc_status[1] == y && -n $YAZPT_VCS_STATUS_LOCKED_CHAR ]] && statuses+="LOCKED"
 			[[ $_yazpt_tfvc_status[2] == y && -n $YAZPT_VCS_STATUS_DIRTY_CHAR ]] && statuses+="DIRTY"
 			[[ $_yazpt_tfvc_status[3] == y && -n $YAZPT_VCS_STATUS_UNKNOWN_CHAR ]] && statuses+="UNKNOWN"
 			unset _yazpt_tfvc_status
+
 		elif [[ -n $YAZPT_VCS_STATUS_DIRTY_CHAR ]]; then
 			statuses+="DIRTY"
 		fi

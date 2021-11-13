@@ -12,7 +12,7 @@ YAZPT_VCS_ORDER=(tfvc)
 test_case "With non-English characters and emoji in the branch name"
 test_init_done
 contains_context '$/yazpt-tfvc-test/Wîñky-ßränçh 😉' true
-cd $tf_dir_name
+cd '$tf'
 test_init_done
 contains_dim_context '$/yazpt-tfvc-test/Wîñky-ßränçh 😉' true
 contains "|IN-TF-DIR"

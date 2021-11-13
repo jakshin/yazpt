@@ -14,6 +14,11 @@ function test_with_shell() {
 	local src_cmd=$2  # Optional
 
 	if which $shell > /dev/null; then
+		if [[ "$(which $shell)" == *"/Windows/system32/bash" ]]; then
+			# Cygwin/MSYS2 can find the "wrong" bash (I think only if WSL is installed)
+			shell="/bin/bash"
+		fi
+
 		test_case "Sourcing with $shell"
 		output="$($shell -c "${src_cmd:-source} $test_dir/../yazpt.zsh-theme" 2>&1)"
 		equals "Output" "$output" "Sorry, the yazpt prompt theme only works on zsh."

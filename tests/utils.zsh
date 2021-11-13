@@ -39,18 +39,22 @@ function current_timestamp() {
 	perl -MTime::HiRes=time -e 'printf "%.9f\n", time'
 }
 
-# Utility function that tries to find a TFVC CLI,
-# first checking $path, then a few likely locations on Windows
-function find_tfvc_cli() {
+# Utility function that tries to find a TF.exe CLI on Windows/WSL,
+# first checking $path, then a few likely known locations
+function find_tf_cli() {
 	if which tf > /dev/null; then
 		tf_cli='tf'
-	elif [[ $OS == "Windows"* ]]; then
+	elif [[ $OS == "Windows"* || -n $WSL_DISTRO_NAME ]]; then
+		local c="C:"
+		[[ -d /mnt/c ]] && c="/mnt/c"
+
 		local subpath="/Community/Common7/IDE/CommonExtensions/Microsoft/TeamFoundation/Team Explorer/TF.exe"
-		local found=$(echo "C:/Program Files"*"/Microsoft Visual Studio/"[[:digit:]]*"$subpath"(nN[1]^on))
+		local found=$(echo "$c/Program Files"*"/Microsoft Visual Studio/"[[:digit:]]*"$subpath"(nN[1]^on))
+
 		if [[ -n $found ]]; then
 			tf_cli="$found"
 		else
-			found=$(echo "C:/Program Files"*"/Microsoft Visual Studio "[[:digit:]]*"/Common7/IDE/TF.exe"(nN[1]^on))
+			found=$(echo "$c/Program Files"*"/Microsoft Visual Studio "[[:digit:]]*"/Common7/IDE/TF.exe"(nN[1]^on))
 			[[ -n $found ]] && tf_cli="$found"
 		fi
 	fi
@@ -62,26 +66,10 @@ function find_tfvc_cli() {
 	fi
 }
 
-# Utility function that initializes variables which are helpful when running the TFVC CLI
-function init_tfvc_vars() {
-	if [[ $OS == "Windows"* ]]; then
-		tf_dir_name='$tf'
-		tf_opt_char='/'
-	else
-		tf_dir_name='.tf'
-		tf_opt_char='-'
-		tf_args="-collection:https://dev.azure.com/jasonjackson0568 -login:$TF_PAT,"
-
-		if [[ $OSTYPE == "darwin"* ]]; then
-			# TEE-CLC apparently needs Java 8 in order to run (it doesn't work on Zulu OpenJDK 12, anyway)
-			export JAVA_HOME="$(/usr/libexec/java_home --version 1.8 --failfast)"
-		fi
-	fi
-}
-
-# Utility function that makes TFVC notice local file/folder changes which were made without using the TFVC CLI
+# Utility function that makes TFVC notice local file/folder changes
+# that were made without using the TFVC CLI
 function tf_status() {
-  $tf_cli status ${=tf_args} -format:detailed | grep -vF -- "-----"
+  $tf_cli vc status -format:detailed | grep -vF -- "-----"
 }
 
 # Initializes the test suite
@@ -100,32 +88,40 @@ function before_tests() {
 	failed=0
 
 	# Make a temp directory to work in
-	unset test_root
-	tmp="$(mktemp -d)"
+	if [[ -n $WSL_DISTRO_NAME ]]; then
+		# TF.exe can't operate in \\wsl$, so use Windows's native temp directory
+		export TMPDIR="$(wslpath "$(cd /mnt/c && cmd.exe /c "echo %TEMP%" | sed -e 's/\r//g')")"
+	fi
+
+	tmp="$(mktemp -d)"  # Make a temp directory under $TMPDIR
+	[[ -n $tmp ]] || exit
+
 	echo "Running tests in $tmp"
-	cd "$tmp"
+	cd "$tmp" || exit
+
+	unset test_root
 
 	# Might need to clone or check out a repo
 	if [[ $repo_type == *git* ]]; then
 		git clone "https://github.com/jakshin/yazpt-test.git" .
+
 	elif [[ $repo_type == *svn-root* ]]; then
 		svn checkout "https://svn.riouxsvn.com/yazpt-svn-test" .
+
 	elif [[ $repo_type == *svn* ]]; then
 		svn checkout "https://svn.riouxsvn.com/yazpt-svn-test/trunk" .
+
 	elif [[ $repo_type == *tfvc* ]]; then
-		if [[ $OS != "Windows"* ]]; then
+		if [[ $OS != "Windows"* && -z $WSL_DISTRO_NAME ]]; then
 			# As of 4/30/2020, TEE-CLC can't authenticate against Azure DevOps with a PAT anymore
-			echo "${warning}⚠ Skipping this test suite because it can only run successfully on Windows${normal}"
+			echo "${normal}⚠ Skipping this test suite because it can only run successfully on Windows${normal}"
 			after_tests
 			exit
 		fi
 
-		find_tfvc_cli
-		init_tfvc_vars
-
+		find_tf_cli
 		if [[ -z $tf_cli ]]; then
-			echo "${warning}⚠ Skipping this test suite because no compatible 'tf' CLI was found${normal}"
-			[[ $OS == "Windows"* ]] && echo "(Note that VS 2010's TF.exe isn't compatible, because it doesn't support local workspaces)"
+			echo "${warning}⚠ Skipping this test suite because no compatible TF.exe CLI was found${normal}"
 			after_tests
 			exit
 		fi
@@ -135,14 +131,6 @@ function before_tests() {
 		local short_host=$host_parts[1]
 
 		if [[ $repo_type == *"tfvc-winky"* ]]; then
-			if [[ $TTY == "/dev/cons"* && $TERM_PROGRAM != "Tabby" ]]; then
-				# This test fails in Windows Terminal and when launching zsh.exe directly,
-				# but I don't think it's yazpt's fault (it works in other terminals)
-				echo "${warning}⚠ Skipping this test suite because it doesn't work in this terminal${normal}"
-				after_tests
-				exit
-			fi
-
 			local workspace_name="${short_host}_yazpt_winky_tests"
 			local server_path='$/yazpt-tfvc-test/Wîñky-ßränçh 😉'
 		else
@@ -150,12 +138,18 @@ function before_tests() {
 			local server_path='$/yazpt-tfvc-test/Main'
 		fi
 
-		if ! $tf_cli workspaces ${=tf_args} $workspace_name > /dev/null; then
-			$tf_cli workspace ${=tf_args} -new $workspace_name
+		if [[ $OSTYPE == "msys" ]]; then
+			# Don't let MSYS2 automatically try to translate paths
+			# https://www.msys2.org/docs/filesystem-paths/
+			export MSYS2_ARG_CONV_EXCL='*'
 		fi
 
-		$tf_cli workfold ${=tf_args} -map -workspace:$workspace_name "$server_path" .
-		$tf_cli get ${=tf_args}
+		if ! $tf_cli vc workspaces $workspace_name > /dev/null; then
+			$tf_cli vc workspace -new $workspace_name
+		fi
+
+		$tf_cli vc workfold -map -workspace:$workspace_name "$server_path" .
+		$tf_cli vc get
 	fi
 }
 

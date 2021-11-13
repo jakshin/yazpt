@@ -10,7 +10,7 @@ YAZPT_VCS_ORDER=(tfvc)
 
 # Test
 test_case "With a locked file"
-$tf_cli lock ${=tf_args} -lock:checkin lock-me.txt
+$tf_cli vc lock -lock:checkin lock-me.txt
 YAZPT_CHECK_TFVC_LOCKS=true
 test_init_done
 contains_status "locked"
@@ -25,7 +25,7 @@ cd folder
 test_init_done
 contains_status "dirty"
 cd ..
-$tf_cli lock ${=tf_args} -lock:none lock-me.txt
+$tf_cli vc lock -lock:none lock-me.txt
 test_init_done
 contains_status "clean"
 

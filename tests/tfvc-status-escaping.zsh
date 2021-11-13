@@ -58,7 +58,7 @@ test_percent_escaping YAZPT_VCS_STATUS_CLEAN_CHAR
 
 test_case "YAZPT_VCS_STATUS_DIRTY_CHAR"
 function .yazpt_parse_pendingchanges_tf1() { _yazpt_tfvc_status=ny }
-function zstat() { stat=(24) }
+function zstat() { file_size=(24) }
 function .yazpt_parse_properties_tf1() {
 	# Mock this function to avoid errors caused by mocking zstat
 	_yazpt_server_path='$/yazpt-tfvc-test/Mock'
