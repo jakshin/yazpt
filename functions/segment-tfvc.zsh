@@ -248,7 +248,7 @@ function .yazpt_parse_properties_tf1() {
 		fi
 
 		[[ -n $_yazpt_lpath && -n $_yazpt_spath ]] || continue
-		[[ $pwd == "$_yazpt_lpath"* ]] || continue
+		[[ ${pwd:l} == "${_yazpt_lpath:l}"* ]] || continue
 
 		if (( $#_yazpt_lpath > $#local_path )); then
 			local_path=$_yazpt_lpath
