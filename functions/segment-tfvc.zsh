@@ -235,16 +235,46 @@ function .yazpt_parse_properties_tf1() {
 		.yazpt_read_str_in_file $pos _yazpt_str_bytes _yazpt_lpath
 		(( pos += _yazpt_str_bytes ))  # On next length byte
 
-		if [[ $OSTYPE == "cygwin" && -n $_yazpt_lpath ]]; then
-			# Cache cygpath conversions
-			(( $+_yazpt_cygpath_conversions )) || declare -Ag _yazpt_cygpath_conversions
+		if [[ -n $_yazpt_lpath ]]; then
+			# Cache Windows -> UNIX path conversions
+			(( $+_yazpt_path_conversions )) || declare -Ag _yazpt_path_conversions
 
-			if [[ -z $_yazpt_cygpath_conversions[$_yazpt_lpath] ]]; then
-				local fixed_path="$(cygpath "$_yazpt_lpath")"
-				_yazpt_cygpath_conversions[$_yazpt_lpath]="$fixed_path"
+			if [[ $+_yazpt_path_converter == 0 && ($OS == "Windows"* || -n $WSL_DISTRO_NAME) ]]; then
+				if command -v wslpath &> /dev/null; then
+					declare -g _yazpt_path_converter="wslpath"
+				elif command -v cygpath &> /dev/null; then
+					declare -g _yazpt_path_converter="cygpath"  # Cygwin & MSYS2
+				else
+					declare -g _yazpt_path_converter=""
+				fi
 			fi
 
-			_yazpt_lpath="$_yazpt_cygpath_conversions[$_yazpt_lpath]"
+			if [[ -n $_yazpt_path_converter ]]; then
+				if [[ -z $_yazpt_path_conversions[$_yazpt_lpath] ]]; then
+					local converted="$($_yazpt_path_converter "$_yazpt_lpath")"
+
+					[[ -n $yazpt_terminal ]] || .yazpt_detect_terminal
+					if [[ $yazpt_terminal == "mobaxterm" && $OSTYPE == "cygwin" ]]; then
+						# In MobaXterm's embedded Cygwin, cygpath returns paths like /drives/c/...
+						# even when its argument is actually under MobaXterm's root directory;
+						# we need to fix that before comparing to $PWD
+
+						if [[ $+_yazpt_mobaxterm_prefix == 0 ]]; then
+							# The /drives/c/... version of MobaXterm's root directory,
+							# e.g. /drives/c/Users/Jason/Documents/MobaXterm/slash
+							declare -g _yazpt_mobaxterm_prefix="$(cygpath "$(cygpath -ml /)")"
+						fi
+
+						if [[ $converted == "$_yazpt_mobaxterm_prefix/"* ]]; then
+							converted=${converted:$#_yazpt_mobaxterm_prefix}
+						fi
+					fi
+
+					_yazpt_path_conversions[$_yazpt_lpath]="$converted"
+				fi
+
+				_yazpt_lpath="$_yazpt_path_conversions[$_yazpt_lpath]"
+			fi
 		fi
 
 		[[ -n $_yazpt_lpath && -n $_yazpt_spath ]] || continue
@@ -287,8 +317,8 @@ function .yazpt_read_file_as_hex() {
 				printf -v hex %.2x "'$bytes[$i]"
 				_yazpt_file+=$hex
 			done
-
 			return
+
 		elif [[ -r $file_path ]]; then
 			_yazpt_tf1_bugs[$file_path]=true
 		fi
@@ -336,16 +366,15 @@ function .yazpt_read_str_in_file() {
 	fi
 }
 
-# Transforms a little-endian UTF-16 string expressed as space-separated hex characters into equivalent displayable text,
-# encoded using the system locale, and stores it into the given variable.
+# Transforms a series of little-endian UTF-16 bytes into equivalent UTF-8 text,
+# and stores it into the given variable.
 #
 function .yazpt_transform_utf16() {
 	local utf16=$1  # Space-separated hex chars expressing little-endian UTF-16 bytes
-	local var=$2    # Variable in which to store the transformed text
+	local var=$2    # Variable in which to store the transformed UTF-8 text
 	local text=""
 
 	# Cache UTF-16 conversions
-	# TODO: We should probably invalidate this cache if $LANG, $LC_ALL or $LC_CTYPE changes
 	(( $+_yazpt_utf16_conversions )) || declare -Ag _yazpt_utf16_conversions
 
 	if [[ -n $_yazpt_utf16_conversions[$utf16] ]]; then
@@ -362,18 +391,20 @@ function .yazpt_transform_utf16() {
 				bytes+="${(#)hex}"
 			done
 
-			text="$(echo -n $bytes | iconv -f UTF-16LE -sc 2> /dev/null)"
+			text="$(echo -n $bytes | iconv -f UTF-16LE -t UTF-8 -sc 2> /dev/null)"
 		else
 			# Fall back to just preserving ASCII characters
-			local i hex next
+			local i hex
 
 			for (( i=1; i <= $#utf16; i += 6 )); do
 				hex=0x$utf16[$i,$i+1]
-				next=$utf16[$i+3,$i+4]
-				[[ $next == "00" ]] && text+="${(#)hex}"
+				if [[ $utf16[$i+3,$i+4] == "00" ]] && (( 32 <= $hex && $hex < 127 )); then
+					text+="${(#)hex}"
+				fi
 			done
 		fi
 
+		(( $#_yazpt_utf16_conversions > 500 )) && _yazpt_utf16_conversions=()
 		_yazpt_utf16_conversions[$utf16]="$text"  # Cache
 	fi
 
