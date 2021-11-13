@@ -14,7 +14,8 @@ Yazpt mostly just works on recently-released Linux distros, with the default ter
 * openSUSE Tumbleweed, running KDE Plasma 5
 * Pop!_OS 20.04 and newer
 
-*In many of these distros, yazpt's yolo preset uses emoticons by default when running on XTerm, but you can [upgrade to monochrome emoji](#xterm-and-emoji) by installing the [Noto Emoji font](https://github.com/googlefonts/noto-emoji/blob/master/fonts/NotoEmoji-Regular.ttf).*
+In many of these distros, yazpt's yolo preset uses emoticons by default when running on XTerm, but you can [upgrade to monochrome emoji](#xterm-and-emoji) by installing the [Noto Emoji font](https://github.com/googlefonts/noto-emoji/blob/master/fonts/NotoEmoji-Regular.ttf).
+<p align="center">•</p>
 
 
 ## Distros where a little tinkering is needed for best results
@@ -84,6 +85,7 @@ In XTerm, yazpt's yolo preset uses emoticons by default, but you can easily [upg
 For nicer rendering of yazpt's Unicode characters in GNOME Terminal, click `Edit` in the menu bar > `Preferences` > `Unnamed` (or whatever your profile is named) > `Text` tab > check `Custom font`.
 
 XTerm on Zorin can [display yolo's emoji](#xterm-and-emoji) if you install a font, though only in monochrome.
+<p align="center">•</p>
 
 
 ## XTerm and emoji
