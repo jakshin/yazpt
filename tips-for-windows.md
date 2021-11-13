@@ -21,6 +21,8 @@ Windows Terminal is probably the best terminal emulator to use with Cygwin, and 
 
 After you've installed Cygwin's zsh, the easiest way to make it your default shell, rather than bash, is by changing your Windows `SHELL` environment variable to `/usr/bin/zsh`.
 
+*Note that for the [TFVC prompt segment](README.md#enabling-subversion-andor-team-foundation-version-control) to display extended characters in branch names properly, the `iconv` command line tool must be be installed; Cygwin bundles it in its `libiconv` package, which isn't installed by default.*
+
 ### MSYS2
 
 Yazpt also works well on [MSYS2](https://www.msys2.org), if you like that more than Cygwin. Windows Terminal works great with MSYS2. Mintty is also installed with MSYS2, so if you prefer it, just [configure it](#mintty) and you should be good to go.
