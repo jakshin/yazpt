@@ -280,7 +280,9 @@ YAZPT_TFVC_PATHS=("$user_profile_path/Source/Workspaces/")
 
 Note that while yazpt knows when the current directory is ignored by Git or Subversion, and uses a different color when displaying the VCS context, it doesn't know this for TFVC -- if you cd into an ignored directory in a TFVC local workspace, the VCS status will still be displayed in the default color. Yazpt does know enough about whether files/directories are ignored by TFVC to correctly display the local workspace's clean/dirty state, though.
 
-Also, when using TFVC on Windows, with the workspace open in Visual Studio, any changes in the workspace get noticed immediately, whether they're made through Visual Studio or otherwise, and TFVC updates its metadata in the `$tf` directory right away. The same is true when making changes via the `tf` CLI, whether VS is running or not. But otherwise, like while changing files using general command-line utilities without Visual Studio running, TFVC won't notice changes until you kick it a little - by, say, running `tf info` or `tf status`. I hope to improve on this situation eventually.
+Also, for the TFVC prompt segment to properly display non-ASCII characters in branch names, the `iconv` command line tool must be available. It's usually installed by default, but not on [Cygwin](tips-for-windows.md#cygwin), where the `libiconv` package must be installed in order to get it.
+
+Finally, when using TFVC on Windows, with the workspace open in Visual Studio, any changes in the workspace get noticed immediately, whether they're made through Visual Studio or otherwise, and TFVC updates its metadata in the `$tf` directory right away. The same is true when making changes via the `tf` CLI, whether VS is running or not. But otherwise, like while changing files using general command-line utilities without Visual Studio running, TFVC won't notice changes until you kick it a little - by, say, running `tf info` or `tf status`. I hope to improve on this situation eventually.
 <p align="center">•</p>
 
 
