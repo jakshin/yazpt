@@ -11,7 +11,7 @@ Yazpt mostly just works on recently-released Linux distros, with the default ter
 * KDE neon
 * Kubuntu 20.04 and newer
 * Linux Mint 20.1 and newer (Cinnamon, MATE or XFCE)
-* openSUSE Tumbleweed, running KDE Plasma 5
+* openSUSE Leap 15.3 and openSUSE Tumbleweed, running KDE Plasma 5
 * Pop!_OS 20.04 and newer
 
 In many of these distros, yazpt's yolo preset uses emoticons by default when running on XTerm, but you can [upgrade to monochrome emoji](#xterm-and-emoji) by installing the [Noto Emoji font](https://github.com/googlefonts/noto-emoji/blob/master/fonts/NotoEmoji-Regular.ttf).

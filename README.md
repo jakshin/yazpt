@@ -140,7 +140,7 @@ Yazpt just works, without any special attention, in many popular distros:
 * KDE neon
 * Kubuntu 20.04 and newer
 * Linux Mint 20.1 and newer (Cinnamon, MATE or XFCE)
-* openSUSE Tumbleweed, running KDE Plasma 5
+* openSUSE Leap 15.3 and openSUSE Tumbleweed, running KDE Plasma 5
 * Pop!_OS 20.04 and newer
 
 It also works well in lots of other distros, including [Ubuntu](tips-for-linux.md#ubuntu-desktop-2004-lts-focal-fossa-2104-hirsute-hippo-2110-impish-indri) and its variants, after making some minor tweaks to settings and/or installing a font or two. See the [tips for using yazpt on GNU/Linux](./tips-for-linux.md) for details.
