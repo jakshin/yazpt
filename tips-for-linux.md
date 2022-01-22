@@ -14,7 +14,7 @@ Yazpt mostly just works on recently-released Linux distros, with the default ter
 * openSUSE Leap 15.3 and openSUSE Tumbleweed, running KDE Plasma 5
 * Pop!_OS 20.04 and newer
 
-In many of these distros, yazpt's yolo preset uses emoticons by default when running on XTerm, but you can [upgrade to monochrome emoji](#xterm-and-emoji) by installing the [Noto Emoji font](https://github.com/googlefonts/noto-emoji/blob/master/fonts/NotoEmoji-Regular.ttf).
+In many of these distros, yazpt's yolo preset uses emoticons by default when running on XTerm, but you can [upgrade to monochrome emoji](#xterm-and-emoji) by installing the [Noto Emoji font](https://github.com/googlefonts/noto-emoji/blob/main/fonts/NotoEmoji-Regular.ttf).
 <p align="center">•</p>
 
 
@@ -44,7 +44,7 @@ GNOME Terminal doesn't render yazpt's Unicode characters very well by default; t
 
 ### Lubuntu 20.04 LTS and newer
 
-QTerminal doesn't render emoji well, so the yolo preset falls back to emoticons. You can get decent monochrome emoji in QTerminal and XTerm by manually installing the [Noto Emoji font](https://github.com/googlefonts/noto-emoji/blob/master/fonts/NotoEmoji-Regular.ttf); copy it to the ~/.local/share/fonts directory, run `fc-cache -f`, and restart your terminal.
+QTerminal doesn't render emoji well, so the yolo preset falls back to emoticons. You can get decent monochrome emoji in QTerminal and XTerm by manually installing the [Noto Emoji font](https://github.com/googlefonts/noto-emoji/blob/main/fonts/NotoEmoji-Regular.ttf); copy it to the ~/.local/share/fonts directory, run `fc-cache -f`, and restart your terminal.
 
 ### Manjaro 20.0 (Lysia), running XFCE
 
@@ -62,7 +62,7 @@ For somewhat nicer rendering of yazpt's Unicode characters in urxvt and rxvt, sw
 
 ### Slackware, installed from Live Edition, running KDE
 
-Install the [Noto Color Emoji font](https://github.com/googlefonts/noto-emoji/blob/master/fonts/NotoColorEmoji.ttf) to get nice rendering of the yolo preset's emoji in Konsole, Yakuake, and Xfce Terminal. You can install the [Noto Emoji font](https://github.com/googlefonts/noto-emoji/blob/master/fonts/NotoEmoji-Regular.ttf) for decent [monochrome emoji in XTerm](#xterm-and-emoji), but note that doing so will cause Konsole and Yakuake to revert to monochrome emoji as well.
+Install the [Noto Color Emoji font](https://github.com/googlefonts/noto-emoji/blob/main/fonts/NotoColorEmoji.ttf) to get nice rendering of the yolo preset's emoji in Konsole, Yakuake, and Xfce Terminal. You can install the [Noto Emoji font](https://github.com/googlefonts/noto-emoji/blob/main/fonts/NotoEmoji-Regular.ttf) for decent [monochrome emoji in XTerm](#xterm-and-emoji), but note that doing so will cause Konsole and Yakuake to revert to monochrome emoji as well.
 
 ### Solus 4.3 (with Budgie, GNOME, MATE, or Plasma)
 
@@ -72,7 +72,7 @@ Color emoji aren't rendered in Konsole by default; you can fix that by [adjustin
 
 GNOME Terminal doesn't render yazpt's Unicode characters very well by default; to fix things up, click `Terminal` in the menu bar > `Preferences` > `Unnamed` (or whatever your profile is named) > `Text` tab > check `Custom font`. Otherwise everything just works.
 
-In XTerm, yazpt's yolo preset uses emoticons by default, but you can easily [upgrade to monochrome emoji](#xterm-and-emoji), by installing the [Noto Emoji font](https://github.com/googlefonts/noto-emoji/blob/master/fonts/NotoEmoji-Regular.ttf).
+In XTerm, yazpt's yolo preset uses emoticons by default, but you can easily [upgrade to monochrome emoji](#xterm-and-emoji), by installing the [Noto Emoji font](https://github.com/googlefonts/noto-emoji/blob/main/fonts/NotoEmoji-Regular.ttf).
 
 ### Ubuntu MATE 20.04 LTS and newer
 
@@ -92,4 +92,4 @@ XTerm on Zorin can [display yolo's emoji](#xterm-and-emoji) if you install a fon
 
 Regardless of distro, using XTerm is kind of miserable unless you put a little time into configuring it via an [.Xresources file](./resources/Xresources). (Yazpt includes one, and it's [easy to install](./resources/install-resources.zsh).)
 
-Even when it's well-configured, in many environments XTerm doesn't render emoji well, so yazpt's yolo preset tries to detect those cases, and substitute emoticons for emoji. But in many distros, you can upgrade from emoticons to fairly decent monochrome emoji in XTerm, by installing the [Noto Emoji font](https://github.com/googlefonts/noto-emoji/blob/master/fonts/NotoEmoji-Regular.ttf); usually that involves copying it into the ~/.local/share/fonts directory, running `fc-cache -f`, and restarting XTerm.
+Even when it's well-configured, in many environments XTerm doesn't render emoji well, so yazpt's yolo preset tries to detect those cases, and substitute emoticons for emoji. But in many distros, you can upgrade from emoticons to fairly decent monochrome emoji in XTerm, by installing the [Noto Emoji font](https://github.com/googlefonts/noto-emoji/blob/main/fonts/NotoEmoji-Regular.ttf); usually that involves copying it into the ~/.local/share/fonts directory, running `fc-cache -f`, and restarting XTerm.
