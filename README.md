@@ -257,7 +257,7 @@ zinit load jakshin/yazpt
 yazpt_load_preset yolo  # Optionally, and for example
 ```
 
-Yazpt implements an unload function as specified in the [Zdharma Zsh Plugin Standard](https://github.com/zdharma/Zsh-100-Commits-Club/blob/master/Zsh-Plugin-Standard.adoc#unload-fun), so you can unload it by calling `zinit unload jakshin/yazpt`.
+Yazpt implements an unload function as specified in the [Zdharma Zsh Plugin Standard](https://github.com/zdharma-continuum/Zsh-100-Commits-Club/blob/master/Zsh-Plugin-Standard.adoc#unload-fun), so you can unload it by calling `zinit unload jakshin/yazpt`.
 <p align="center">•</p>
 
 
