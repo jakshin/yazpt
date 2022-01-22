@@ -165,7 +165,7 @@ function before_linked_tests() {
 	git clone "https://github.com/jakshin/yazpt-test.git"
 	cd "yazpt-test"
 	git checkout -b "no-conflicts-in-linked-worktree"
-	git worktree add "../yazpt-linked" master
+	git worktree add "../yazpt-linked" main
 
 	test_root="$tmp/yazpt-linked"
 	cd "$test_root"

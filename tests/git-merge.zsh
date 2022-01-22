@@ -12,15 +12,15 @@ YAZPT_VCS_ORDER=(git)
 function run_tests() {
 	test_case "Merging"
 	git checkout merge-me
-	git checkout master
+	git checkout main
 	git merge merge-me
 	test_init_done
-	contains_context "master"
+	contains_context "main"
 	contains_status "dirty"
 	contains "MERGING"
 	cd $(git rev-parse --git-dir)
 	test_init_done
-	contains_dim_context "master"
+	contains_dim_context "main"
 	contains_status "dirty"
 	contains "MERGING"
 }

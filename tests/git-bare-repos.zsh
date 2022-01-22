@@ -15,6 +15,7 @@ cd "bare"
 git init --bare
 test_init_done
 contains_dim_context "BARE-REPO"
+excludes "main"
 excludes "master"
 excludes_git_status
 
@@ -23,6 +24,7 @@ git clone --bare "https://github.com/jakshin/yazpt-test.git"
 cd "yazpt-test.git"
 test_init_done
 contains_dim_context "BARE-REPO"
+excludes "main"
 excludes "master"
 excludes_git_status
 

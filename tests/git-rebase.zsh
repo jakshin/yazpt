@@ -33,7 +33,7 @@ function run_tests() {
 	test_case "Rebasing interactively"
 	export GIT_EDITOR=true
 	git checkout rebase-me
-	git rebase -i master
+	git rebase -i main
 	sanity_check_rebase true
 	test_init_done
 	contains_context "rebase-me"
@@ -49,7 +49,7 @@ function run_tests() {
 
 	test_case "Rebasing"
 	git checkout rebase-me
-	git rebase master
+	git rebase main
 	sanity_check_rebase false
 	test_init_done
 	contains_context "rebase-me"
@@ -64,7 +64,7 @@ function run_tests() {
 
 	test_case "Rebased branch that hasn't been pushed"
 	git checkout rebase-me-too
-	git rebase master
+	git rebase main
 	test_init_done
 	contains_context "rebase-me-too"
 	contains_status "diverged"
@@ -73,7 +73,7 @@ function run_tests() {
 	contains_dim_context "rebase-me-too"
 	contains_status "diverged"
 	contains "IN-GIT-DIR"
-	cd - && git checkout master  # Cleanup
+	cd - && git checkout main  # Cleanup
 }
 
 run_tests

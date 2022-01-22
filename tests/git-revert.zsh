@@ -11,26 +11,26 @@ YAZPT_VCS_ORDER=(git)
 # Test
 function run_tests() {
 	test_case "Reverting"
-	git checkout master
+	git checkout main
 	git revert ca438ac307d0e64ada849f0a540f02ca83662628 764967017eb9e65d8f55a54e28e4f4d44c675af6
 	test_init_done
-	contains_context "master"
+	contains_context "main"
 	contains_status "dirty"
 	contains "REVERTING"
 	git rm foo.txt && git commit -m "Delete foo.txt"
 	test_init_done
-	contains_context "master"
+	contains_context "main"
 	contains_status "diverged"
 	contains "REVERTING"
 	git revert --continue
 	test_init_done
-	contains_context "master"
+	contains_context "main"
 	contains_status "dirty"
 	contains_status "diverged"
 	contains "REVERTING"
 	cd $(git rev-parse --git-dir)
 	test_init_done
-	contains_dim_context "master"
+	contains_dim_context "main"
 	contains_status "diverged"
 	contains "REVERTING"
 }

@@ -20,20 +20,20 @@ fi
 function run_tests() {
 	test_case "Cherry-picking"
 	git checkout cherry-pick-from-me
-	git checkout master
+	git checkout main
 	git cherry-pick 52450fe53496fe6f14e8be48753e65b27aed9ee6..78469cb25340c6bfd2c00f05c58f96704be687f8
 	test_init_done
-	contains_context "master"
+	contains_context "main"
 	contains_status "dirty"
 	contains "CHERRY-PICKING"
 	git add . && git commit -m "resolved"
 	test_init_done
-	contains_context "master"
+	contains_context "main"
 	contains_status "diverged"
 	[[ $recent_git == true ]] || contains "CHERRY-PICKING"
 	cd $(git rev-parse --git-dir)
 	test_init_done
-	contains_dim_context "master"
+	contains_dim_context "main"
 	contains_status "diverged"
 	[[ $recent_git == true ]] && contains "IN-GIT-DIR" || contains "CHERRY-PICKING"
 }

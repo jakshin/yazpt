@@ -22,14 +22,14 @@ YAZPT_VCS_CONTEXT_COLOR=1
 YAZPT_VCS_CONTEXT_META_COLOR=2
 YAZPT_VCS_CONTEXT_IGNORED_COLOR=3
 test_init_done
-contains '%{%F{1}%}master%{%f%}'
+contains '%{%F{1}%}main%{%f%}'
 cd $(git rev-parse --git-dir)
 test_init_done
-contains '%{%F{2}%}master|IN-GIT-DIR%{%f%}'
+contains '%{%F{2}%}main|IN-GIT-DIR%{%f%}'
 mkdir ../ignored
 cd ../ignored
 test_init_done
-contains '%{%F{3}%}master|IGNORED%{%f%}'
+contains '%{%F{3}%}main|IGNORED%{%f%}'
 
 test_case "Git status = clean"
 YAZPT_VCS_STATUS_CLEAN_CHAR="★"

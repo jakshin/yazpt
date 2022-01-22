@@ -11,20 +11,20 @@ YAZPT_VCS_ORDER=(git)
 # Test
 function run_tests() {
 	test_case "Applying patches from email (AM)"
-	git checkout master
+	git checkout main
 	git am patches/*
 	test_init_done
-	contains_context "master"
+	contains_context "main"
 	contains_status "clean"
 	contains "AM 1/2"
 	echo bleh >> foo.txt && git add . && git am --continue
 	test_init_done
-	contains_context "master"
+	contains_context "main"
 	contains_status "diverged"
 	contains "AM 2/2"
 	cd $(git rev-parse --git-dir)
 	test_init_done
-	contains_dim_context "master"
+	contains_dim_context "main"
 	contains_status "diverged"
 	contains "AM 2/2"
 }
