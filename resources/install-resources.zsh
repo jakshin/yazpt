@@ -135,7 +135,7 @@ target_dir='/usr/local/share/zsh/site-functions'
 target="$target_dir/prompt_yazpt_setup"
 
 msg="It's installed by creating a symlink in $target_dir."
-if [[ $OS != "Windows"* && $OSTYPE != "haiku" && $USERNAME != "root" ]]; then
+if [[ ! -w $target_dir ]] && which sudo > /dev/null; then
 	msg+=" Doing so requires using sudo."
 	sudo="sudo"  # Used below and in make_symbolic_link
 fi
