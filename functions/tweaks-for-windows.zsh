@@ -1,6 +1,6 @@
 # Tweaks to make yazpt look better in various Windows environments (hopefully).
 # On WSL, we detect only Mintty/WSLtty, MobaXterm, and Windows Terminal,
-# and Terminus iff $TERM_PROGRAM is manually set; we can't detect ConEmu or MS console.
+# and Tabby iff $TERM_PROGRAM is manually set; we can't detect ConEmu or MS console.
 # Copyright (c) 2020 Jason Jackson <jasonjackson@pobox.com>. Distributed under GPL v2.0, see LICENSE for details.
 
 function .yazpt_tweak_checkmark() {
