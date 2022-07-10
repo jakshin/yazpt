@@ -1,16 +1,14 @@
 # Tips for using yazpt on FreeBSD derivatives
 
 
-### GhostBSD 21.10.16
+### GhostBSD 21+
 
 For better rendering of yazpt's Unicode characters in MATE Terminal, uncheck its "Use the system fixed width font" checkbox in your profile preferences.
 
 The yolo preset's emoji don't work out of the box, so emoticons are used by default. It's easy to fix: run `sudo pkg install noto-emoji` to get emoji support in MATE Terminal and XTerm.
 
 
-### MidnightBSD 2.1.1
-
-Xfce Terminal mangles yazpt's Unicode characters, unless you go to Edit > Preferences > Advanced tab, and change the Default character encoding to UTF-8.
+### MidnightBSD 2.1.7
 
 The yolo preset's emoji don't work out of the box, so emoticons are used by default. You can get emoji support in Xfce Terminal and XTerm with `sudo mport install noto-emoji`.
 
