@@ -6,6 +6,10 @@
 ! with `xterm*locale: true`; or just invoke `uxterm` instead of `xterm`)
 xterm*locale: UTF-8
 
+! Make the Alt/Option key behave like in other terminals, sending ^[ escape
+! instead of acting as a modifier to let 8-bit characters be typed
+XTerm.vt100.metaSendsEscape: true
+
 ! Choose a nicer font
 ! Use `fc-list :scalable=true:spacing=mono: family` to find out available fonts
 ! See http://futurile.net/2016/06/14/xterm-setup-and-truetype-font-configuration/ for details
