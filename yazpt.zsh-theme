@@ -324,7 +324,7 @@ function .yazpt_detect_terminal() {
 	yazpt_terminal="unknown"  # Pessimism
 
 	if [[ $OSTYPE == "darwin"* && -n $TERM_PROGRAM ]]; then
-		# Terminal emulators on macOS tend to set $TERM_PROGRAM (e.g. Terminal.app, iTerm, Tabby)
+		# Terminal emulators on macOS tend to set $TERM_PROGRAM (e.g. Apple_Terminal, iTerm.app, Tabby)
 		yazpt_terminal=${TERM_PROGRAM:l}
 		yazpt_terminal_info="n/a"
 	else
@@ -347,21 +347,10 @@ function .yazpt_detect_terminal() {
 
 		if (( $#info == 3 )); then
 			if (( ($info[1] == 1 && $info[2] >= 2000) || $info[1] == 65 )); then
-				# Could be anything VTE-based, including GNOME Terminal, MATE Terminal, Xfce Terminal, and others
-				local desktop=$XDG_CURRENT_DESKTOP
-				if [[ -n $GNOME_TERMINAL_SCREEN || $desktop == *"GNOME"* || $desktop == "X-Cinnamon" || $desktop == "Unity" ]]; then
-					yazpt_terminal="gnome-terminal"
-				elif [[ $desktop == "LXDE" ]]; then
-					yazpt_terminal="lxterminal"
-				elif [[ $desktop == "MATE" ]]; then
-					yazpt_terminal="mate-terminal"
-				elif [[ $desktop == "Pantheon" ]]; then
-					yazpt_terminal="pantheon-terminal"  # elementary OS, io.elementary.terminal
-				elif [[ $desktop == "XFCE" ]]; then
-					yazpt_terminal="xfce4-terminal"
-				elif [[ $GIO_LAUNCHED_DESKTOP_FILE == *"sakura.desktop" ]]; then
-					yazpt_terminal="sakura"  # Found on NomadBSD 130R
-				fi
+				# Anything VTE-based, including GNOME Terminal, LXTerminal, MATE Terminal, Xfce Terminal,
+				# Pantheon on elementary OS, Sakura (found on NomadBSD 130R), and various others;
+				# $VTE_VERSION should supposedly be set to the same value as $info[2]
+				yazpt_terminal="vte"
 
 			elif (( $info[1] == 0 && $info[2] == 10 )); then
 				if [[ -n $WT_SESSION ]]; then
