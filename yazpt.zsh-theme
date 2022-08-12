@@ -329,15 +329,17 @@ function .yazpt_detect_terminal() {
 		yazpt_terminal_info="n/a"
 	else
 		if [[ -t 0 ]]; then
-			local tty_settings="$(stty -g)"  # Save TTY settings
-			stty -echo                       # Turn echo to TTY off
+			stty -echo
+		fi
+
+		local timeout=0.1
+		if [[ $TERM_PROGRAM == "vscode" && $OSTYPE == "linux-gnu" ]]; then
+			timeout=1.0
 		fi
 
 		local info
-		echo -n "\033[>c" > /dev/tty           # Request secondary device attributes
-		read -s -t 0.1 -d "c" info < /dev/tty  # Read the response
-
-		[[ -z $tty_settings ]] || stty "$tty_settings"  # Restore TTY settings
+		echo -n "\033[>c" > /dev/tty                  # Request secondary device attributes
+		read -s -t "$timeout" -d "c" info < /dev/tty  # Read the response
 
 		info="${info//*\[}"
 		info="${info/*>/}"  # For everything except Haiku Terminal, which responds with esc[?6c
@@ -346,7 +348,12 @@ function .yazpt_detect_terminal() {
 		info=(${(s.;.)info})
 
 		if (( $#info == 3 )); then
-			if (( ($info[1] == 1 && $info[2] >= 2000) || $info[1] == 65 )); then
+			if (( $info[1] == 0 && $info[2] == 276 )); then
+				# VS Code returns "0;276;0" on macOS and Linux, "0;10;1" on Windows 11, and nothing on Windows 10
+				# It also sets $TERM_PROGRAM to "vscode" everywhere, except in WSL
+				yazpt_terminal="vscode"
+
+			elif (( ($info[1] == 1 && $info[2] >= 2000) || $info[1] == 65 )); then
 				# Anything VTE-based, including GNOME Terminal, LXTerminal, MATE Terminal, Xfce Terminal,
 				# Pantheon on elementary OS, Sakura (found on NomadBSD 130R), and various others;
 				# $VTE_VERSION should supposedly be set to the same value as $info[2]
@@ -356,10 +363,15 @@ function .yazpt_detect_terminal() {
 				if [[ -n $WT_SESSION ]]; then
 					yazpt_terminal="windows-terminal"
 				elif [[ -n $TERM_PROGRAM ]]; then
-					yazpt_terminal=${TERM_PROGRAM:l}  # Including Tabby on Windows 11, except on WSL
+					# Including Tabby on Windows 11, except in WSL
+					# Including VS Code on Windows 11 in Cygwin & MSYS2, but not WSL
+					yazpt_terminal=${TERM_PROGRAM:l}
 				elif [[ $SESSIONNAME == "Console" ]]; then
 					# we only get here under MS console on Windows 11, not Windows 10
 					yazpt_terminal="ms-console"
+				else
+					:	# We get here in various terminals running WSL on Windows 11,
+						# including Tabby and VS Code ("0;10;1" with empty $TERM_PROGRAM)
 				fi
 
 			elif (( $info[1] == 0 && $info[2] == 115 )); then
@@ -384,12 +396,17 @@ function .yazpt_detect_terminal() {
 
 		elif (( $#info == 0 )); then
 			if [[ -n $TERM_PROGRAM ]]; then
-				yazpt_terminal=${TERM_PROGRAM:l}  # Including Tabby on Windows 10
+				# Including Tabby on Windows 10, except in WSL
+				# Including VS Code on Windows 10 in Cygwin & MSYS2, but not WSL
+				yazpt_terminal=${TERM_PROGRAM:l}
 
 			elif [[ $OS == "Windows"* && $TTY == "/dev/cons"* ]]; then
 				# zsh.exe was launched directly on Windows 10; this detection doesn't work on WSL,
 				# and on Windows 11, we get "0;10;1" back and take the code path above
 				yazpt_terminal="ms-console"
+			else
+				:	# We get here in various terminals running WSL on Windows 10,
+					# including Tabby and VS Code (no response, empty $TERM_PROGRAM)
 			fi
 		fi
 	fi
