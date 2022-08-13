@@ -13,14 +13,18 @@ function .yazpt_tweak_checkmark() {
 		YAZPT_EXIT_OK_CHAR="✓"
 
 	elif [[ $yazpt_terminal == "windows-terminal" ]]; then
-		# The default checkmark is rendered in green, which is kinda cool, but eh
+		# The default checkmark is rendered in green (Windows 10) or purple (Windows 11),
+		# which is kinda cool in its own way, but eh
 		YAZPT_EXIT_OK_CHAR="✓"
 
 	elif [[ $yazpt_terminal == "ms-console" ]]; then
-		# The default checkmark gets rendered nicely, but with an empty tofu box just after it
+		# The default checkmark gets rendered nicely enough, but followed immediately
+		# by an empty tofu box on Windows 10 (though not Windows 11)
 		YAZPT_EXIT_OK_CHAR="✓"
 
 	elif [[ -n $WSL_DISTRO_NAME && $yazpt_terminal == "unknown" ]]; then
+		# We can't detect terminals as reliably in WSL as elsewhere,
+		# and we might be running in MS console on Windows 10 (tofu, see above)
 		YAZPT_EXIT_OK_CHAR="✓"
 	fi
 }
