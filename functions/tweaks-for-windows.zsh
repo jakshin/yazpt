@@ -47,6 +47,30 @@ function .yazpt_tweak_emoji() {
 	fi
 }
 
+function .yazpt_tweak_for_vscode() {
+	# Some of yazpt's Unicode is rendered awkwardly in VS Code's terminal's default font on Windows
+
+	emulate -L zsh
+
+	[[ $YAZPT_VCS_STATUS_DIRTY_CHAR == "⚑" ]] && \
+		YAZPT_VCS_STATUS_DIRTY_CHAR="⛿ "
+
+	[[ $YAZPT_VCS_STATUS_DIVERGED_CHAR == "◆" ]] && \
+		YAZPT_VCS_STATUS_DIVERGED_CHAR="♦"
+
+	[[ $YAZPT_VCS_STATUS_NO_UPSTREAM_CHAR == "◆" ]] && \
+		YAZPT_VCS_STATUS_NO_UPSTREAM_CHAR="♦"
+
+	[[ $YAZPT_EXIT_ERROR_CHAR == "✘" ]] && \
+		YAZPT_EXIT_ERROR_CHAR+=" "
+
+	[[ $YAZPT_VCS_STATUS_LINKED_BARE_CHAR == "↪" ]] && \
+		YAZPT_VCS_STATUS_LINKED_BARE_CHAR+=" "
+
+	[[ $YAZPT_VCS_STATUS_LOCKED_CHAR == "⊠" ]] && \
+		YAZPT_VCS_STATUS_LOCKED_CHAR+=" "
+}
+
 # -------------------------------------------------------------------------------------------------
 
 # Tries to figure out whether Mintty/WSLtty has emoji support installed.

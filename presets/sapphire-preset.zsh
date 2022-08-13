@@ -43,5 +43,14 @@ if [[ -z $YAZPT_NO_TWEAKS ]]; then
 		YAZPT_VCS_CONTEXT_IGNORED_COLOR=243
 		YAZPT_VCS_CONTEXT_UNVERSIONED_COLOR=243
 		YAZPT_VCS_STATUS_NO_UPSTREAM_COLOR=245
+
+	elif [[ $OS == "Windows"* || -n $WSL_DISTRO_NAME ]]; then
+		.yazpt_detect_terminal
+
+		if [[ $yazpt_terminal == "vscode" ]]; then
+			# We can't currently detect VS Code when running on WSL, sadly,
+			# but you can still invoke this function manually there
+			.yazpt_tweak_for_vscode
+		fi
 	fi
 fi
