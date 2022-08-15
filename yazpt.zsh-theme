@@ -568,10 +568,10 @@ function @yazpt_segment_blank() {
 	fi
 
 	local esc row column
-	echo -en '\e[6n'
+	echo -en '\e[6n' > /dev/tty
 	IFS='[;' read -st 0.1 -d R esc row column
 
-	if (( $row > 1 )); then
+	if [[ $row != 1 ]]; then
 		yazpt_state[blank]=$'\n'
 	fi
 }
