@@ -28,7 +28,7 @@
 # Note that yazpt keeps the prompt_subst option turned off for safety, unless you create the ~/.yazpt_allow_subst file,
 # so you'll need to do that if you want to use parameter/arithmetic expansion or command substitution in your prompt.
 
-YAZPT_LAYOUT=$'\n[<cwd><? ><exit><? ><vcs>]\n<char> '
+YAZPT_LAYOUT=$'<blank>[<cwd><? ><exit><? ><vcs>]\n<char> '
 YAZPT_RLAYOUT='<exectime>'               # Works well with `setopt transient_rprompt`
 
 # Settings for the "cwd" prompt segment, which shows the current working directory.

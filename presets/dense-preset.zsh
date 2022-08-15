@@ -3,3 +3,4 @@
 
 source "$yazpt_default_preset_file"
 YAZPT_LAYOUT=${YAZPT_LAYOUT//$'\n'/}
+YAZPT_LAYOUT=${YAZPT_LAYOUT//<blank>/}

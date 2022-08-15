@@ -536,6 +536,46 @@ function .yazpt_read_line() {
 
 # -------------------- Segment Implementations --------------------
 
+# Implements the "blank" prompt segment, i.e. a blank line
+# unless the cursor is on the top row of the screen.
+#
+# This allows for a blank line between each prompt and the last command's output,
+# but also for the prompt to be at the very top of a blank screen.
+#
+function @yazpt_segment_blank() {
+	.yazpt_detect_terminal
+
+	if [[ $TERM == screen* || (
+		$yazpt_terminal != 'apple_terminal' &&
+		$yazpt_terminal != 'iterm.app' &&
+		$yazpt_terminal != 'tabby' &&
+		$yazpt_terminal != 'vte' &&
+		$yazpt_terminal != 'terminology' &&
+		$yazpt_terminal != 'haiku-terminal' &&
+		$yazpt_terminal != 'windows-terminal' &&
+		$yazpt_terminal != 'ms-console' &&
+		$yazpt_terminal != 'mintty' &&
+		$yazpt_terminal != 'conemu' &&
+		$yazpt_terminal != 'mobaxterm' &&
+		$yazpt_terminal != 'intellij' &&
+		$yazpt_terminal != 'vscode' ) ]]
+	then
+		# Prevent echoing the \e[6n escape sequence (only observed on Linux's console
+		# and sporadically in some terminals, e.g. Konsole, QTerminal, XTerm, rxvt)
+		if which stty > /dev/null; then
+			stty -echo
+		fi
+	fi
+
+	local esc row column
+	echo -en '\e[6n'
+	IFS='[;' read -st 0.1 -d R esc row column
+
+	if (( $row > 1 )); then
+		yazpt_state[blank]=$'\n'
+	fi
+}
+
 # Implements the "char" prompt segment,
 # which shows either a '#' (root/Administrator) or '%' (for all other users).
 #

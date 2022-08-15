@@ -47,7 +47,7 @@ function .yazpt_random_int() {
 source "$yazpt_default_preset_file"
 _yazpt_yolo_base_color=$(.yazpt_random_color)
 
-YAZPT_LAYOUT=$'\n<exit><? ><cwd><? ><vcs>\n<char> '
+YAZPT_LAYOUT=$'<blank><exit><? ><cwd><? ><vcs>\n<char> '
 YAZPT_CWD_COLOR=$_yazpt_yolo_base_color
 
 YAZPT_EXECTIME_CHAR="🕒 "  # Clock emoji, 3 o'clock

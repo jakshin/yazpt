@@ -3,7 +3,7 @@
 
 source "$yazpt_default_preset_file"
 
-YAZPT_LAYOUT=$'\n<cwd><? ><exit><? ><vcs>\n<char> '
+YAZPT_LAYOUT=$'<blank><cwd><? ><exit><? ><vcs>\n<char> '
 YAZPT_CWD_COLOR=23
 YAZPT_EXECTIME_COLOR=120
 
