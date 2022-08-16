@@ -54,7 +54,10 @@ function .yazpt_tweak_emoji() {
 	elif [[ $yazpt_linux_distro_name == "amzn" || $yazpt_linux_distro_name == "bodhi" ]]; then
 		.yazpt_use_emoticons
 
-	elif [[ $yazpt_linux_distro_name == "antix" || $yazpt_linux_distro_name == "kali" ]]; then
+	elif [[ $yazpt_linux_distro_name == "antix" ||
+			$yazpt_linux_distro_name == "endeavouros" ||
+			$yazpt_linux_distro_name == "kali" ]]
+	then
 		.yazpt_detect_font "Noto Color Emoji" || .yazpt_use_emoticons
 	fi
 }
@@ -73,19 +76,19 @@ function .yazpt_detect_linux_distro() {
 		local name version desc
 
 		eval "$(source /etc/lsb-release &> /dev/null && \
-						echo name=\"${DISTRIB_ID:l}\" && \
-						echo version=\"$DISTRIB_RELEASE\" && \
-						echo desc=\"$DISTRIB_DESCRIPTION\")"
-		[[ $version =~ "^[[:digit:].]+$" ]] || version=""
+				echo name=\"${DISTRIB_ID:l}\" && \
+				echo version=\"$DISTRIB_RELEASE\" && \
+				echo desc=\"$DISTRIB_DESCRIPTION\")"
 
 		if [[ -z $name || -z $version ]]; then
-			eval "$(source /etc/os-release &> /dev/null && echo name=\"${ID:l}\" && echo version=\"$VERSION_ID\")"
-			[[ $version =~ "^[[:digit:].]+$" ]] || version=""
+			eval "$(source /etc/os-release &> /dev/null && \
+					echo name=\"${ID:l}\" && \
+					echo version=\"${VERSION_ID:-$IMAGE_VERSION}\")"
 		fi
 
-		if [[ -z $name || -z $version ]]; then
+		if [[ -z $name ]]; then
 			yazpt_linux_distro_name="unknown"
-			yazpt_linux_distro_version="-1"
+			yazpt_linux_distro_version=""
 			return 1
 		fi
 
@@ -94,6 +97,7 @@ function .yazpt_detect_linux_distro() {
 			version="${desc/* /}"
 		fi
 
+		# Version might not be numeric (e.g. "rolling"), but if it is, allow one dot at most
 		while [[ $version == *.*.* ]]; do
 			version=${version%%.[[:digit:]]#}
 		done
