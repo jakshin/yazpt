@@ -29,7 +29,7 @@ sapphire preset | spearmint preset | yolo preset
 ## Features
 
 * **It's fast.**
-  It's faster than any prompt theme which relies on [vcs_info](https://github.com/zsh-users/zsh/tree/master/Functions/VCS_Info), and faster than nearly all prompt themes which don't use async approaches for obtaining and displaying VCS status. Prompt themes which populate the VCS parts of the prompt asynchronously can be faster, but I actually tend not to love them, as I personally find it a bit distracting when part of the prompt pops into existence a bit later than the rest.
+  It's faster than any prompt theme which relies on [vcs_info](https://github.com/zsh-users/zsh/tree/master/Functions/VCS_Info), and faster than nearly all prompt themes which don't use async approaches for obtaining and displaying VCS status.
 
   Yazpt also allows you to configure lists of path prefixes in which you expect to find Git repos, Subversion working copies, and/or Team Foundation Version Control local workspaces - if you've done so, then while working in any path which isn't in one or more of those lists, it skips checking for Git/Subversion/TFVC status, improving performance even further. If you don't happen to use one or more of the supported VCSs, you can also entirely disable yazpt's use of any of them.
 
@@ -95,18 +95,11 @@ Yazpt's code logic should work just about anywhere zsh 5.1+ itself does, and wit
 
 ### macOS
 
-My primary environment is macOS, and yazpt works without fuss on recent versions -- in Terminal.app, [iTerm](https://iterm2.com), and [Tabby](https://tabby.sh) -- with the system zsh, and either the system or [Homebrew](https://brew.sh) versions of git and svn. I use yazpt on these macOS versions regularly, or did at one time:
-
-* **macOS 11 Big Sur**,
-  with the preinstalled fixed width fonts, plus
-  [Bitstream Vera Sans Mono](https://www.gnome.org/fonts),
+Yazpt works hassle-free on all macOS versions since High Sierra, in Apple Terminal (with "Antialias text" turned on), [iTerm](https://iterm2.com), and [Tabby](https://tabby.sh). It works equally well on Apple's and [Homebrew's](https://brew.sh) versions of zsh, git and svn. It's rendered nicely in all of the preinstalled fixed width fonts, plus
+  [Bitstream Vera Sans Mono](https://dejavu-fonts.github.io),
   [Fira Code](https://github.com/tonsky/FiraCode),
   [Meslo](https://www.nerdfonts.com), and
-  [Source Code Pro](https://github.com/adobe-fonts/source-code-pro)
-  (all with Terminal.app's "Antialias text" setting turned on)
-* **macOS 10.15 Catalina**
-* **macOS 10.14.6 Mojave**
-* **macOS 10.13.6 High Sierra**
+  [Source Code Pro](https://github.com/adobe-fonts/source-code-pro).
 
 ### Windows
 
@@ -132,22 +125,29 @@ fi
 
 ### Linux
 
-Yazpt just works, without any special attention, in many popular distros:
+Yazpt works well, with little or no special attention, in many popular distros:
 
-* CentOS 8.3 and CentOS Stream 8, installed as a "server with GUI"
+* CentOS 8.3, CentOS Stream 8 and 9, installed as a "server with GUI"
 * Debian 10.9 and 11.x, installed with defaults ("Debian desktop environment")
-* Kali Linux 2021.1, 2021.3
+* Kali Linux 2021.1 and newer
 * KDE neon
 * Kubuntu 20.04 and newer
 * Linux Mint 20.1 and newer (Cinnamon, MATE or XFCE)
 * openSUSE Leap 15.3 and openSUSE Tumbleweed, running KDE Plasma 5
 * Pop!_OS 20.04 and newer
+* Solus Budgie 4.3
+* Solus GNOME 4.3
+* Solus MATE 4.3
+* Ubuntu Desktop 20.04 and newer
+* Ubuntu MATE 20.04 and newer
+* Zorin OS 16.1
 
-It also works well in lots of other distros, including [Ubuntu](tips-for-linux.md#ubuntu-desktop-2004-lts-focal-fossa-2104-hirsute-hippo-2110-impish-indri) and its variants, after making some minor tweaks to settings and/or installing a font or two. See the [tips for using yazpt on GNU/Linux](./tips-for-linux.md) for details.
+It also works well in lots of other distros, after making some minor tweaks to settings and/or installing a font or two.
+See the [tips for using yazpt on GNU/Linux](./tips-for-linux.md) for details.
 
 ### FreeBSD
 
-I don't use FreeBSD much, but just for kicks I tried yazpt out on a couple of its derivatives. A bit of tinkering is warranted; see the [tips for using yazpt on FreeBSD derivatives](./tips-for-freebsd.md) for details.
+I don't use FreeBSD much, but just for kicks I tried yazpt out on a few of its derivatives. It works well after making minor adjustments to settings and/or installing a font; see the [tips for using yazpt on FreeBSD derivatives](./tips-for-freebsd.md) for details.
 <p align="center">•</p>
 
 
