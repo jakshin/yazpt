@@ -26,7 +26,6 @@ In some other distros, everything _almost_ just works, but yazpt's Unicode chara
 * Ubuntu MATE 20.04 and newer
 
 In GNOME Terminal, just click `Terminal` in the menu bar > `Preferences` > `Unnamed` (or whatever your profile is named) > `Text` tab > check `Custom font`. In MATE Terminal, click the `Edit` menu > `Profile Preferences` > `General` tab > uncheck `Use the system fixed width font`.
-<p align="center">•</p>
 
 
 ## Troubleshooting
@@ -36,7 +35,6 @@ If yazpt's Unicode characters look awkward (e.g. some of the Unicode characters 
 If the yolo preset's emoji don't render properly, sometimes you can fix it by installing the Noto Color Emoji font. It's usually available via package manager, or you can [download it](https://github.com/googlefonts/noto-emoji/blob/main/fonts/NotoColorEmoji.ttf) and install it manually.
 
 If yazpt looks okay but has no colors, you probably need to adjust your `$TERM` environment variable. For example, if it's empty or `xterm`, change it to `xterm-256color`, or if it's `screen`, try `screen-256color`.
-<p align="center">•</p>
 
 
 ## XTerm
@@ -91,5 +89,3 @@ Konsole renders emoji as monochrome line drawings. You can upgrade to proper col
 ### Solus Plasma 4.3
 
 Konsole renders emoji as monochrome line drawings. You can upgrade to proper color emoji by [adjusting some font settings](./resources/99-noto-color-emoji.conf).
-
-<p align="center">•</p>
