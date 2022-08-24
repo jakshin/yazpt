@@ -1,0 +1,9 @@
+Improve yazpt's rendering on Fira Mono
+	maybe 🗵 or 🗷, and a space, instead of ⊠
+	should sapphire use 🗹?
+	። Ethiopic Full Stop 
+	𐇲 Phaistos Disc Sign Plane Tree ("dirty" flag would need to be second)
+	☓ Saltire 
+	🕱 Black Skull and Crossbones 
+	➧ Squat Black Rightwards Arrow 
+
