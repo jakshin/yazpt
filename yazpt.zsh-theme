@@ -545,7 +545,7 @@ function .yazpt_read_line() {
 function @yazpt_segment_blank() {
 	.yazpt_detect_terminal
 
-	if [[ $TERM == screen* || (
+	if (( $SECONDS < 10 )) || [[ $TERM == screen* || (
 		$yazpt_terminal != 'apple_terminal' &&
 		$yazpt_terminal != 'iterm.app' &&
 		$yazpt_terminal != 'tabby' &&
