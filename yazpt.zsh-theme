@@ -327,6 +327,9 @@ function .yazpt_detect_terminal() {
 		# Terminal emulators on macOS tend to set $TERM_PROGRAM (e.g. Apple_Terminal, iTerm.app, Tabby)
 		yazpt_terminal=${TERM_PROGRAM:l}
 		yazpt_terminal_info="n/a"
+	elif [[ $OSTYPE == "darwin"* && -n $TERMKIT_HOST_APP ]]; then
+		yazpt_terminal="termkit"  # e.g. Path Finder
+		yazpt_terminal_info="n/a"
 	else
 		if [[ -t 0 ]]; then
 			stty -echo
@@ -391,7 +394,7 @@ function .yazpt_detect_terminal() {
 				yazpt_terminal="mobaxterm"
 			fi
 
-		elif [[ $#info == 1 && $info[1] == "?6" ]]; then
+		elif [[ $#info == 1 && $info[1] == "?6" && $OSTYPE == "haiku" ]]; then
 			yazpt_terminal="haiku-terminal"
 
 		elif (( $#info == 0 )); then
