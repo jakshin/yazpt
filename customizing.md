@@ -22,7 +22,7 @@ Or, if you're using zsh's prompt theme system, you can instead run `prompt yazpt
 
 ## Set YAZPT_* environment variables
 
-The next step in customization is to set yazpt's environment variables directly. Every option yazpt understands can be controlled by an environment variable whose name begins with `YAZPT_` (presets are just groups of statements that set a few environment variables at the same time).
+The next step up in customization is to set yazpt's environment variables directly. Every option yazpt understands can be controlled by an environment variable whose name begins with `YAZPT_` (presets are just groups of statements that set a few environment variables at the same time).
 
 All of the environment variables are documented in [yazpt's default preset](./presets/default-preset.zsh), which is automatically loaded with yazpt, so the values in that file serve as defaults. You can override those values to anything you'd like, changing the characters and colors yazpt uses, hiding certain VCS statuses, etc.
 
@@ -33,7 +33,7 @@ You also need to use environment variables to customize yazpt's _behavior_ (as o
 
 `YAZPT_LAYOUT` and `YAZPT_RLAYOUT` are the most interesting variables to play with. You can put anything into them that [zsh's prompt expansion](http://zsh.sourceforge.net/Doc/Release/Prompt-Expansion.html) can handle, plus:
 
-* Any segment supported by Yazpt: `<char>`, `<cwd>`, `<exectime>`, `<exit>`, `<git>`, `<svn>`, or `<tfvc>`
+* Any segment supported by Yazpt: `<blank>`, `<char>`, `<cwd>`, `<exectime>`, `<exit>`, `<git>`, `<svn>`, or `<tfvc>`
   (or `<vcs>` to handle Git/Subversion/TFVC automatically, as configured in `YAZPT_VCS_ORDER`)
 
 * One or more "separators", which are sort of like segments, but look like `<?text>` (with the question mark
