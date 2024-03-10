@@ -546,8 +546,13 @@ function .yazpt_read_line() {
 # but also for the prompt to be at the very top of a blank screen.
 #
 function @yazpt_segment_blank() {
-	.yazpt_detect_terminal
+	if [[ $+yazpt_read_cursor_pos_failed == 1 ]]; then
+		# We failed trying to read the cursor position, so give up on that
+		yazpt_state[blank]=$'\n'
+		return
+	fi
 
+	.yazpt_detect_terminal
 	if (( $SECONDS < 10 )) || [[ $TERM == screen* || (
 		$yazpt_terminal != 'apple_terminal' &&
 		$yazpt_terminal != 'iterm.app' &&
@@ -572,7 +577,9 @@ function @yazpt_segment_blank() {
 
 	local esc row column
 	echo -en '\e[6n' > /dev/tty
-	IFS='[;' read -st 0.1 -d R esc row column
+	if ! IFS='[;' read -st 5.0 -d R esc row column; then
+		export yazpt_read_cursor_pos_failed=true
+	fi
 
 	if [[ $row != 1 ]]; then
 		yazpt_state[blank]=$'\n'
